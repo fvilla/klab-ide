@@ -8,7 +8,7 @@
 
 <BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.integratedmodelling.klab.ide.KlabIDEController">
    <left>
-      <BorderPane prefHeight="724.0" prefWidth="340.0" style="-fx-background-color: -color-neutral-muted;" BorderPane.alignment="CENTER">
+      <BorderPane prefHeight="724.0" prefWidth="310.0" style="-fx-background-color: -color-neutral-muted;" BorderPane.alignment="CENTER">
          <bottom>
             <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER">
                <children>
@@ -21,9 +21,12 @@
          <top>
             <HBox minHeight="-Infinity" BorderPane.alignment="CENTER">
                <children>
-                  <HBox alignment="CENTER" fillHeight="false" prefHeight="62.0" prefWidth="256.0">
-                     <children>
-                        <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                  <BorderPane>
+                     <HBox.margin>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </HBox.margin>
+                     <left>
+                        <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
                            <image>
                               <Image url="@icons/klab-elephant.png" />
                            </image>
@@ -31,25 +34,31 @@
                               <Rectangle2D />
                            </viewport>
                         </ImageView>
-                        <Label prefHeight="35.0" prefWidth="133.0" text="k.Modeler">
+                     </left>
+                     <right>
+                        <HBox alignment="CENTER" fillHeight="false" BorderPane.alignment="CENTER_RIGHT">
+                           <padding>
+                              <Insets right="12.0" />
+                           </padding>
+                        </HBox>
+                     </right>
+                     <center>
+                        <Label minWidth="-Infinity" prefHeight="35.0" prefWidth="127.0" text="k.Modeler" BorderPane.alignment="CENTER">
                            <font>
                               <Font size="24.0" />
                            </font>
+                           <BorderPane.margin>
+                              <Insets left="10.0" />
+                           </BorderPane.margin>
                         </Label>
-                     </children>
-                     <HBox.margin>
-                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                     </HBox.margin>
-                     <padding>
-                        <Insets right="12.0" />
-                     </padding>
-                  </HBox>
+                     </center>
+                  </BorderPane>
                   <HBox prefHeight="70.0" prefWidth="161.0" />
                </children>
             </HBox>
          </top>
          <center>
-            <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+            <ScrollPane prefHeight="629.0" prefWidth="325.0" BorderPane.alignment="CENTER" />
          </center>
       </BorderPane>
    </left>
