@@ -1,5 +1,4 @@
 module org.integratedmodelling.klab.ide {
-    requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
 
@@ -10,6 +9,10 @@ module org.integratedmodelling.klab.ide {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires klab.core.api;
+    requires klab.modeler;
+    requires jakarta.annotation;
+    requires atlantafx.base;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     exports org.integratedmodelling.klab.ide;

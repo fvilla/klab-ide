@@ -1,16 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.integratedmodelling.klab.ide.KlabIDEController">
-    <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-    </padding>
-
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="980.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.integratedmodelling.klab.ide.KlabIDEController">
+   <left>
+      <BorderPane prefHeight="724.0" prefWidth="340.0" style="-fx-background-color: -color-neutral-muted;" BorderPane.alignment="CENTER">
+         <bottom>
+            <HBox alignment="BOTTOM_LEFT" BorderPane.alignment="CENTER">
+               <children>
+               
+                   <Label fx:id="welcomeText" />
+                   <Button onAction="#onHelloButtonClick" text="Shutdown" />
+               </children>
+            </HBox>
+         </bottom>
+         <top>
+            <HBox minHeight="-Infinity" BorderPane.alignment="CENTER">
+               <children>
+                  <HBox alignment="CENTER" fillHeight="false" prefHeight="62.0" prefWidth="256.0">
+                     <children>
+                        <ImageView fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/klab-elephant.png" />
+                           </image>
+                           <viewport>
+                              <Rectangle2D />
+                           </viewport>
+                        </ImageView>
+                        <Label prefHeight="35.0" prefWidth="133.0" text="k.Modeler">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <HBox.margin>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                     </HBox.margin>
+                     <padding>
+                        <Insets right="12.0" />
+                     </padding>
+                  </HBox>
+                  <HBox prefHeight="70.0" prefWidth="161.0" />
+               </children>
+            </HBox>
+         </top>
+         <center>
+            <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+         </center>
+      </BorderPane>
+   </left>
+</BorderPane>
