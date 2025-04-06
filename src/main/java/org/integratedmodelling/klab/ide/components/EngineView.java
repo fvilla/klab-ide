@@ -61,7 +61,7 @@ public class EngineView extends BorderPane
     this.authenticationController.registerView(this);
     this.distributionController.registerView(this);
 
-    distributionButton.setOnMouseClicked(
+    powerButton.setOnMouseClicked(
         mouseEvent -> {
           Thread.ofPlatform()
               .start(
@@ -70,18 +70,16 @@ public class EngineView extends BorderPane
                     System.exit(0);
                   });
         });
-    powerButton.setOnMouseClicked(
-        mouseEvent -> {
-          Thread.ofPlatform()
-              .start(
-                  () -> {
-                    KlabIDEController.modeler().boot();
-                    //                    Platform.exit();
-                  });
-        });
-    profileButton.setOnMouseClicked(mouseEvent -> {});
 
+    distributionButton.setOnMouseClicked(mouseEvent -> {});
+    profileButton.setOnMouseClicked(mouseEvent -> {});
     settingsButton.setOnMouseClicked(mouseEvent -> {});
+
+    Thread.ofPlatform()
+        .start(
+            () -> {
+              KlabIDEController.modeler().boot();
+            });
   }
 
   @FXML
@@ -89,12 +87,12 @@ public class EngineView extends BorderPane
 
   @Override
   public void servicesConfigurationChanged(KlabService.ServiceCapabilities service) {
-//    System.out.println("PUTAZZA CONFIG");
+    //    System.out.println("PUTAZZA CONFIG");
   }
 
   @Override
   public void notifyServiceStatus(KlabService.ServiceStatus status) {
-//    System.out.println("ZOBO " + status);
+    //    System.out.println("ZOBO " + status);
   }
 
   @Override
@@ -126,6 +124,6 @@ public class EngineView extends BorderPane
 
   @Override
   public void notifyUser(UserIdentity identity) {
-//    System.out.println("USER DIOPORCO");
+    //    System.out.println("USER DIOPORCO");
   }
 }

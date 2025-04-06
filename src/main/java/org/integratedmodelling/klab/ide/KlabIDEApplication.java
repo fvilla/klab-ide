@@ -20,8 +20,8 @@ public class KlabIDEApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-//        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+//        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
 
         FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1280, 960);

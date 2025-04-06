@@ -15,7 +15,7 @@
 
 <fx:root style="-fx-background-color: -color-neutral-subtle;" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <top>
-        <HBox minHeight="-Infinity" BorderPane.alignment="CENTER">
+        <HBox minHeight="-Infinity" style="-fx-background-color: -color-neutral-muted;" BorderPane.alignment="CENTER">
             <children>
                 <BorderPane>
                     <HBox.margin>
@@ -69,17 +69,48 @@
                      </cursor></FontIcon>
                     </children>
                <HBox.margin>
-                  <Insets left="8.0" />
+                  <Insets />
                </HBox.margin>
+               <padding>
+                  <Insets right="8.0" />
+               </padding>
                 </HBox>
             </children>
          <BorderPane.margin>
-            <Insets right="8.0" />
+            <Insets />
          </BorderPane.margin>
         </HBox>
     </top>
     <bottom>
-        <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+        <HBox prefHeight="32.0" prefWidth="389.0" style="-fx-background-color: -color-neutral-muted;" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="4.0">
+               <children>
+                  <FontIcon iconLiteral="mdal-account_tree" iconSize="16" />
+                  <FontIcon iconLiteral="mdal-account_tree" iconSize="16" />
+                  <FontIcon iconLiteral="mdal-account_tree" iconSize="16" />
+                  <FontIcon iconLiteral="mdal-account_tree" iconSize="16" />
+               </children>
+               <HBox.margin>
+                  <Insets right="8.0" />
+               </HBox.margin>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="4.0">
+               <children>
+                  <FontIcon iconLiteral="mdal-info" iconSize="16" />
+                  <FontIcon iconLiteral="mdal-laptop" iconSize="16" />
+               </children>
+               <HBox.margin>
+                  <Insets left="8.0" />
+               </HBox.margin>
+            </HBox>
+         </children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets left="8.0" right="8.0" />
+         </padding></HBox>
     </bottom>
     <center>
         <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
