@@ -15,5 +15,8 @@ module org.integratedmodelling.klab.ide {
     requires atlantafx.base;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
+    opens org.integratedmodelling.klab.ide.components to javafx.fxml;
+
     exports org.integratedmodelling.klab.ide;
+    exports org.integratedmodelling.klab.ide.components;
 }

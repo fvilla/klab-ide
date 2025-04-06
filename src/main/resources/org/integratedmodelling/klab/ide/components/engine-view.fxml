@@ -1,14 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.integratedmodelling.klab.ide.components.EngineView"
-            prefHeight="400.0" prefWidth="600.0">
-
-</AnchorPane>
+<fx:root style="-fx-background-color: -color-neutral-subtle;" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <HBox minHeight="-Infinity" BorderPane.alignment="CENTER">
+            <children>
+                <BorderPane>
+                    <HBox.margin>
+                        <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
+                    </HBox.margin>
+                    <left>
+                        <ImageView fitHeight="54.0" fitWidth="54.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                            <image>
+                                <Image url="@../icons/klab-elephant.png" />
+                            </image>
+                            <viewport>
+                                <Rectangle2D />
+                            </viewport>
+                        </ImageView>
+                    </left>
+                    <right>
+                        <HBox alignment="CENTER" fillHeight="false" BorderPane.alignment="CENTER_RIGHT">
+                            <padding>
+                                <Insets right="12.0" />
+                            </padding>
+                        </HBox>
+                    </right>
+                    <center>
+                        <Label minWidth="-Infinity" prefHeight="35.0" prefWidth="127.0" text="k.Modeler" BorderPane.alignment="CENTER">
+                            <font>
+                                <Font size="24.0" />
+                            </font>
+                            <BorderPane.margin>
+                                <Insets left="10.0" />
+                            </BorderPane.margin>
+                        </Label>
+                    </center>
+                </BorderPane>
+                <HBox alignment="CENTER" prefHeight="70.0" prefWidth="161.0" spacing="3.0">
+                    <children>
+                        <FontIcon fx:id="distributionButton" iconLiteral="mdal-done" iconSize="24">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></FontIcon>
+                        <FontIcon fx:id="powerButton" iconLiteral="mdmz-power_settings_new" iconSize="24">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></FontIcon>
+                        <FontIcon fx:id="profileButton" iconLiteral="mdmz-person" iconSize="24">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></FontIcon>
+                        <FontIcon fx:id="settingsButton" iconLiteral="mdal-build" iconSize="22">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor></FontIcon>
+                    </children>
+               <HBox.margin>
+                  <Insets left="8.0" />
+               </HBox.margin>
+                </HBox>
+            </children>
+         <BorderPane.margin>
+            <Insets right="8.0" />
+         </BorderPane.margin>
+        </HBox>
+    </top>
+    <bottom>
+        <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+    </bottom>
+    <center>
+        <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <content>
+                <VBox prefHeight="200.0" prefWidth="100.0" />
+            </content>
+        </ScrollPane>
+    </center>
+</fx:root>

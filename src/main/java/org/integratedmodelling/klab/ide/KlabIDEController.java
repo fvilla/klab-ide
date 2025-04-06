@@ -17,7 +17,7 @@ public class KlabIDEController implements UI {
 
   private static Modeler modeler;
 
-  @FXML private Label welcomeText;
+//  @FXML private Label welcomeText;
 
   public KlabIDEController() {
     createModeler();
@@ -29,19 +29,20 @@ public class KlabIDEController implements UI {
 
   private void createModeler() {
     modeler = new ModelerImpl(this);
-    Thread.ofPlatform().start(() -> modeler.boot());
   }
 
-  @FXML
+//  @FXML
   protected void onHelloButtonClick() {
-    welcomeText.setText("Shutting down...");
+//    welcomeText.setText("Shutting down...");
     Thread.ofPlatform()
         .start(
             () -> {
               modeler().shutdown(true);
-              System.exit(0);
+//              Platform.exit();
             });
   }
+
+
 
   @Override
   public void alert(Notification notification) {
@@ -55,7 +56,7 @@ public class KlabIDEController implements UI {
     ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
     alert.getButtonTypes().setAll(yesBtn, noBtn, cancelBtn);
-    alert.initOwner(welcomeText.getScene().getWindow());
+//    alert.initOwner(welcomeText.getScene().getWindow());
     alert.show();
   }
 
