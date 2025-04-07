@@ -17,21 +17,19 @@ import org.integratedmodelling.klab.modeler.ModelerImpl;
 
 public class KlabIDEApplication extends Application {
 
-    @Override
-    public void start(Stage stage) throws IOException {
+  @Override
+  public void start(Stage stage) throws IOException {
 
-//        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+    Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
 
-        FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1280, 960);
-        stage.setTitle("k.LAB Modeler -- v1.0 alpha");
-        stage.setScene(scene);
-        stage.show();
-    }
+    FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
+    Scene scene = new Scene(fxmlLoader.load(), 1280, 960);
+    stage.setTitle("k.LAB Modeler -- v1.0 alpha");
+    stage.setScene(scene);
+    stage.show();
+  }
 
-    public static void main(String[] args) {
-        launch();
-    }
-
+  public static void main(String[] args) {
+    launch();
+  }
 }
