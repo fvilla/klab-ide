@@ -1,6 +1,7 @@
 package org.integratedmodelling.klab.ide;
 
 import java.io.IOException;
+import java.util.Base64;
 
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
@@ -15,6 +16,8 @@ import org.integratedmodelling.klab.api.view.UI;
 import org.integratedmodelling.klab.api.view.modeler.Modeler;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class KlabIDEApplication extends Application {
 
   @Override
@@ -25,6 +28,14 @@ public class KlabIDEApplication extends Application {
     FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
     Scene scene = new Scene(fxmlLoader.load(), 1280, 960);
     stage.setTitle("k.LAB Modeler -- v1.0 alpha");
+    String cssString = String.format(".ikonli-font-icon {-fx-icon-size: %d;}", 24);
+    scene.getRoot().getStylesheets().removeIf(uri -> uri.startsWith("data:text/css"));
+    scene
+        .getRoot()
+        .getStylesheets()
+        .add(
+            "data:text/css;base64,"
+                + Base64.getEncoder().encodeToString(cssString.toString().getBytes(UTF_8)));
     stage.setScene(scene);
     stage.show();
   }
