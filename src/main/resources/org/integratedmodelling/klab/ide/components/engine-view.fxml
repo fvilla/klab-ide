@@ -15,14 +15,14 @@
 
 <fx:root style="-fx-background-color: -color-neutral-subtle;" type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <top>
-        <HBox minHeight="-Infinity" style="-fx-background-color: -color-neutral-muted;" BorderPane.alignment="CENTER">
+        <HBox minHeight="-Infinity" BorderPane.alignment="CENTER">
             <children>
                 <BorderPane>
                     <HBox.margin>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
                     </HBox.margin>
                     <left>
-                        <ImageView fitHeight="54.0" fitWidth="54.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                        <ImageView fitHeight="42.0" fitWidth="42.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
                             <image>
                                 <Image url="@../icons/klab-elephant.png" />
                             </image>
@@ -39,31 +39,31 @@
                         </HBox>
                     </right>
                     <center>
-                        <Label minWidth="-Infinity" prefHeight="35.0" prefWidth="127.0" text="k.Modeler" BorderPane.alignment="CENTER">
+                        <Label minWidth="-Infinity" prefHeight="35.0" prefWidth="127.0" BorderPane.alignment="CENTER">
                             <font>
                                 <Font size="24.0" />
                             </font>
                             <BorderPane.margin>
-                                <Insets left="10.0" />
+                                <Insets left="18.0" />
                             </BorderPane.margin>
                         </Label>
                     </center>
                 </BorderPane>
                 <HBox alignment="CENTER" prefHeight="70.0" prefWidth="161.0" spacing="3.0">
                     <children>
-                        <FontIcon fx:id="distributionButton" iconLiteral="mdal-done" iconSize="24">
+                        <FontIcon fx:id="distributionButton" iconLiteral="mdal-done" iconSize="64">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></FontIcon>
-                        <FontIcon fx:id="powerButton" iconLiteral="mdmz-power_settings_new" iconSize="24">
+                        <FontIcon fx:id="powerButton" iconLiteral="mdmz-power_settings_new" iconSize="64">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></FontIcon>
-                        <FontIcon fx:id="profileButton" iconLiteral="mdmz-person" iconSize="24">
+                        <FontIcon fx:id="profileButton" iconLiteral="mdmz-person" iconSize="64">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></FontIcon>
-                        <FontIcon fx:id="settingsButton" iconLiteral="mdal-build" iconSize="22">
+                        <FontIcon fx:id="settingsButton" iconLiteral="mdal-build" iconSize="64" accessibleHelp="Dio can">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor></FontIcon>
