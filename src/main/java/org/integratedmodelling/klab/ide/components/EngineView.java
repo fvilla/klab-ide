@@ -1,12 +1,8 @@
 package org.integratedmodelling.klab.ide.components;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resources;
-import javafx.application.Platform;
+import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.identities.UserIdentity;
@@ -19,10 +15,6 @@ import org.integratedmodelling.klab.api.view.modeler.views.controllers.Authentic
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.kordamp.ikonli.javafx.FontIcon;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 
 /** The basic controls to start, stop and monitor the engine and services. */
 public class EngineView extends BorderPane
