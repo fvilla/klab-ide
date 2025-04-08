@@ -154,7 +154,7 @@
                                           strokeWidth="0.0"/>
                             </graphic>
                             <tooltip>
-                                <Tooltip text="Open the Inspector" showDelay="200ms"/>
+                                <Tooltip text="Open the Knowledge Inspector" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="profileButton" styleClass="flat, button-circle">
@@ -167,12 +167,12 @@
                                 </FontIcon>
                             </graphic>
                             <tooltip>
-                                <Tooltip text="Open your User Profile" showDelay="200ms"/>
+                                <Tooltip text="User Profile" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                     </children>
                     <padding>
-                        <Insets bottom="8.0"/>
+                        <Insets bottom="16.0"/>
                     </padding>
                 </VBox>
             </bottom>

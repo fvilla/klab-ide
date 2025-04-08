@@ -4,21 +4,26 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<fx:root type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/17.0.12"
-         xmlns:fx="http://javafx.com/fxml/1">
+<fx:root type="javafx.scene.layout.BorderPane" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1">
     <bottom>
-        <TextField id="inputBox" BorderPane.alignment="CENTER" styleClass="rounded"
-                   promptText="Enter a command; 'help' for assistance">
+        <TextField id="inputBox" promptText="Enter a command; 'help' for assistance" styleClass="rounded" BorderPane.alignment="CENTER">
             <BorderPane.margin>
-                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0"/>
+                <Insets bottom="16.0" left="20.0" right="20.0" top="10.0" />
             </BorderPane.margin>
         </TextField>
     </bottom>
     <center>
-        <ScrollPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-            <content>
-                <VBox fx:id="notebook"/>
-            </content>
-        </ScrollPane>
+      <BorderPane BorderPane.alignment="CENTER">
+         <center>
+              <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                  <content>
+                      <VBox fx:id="notebook" />
+                  </content>
+              </ScrollPane>
+         </center>
+         <right>
+            <TreeView prefWidth="201.0" BorderPane.alignment="CENTER" />
+         </right>
+      </BorderPane>
     </center>
 </fx:root>

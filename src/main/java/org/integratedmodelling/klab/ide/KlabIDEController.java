@@ -1,27 +1,25 @@
 package org.integratedmodelling.klab.ide;
 
-import atlantafx.base.theme.Styles;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
-import javafx.stage.PopupWindow;
+import org.integratedmodelling.common.authentication.Authentication;
 import org.integratedmodelling.common.utils.Utils;
 import org.integratedmodelling.klab.api.engine.Engine;
+import org.integratedmodelling.klab.api.engine.distribution.Distribution;
 import org.integratedmodelling.klab.api.identities.UserIdentity;
 import org.integratedmodelling.klab.api.services.KlabService;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
 import org.integratedmodelling.klab.api.services.runtime.Notification;
 import org.integratedmodelling.klab.api.view.UI;
 import org.integratedmodelling.klab.api.view.modeler.Modeler;
-import org.integratedmodelling.klab.api.view.modeler.panels.controllers.DistributionViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.AuthenticationView;
 import org.integratedmodelling.klab.api.view.modeler.views.DistributionView;
 import org.integratedmodelling.klab.api.view.modeler.views.ServicesView;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.AuthenticationViewController;
+import org.integratedmodelling.klab.api.view.modeler.views.controllers.DistributionViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 /** The main UI. Should probably include an Engine view. */
 public class KlabIDEController implements UI, ServicesView, AuthenticationView, DistributionView {
@@ -51,6 +49,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   ServicesViewController servicesController;
   AuthenticationViewController authenticationController;
   DistributionViewController distributionController;
+  private Distribution distribution;
 
   public KlabIDEController() {
     createModeler();
@@ -99,21 +98,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   @FXML
   protected void initialize() {
 
-    homeButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    workspacesButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    digitalTwinsButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    helpButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    rightButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    leftButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    downloadButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    startButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    reasonerButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    resourcesButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    resolverButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    runtimeButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    settingsButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    inspectorButton.getStyleClass().addAll(Styles.BUTTON_ICON);
-    profileButton.getStyleClass().addAll(Styles.BUTTON_ICON);
+//    this.distribution = Authentication.INSTANCE.getDistribution();
 
     this.servicesController =
         KlabIDEController.modeler().viewController(ServicesViewController.class);
@@ -140,8 +125,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     profileButton.setOnMouseClicked(mouseEvent -> {});
     settingsButton.setOnMouseClicked(mouseEvent -> {});
 
-
-
+    // TODO this shouldn't start by itself
     Thread.ofPlatform()
         .start(
             () -> {
@@ -161,11 +145,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
 
   @Override
   public void engineStatusChanged(Engine.Status status) {
-    System.out.println(
-        "ZUBO "
-            + (status.isAvailable()
-                ? "AVAILABLE"
-                : ("INCULENTO\n" + Utils.Json.printAsJson(status))));
+    System.out.println("ZUBO " + (status.isAvailable() ? "AVAILABLE" : "INCULENTO"));
   }
 
   @Override
@@ -191,7 +171,10 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   }
 
   @Override
-  public void notifyUser(UserIdentity identity) {
-    //    System.out.println("USER DIOPORCO");
+  public void notifyUser(UserIdentity identity) {}
+
+  @Override
+  public void notifyDistribution(Distribution distribution) {
+    System.out.println("PORCO DIO LA DISTRIBUZIONE");
   }
 }

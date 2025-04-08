@@ -23,11 +23,13 @@ public class KlabIDEApplication extends Application {
   @Override
   public void start(Stage stage) throws IOException {
 
+    // TODO choose the last theme choice
     Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+//    Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
 
     FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
     Scene scene = new Scene(fxmlLoader.load(), 1280, 960);
-    stage.setTitle("k.LAB Modeler -- v1.0 alpha");
+    stage.setTitle("k.LAB Modeler :: v1.0 alpha :: © 2025 Integrated Modelling Partnership");
     stage.setOnCloseRequest(
         event -> {
           /* TODO save status, ask to stop engine etc. */
