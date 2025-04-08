@@ -28,7 +28,14 @@ public class KlabIDEApplication extends Application {
     FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
     Scene scene = new Scene(fxmlLoader.load(), 1280, 960);
     stage.setTitle("k.LAB Modeler -- v1.0 alpha");
-    String cssString = String.format(".ikonli-font-icon {-fx-icon-size: %d;}", 24);
+    stage.setOnCloseRequest(
+        event -> {
+          /* TODO save status, ask to stop engine etc. */
+        });
+    String cssString =
+        String.format(
+            ".ikonli-font-icon {-fx-icon-size: %d;}",
+            24); // TODO use a size based on screen resolution
     scene.getRoot().getStylesheets().removeIf(uri -> uri.startsWith("data:text/css"));
     scene
         .getRoot()

@@ -4,7 +4,9 @@ import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import javafx.stage.PopupWindow;
+import org.integratedmodelling.common.utils.Utils;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.identities.UserIdentity;
 import org.integratedmodelling.klab.api.services.KlabService;
@@ -26,21 +28,25 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
 
   private static Modeler modeler;
 
-  @FXML FontIcon homeButton;
-  @FXML FontIcon workspacesButton;
-  @FXML FontIcon digitalTwinsButton;
-  @FXML FontIcon helpButton;
-  @FXML FontIcon rightButton;
-  @FXML FontIcon leftButton;
-  @FXML FontIcon downloadButton;
-  @FXML FontIcon startButton;
-  @FXML FontIcon reasonerButton;
-  @FXML FontIcon resourcesButton;
-  @FXML FontIcon resolverButton;
-  @FXML FontIcon runtimeButton;
-  @FXML FontIcon settingsButton;
-  @FXML FontIcon inspectorButton;
-  @FXML FontIcon profileButton;
+  @FXML Button homeButton;
+  @FXML Button workspacesButton;
+  @FXML Button digitalTwinsButton;
+  @FXML Button helpButton;
+  @FXML Button rightButton;
+  @FXML Button leftButton;
+  @FXML Button downloadButton;
+  @FXML Button startButton;
+  @FXML Button reasonerButton;
+  @FXML Button resourcesButton;
+  @FXML Button resolverButton;
+  @FXML Button runtimeButton;
+  @FXML Button settingsButton;
+  @FXML Button inspectorButton;
+  @FXML Button profileButton;
+
+  @FXML Pane mainArea;
+  @FXML Pane inspectorArea;
+  @FXML Pane browsingArea;
 
   ServicesViewController servicesController;
   AuthenticationViewController authenticationController;
@@ -70,7 +76,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
     alert.getButtonTypes().setAll(yesBtn, noBtn, cancelBtn);
-//    alert.initOwner(welcomeText.getScene().getWindow());
+    //    alert.initOwner(welcomeText.getScene().getWindow());
     alert.show();
   }
 
@@ -110,36 +116,39 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     profileButton.getStyleClass().addAll(Styles.BUTTON_ICON);
 
     this.servicesController =
-            KlabIDEController.modeler().viewController(ServicesViewController.class);
+        KlabIDEController.modeler().viewController(ServicesViewController.class);
     this.authenticationController =
-            KlabIDEController.modeler().viewController(AuthenticationViewController.class);
+        KlabIDEController.modeler().viewController(AuthenticationViewController.class);
     this.distributionController =
-            KlabIDEController.modeler().viewController(DistributionViewController.class);
+        KlabIDEController.modeler().viewController(DistributionViewController.class);
 
     this.servicesController.registerView(this);
     this.authenticationController.registerView(this);
     this.distributionController.registerView(this);
 
     startButton.setOnMouseClicked(
-            mouseEvent -> {
-              Thread.ofPlatform()
-                    .start(
-                            () -> {
-                              KlabIDEController.modeler().shutdown(true);
-                              System.exit(0);
-                            });
-            });
+        mouseEvent -> {
+          Thread.ofPlatform()
+              .start(
+                  () -> {
+                    KlabIDEController.modeler().shutdown(true);
+                    System.exit(0);
+                  });
+        });
 
     downloadButton.setOnMouseClicked(mouseEvent -> {});
     profileButton.setOnMouseClicked(mouseEvent -> {});
     settingsButton.setOnMouseClicked(mouseEvent -> {});
 
+
+
     Thread.ofPlatform()
-          .start(
-                  () -> {
-                    KlabIDEController.modeler().boot();
-                  });
+        .start(
+            () -> {
+              KlabIDEController.modeler().boot();
+            });
   }
+
   @Override
   public void servicesConfigurationChanged(KlabService.ServiceCapabilities service) {
     //    System.out.println("PUTAZZA CONFIG");
@@ -152,7 +161,11 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
 
   @Override
   public void engineStatusChanged(Engine.Status status) {
-    System.out.println("ZUBO " + (status.isAvailable() ? "AVAILABLE" : "INCULENTO"));
+    System.out.println(
+        "ZUBO "
+            + (status.isAvailable()
+                ? "AVAILABLE"
+                : ("INCULENTO\n" + Utils.Json.printAsJson(status))));
   }
 
   @Override

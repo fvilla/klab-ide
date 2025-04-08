@@ -56,6 +56,7 @@
             <artifactId>controlsfx</artifactId>
             <version>11.2.1</version>
         </dependency>
+<!--
         <dependency>
             <groupId>com.dlsc.formsfx</groupId>
             <artifactId>formsfx-core</artifactId>
@@ -78,6 +79,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+-->
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
@@ -103,6 +105,7 @@
             <artifactId>ikonli-weathericons-pack</artifactId>
             <version>12.3.1</version>
         </dependency>
+<!--
         <dependency>
             <groupId>eu.hansolo</groupId>
             <artifactId>tilesfx</artifactId>
@@ -125,6 +128,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>

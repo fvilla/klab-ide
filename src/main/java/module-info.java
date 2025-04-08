@@ -12,6 +12,7 @@ module org.integratedmodelling.klab.ide {
     requires klab.modeler;
     requires jakarta.annotation;
     requires atlantafx.base;
+    requires klab.core.common;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;
