@@ -7,6 +7,7 @@ import org.integratedmodelling.common.authentication.Authentication;
 import org.integratedmodelling.common.utils.Utils;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.engine.distribution.Distribution;
+import org.integratedmodelling.klab.api.engine.distribution.Settings;
 import org.integratedmodelling.klab.api.identities.UserIdentity;
 import org.integratedmodelling.klab.api.services.KlabService;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
@@ -19,6 +20,7 @@ import org.integratedmodelling.klab.api.view.modeler.views.ServicesView;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.AuthenticationViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.DistributionViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
+import org.integratedmodelling.klab.ide.settings.IDESettings;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
 
 /** The main UI. Should probably include an Engine view. */
@@ -46,10 +48,11 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   @FXML Pane inspectorArea;
   @FXML Pane browsingArea;
 
-  ServicesViewController servicesController;
-  AuthenticationViewController authenticationController;
-  DistributionViewController distributionController;
+  private ServicesViewController servicesController;
+  private AuthenticationViewController authenticationController;
+  private DistributionViewController distributionController;
   private Distribution distribution;
+  private IDESettings settings;
 
   public KlabIDEController() {
     createModeler();
@@ -98,7 +101,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   @FXML
   protected void initialize() {
 
-//    this.distribution = Authentication.INSTANCE.getDistribution();
+    this.settings = new IDESettings();
 
     this.servicesController =
         KlabIDEController.modeler().viewController(ServicesViewController.class);
@@ -176,5 +179,11 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   @Override
   public void notifyDistribution(Distribution distribution) {
     System.out.println("PORCO DIO LA DISTRIBUZIONE");
+    // TODO set it, enable the ON button, print the distribution panel with the current start option, and if
+    //  that is true start the engines
+  }
+
+  void setTo(String color, String tooltip) {
+//    digitalTwinsButton.getChildrenUnmodifiable().getFirst().getStyleClass().
   }
 }

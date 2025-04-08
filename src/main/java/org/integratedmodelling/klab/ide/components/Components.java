@@ -16,7 +16,7 @@ public class Components {
     ServiceInfo,
     Help,
     About,
-    Settings,
+    Settings
   }
 
   private static class AbstractComponent {
