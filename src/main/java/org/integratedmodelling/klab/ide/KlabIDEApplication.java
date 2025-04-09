@@ -23,9 +23,10 @@ public class KlabIDEApplication extends Application {
   @Override
   public void start(Stage stage) throws IOException {
 
-    // TODO choose the last theme choice
-//    Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-    Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+    /*
+     * TODO choose theme from settings and expose it to components
+     */
+    Application.setUserAgentStylesheet(Theme.LIGHT_DEFAULT.getStylesheet());
 
     FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
     Scene scene = new Scene(fxmlLoader.load(), 1280, 960);

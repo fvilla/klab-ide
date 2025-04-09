@@ -1,13 +1,16 @@
 package org.integratedmodelling.klab.ide;
 
+import atlantafx.base.theme.Styles;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import org.integratedmodelling.common.authentication.Authentication;
-import org.integratedmodelling.common.utils.Utils;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.engine.distribution.Distribution;
-import org.integratedmodelling.klab.api.engine.distribution.Settings;
+import org.integratedmodelling.klab.api.engine.distribution.Product;
 import org.integratedmodelling.klab.api.identities.UserIdentity;
 import org.integratedmodelling.klab.api.services.KlabService;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
@@ -20,8 +23,17 @@ import org.integratedmodelling.klab.api.view.modeler.views.ServicesView;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.AuthenticationViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.DistributionViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
+import org.integratedmodelling.klab.ide.components.IconLabel;
 import org.integratedmodelling.klab.ide.settings.IDESettings;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeRegular;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2AL;
+import org.kordamp.ikonli.material2.Material2MZ;
+import org.kordamp.ikonli.weathericons.WeatherIcons;
 
 /** The main UI. Should probably include an Engine view. */
 public class KlabIDEController implements UI, ServicesView, AuthenticationView, DistributionView {
@@ -43,6 +55,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   @FXML Button settingsButton;
   @FXML Button inspectorButton;
   @FXML Button profileButton;
+  @FXML Button resourcesManagerButton;
 
   @FXML Pane mainArea;
   @FXML Pane inspectorArea;
@@ -114,6 +127,24 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     this.authenticationController.registerView(this);
     this.distributionController.registerView(this);
 
+    // painful and should not be necessary
+    // TODO sync with theme from application
+    homeButton.setGraphic(
+        new IconLabel(FontAwesomeSolid.HOME, 24, Theme.LIGHT_DEFAULT.getDefaultTextColor()));
+    workspacesButton.setGraphic(new IconLabel(BootstrapIcons.BORDER_ALL, 24, Color.GREY));
+    resourcesManagerButton.setGraphic(new IconLabel(FontAwesomeSolid.CUBES, 24, Color.GREY));
+    digitalTwinsButton.setGraphic(new IconLabel(WeatherIcons.EARTHQUAKE, 24, Color.GREY));
+    helpButton.setGraphic(new IconLabel(Material2AL.HELP_OUTLINE, 24, Color.DARKBLUE));
+    downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 24, Color.GREY));
+    startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 24, Color.GREY));
+    reasonerButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.REASONER_COLOR_MUTED));
+    resourcesButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RESOURCES_COLOR_MUTED));
+    resolverButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RESOLVER_COLOR_MUTED));
+    runtimeButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RUNTIME_COLOR_MUTED));
+    settingsButton.setGraphic(new IconLabel(FontAwesomeSolid.COG, 24, Color.DARKBLUE));
+    inspectorButton.setGraphic(new IconLabel(FontAwesomeSolid.LIGHTBULB, 24, Color.DARKGOLDENROD));
+    profileButton.setGraphic(new IconLabel(FontAwesomeRegular.USER_CIRCLE, 24, Color.GREY));
+
     startButton.setOnMouseClicked(
         mouseEvent -> {
           Thread.ofPlatform()
@@ -148,7 +179,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
 
   @Override
   public void engineStatusChanged(Engine.Status status) {
-    System.out.println("ZUBO " + (status.isAvailable() ? "AVAILABLE" : "INCULENTO"));
+    //    System.out.println("ZUBO " + (status.isAvailable() ? "AVAILABLE" : "INCULENTO"));
   }
 
   @Override
@@ -178,12 +209,50 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
 
   @Override
   public void notifyDistribution(Distribution distribution) {
-    System.out.println("PORCO DIO LA DISTRIBUZIONE");
-    // TODO set it, enable the ON button, print the distribution panel with the current start option, and if
-    //  that is true start the engines
+
+    Ikon icon = Material2AL.BLUR_ON;
+    var color = Color.GREEN;
+    var status = Authentication.INSTANCE.getDistributionStatus();
+    var tooltip = "Wait hostia";
+
+    if (status.getDevelopmentStatus() == Product.Status.UP_TO_DATE
+        && "source".equals(settings.getPrimaryDistribution().getValue())) {
+
+      this.distribution = distribution;
+      icon = FontAwesomeSolid.COGS;
+      tooltip = "Using locally available source k.LAB distribution";
+
+    } else {
+      switch (status.getDownloadedStatus()) {
+        case UNAVAILABLE -> {
+          color = Color.RED;
+          tooltip = "No distribution available. Click to download";
+          icon = Material2AL.GET_APP;
+        }
+        case LOCAL_ONLY -> {}
+        case UP_TO_DATE -> {}
+        case OBSOLETE -> {
+          color = Color.GOLDENROD;
+          tooltip = "Updated k.LAB distribution available. Click to update";
+          icon = Material2AL.GET_APP;
+        }
+      }
+    }
+
+    setButton(downloadButton, icon, 24, color, tooltip);
+    // TODO set the ON button as needed if not starting automatically
   }
 
-  void setTo(String color, String tooltip) {
-//    digitalTwinsButton.getChildrenUnmodifiable().getFirst().getStyleClass().
+  public static void setButton(Button button, Ikon icon, int size, Color color, String tooltip) {
+    var iconControl = button.getGraphic();
+    if (iconControl instanceof IconLabel fontIcon) {
+      Platform.runLater(
+          () -> {
+            fontIcon.set(icon, size, color);
+            var ttp = new Tooltip(tooltip);
+            ttp.setShowDelay(Duration.millis(200));
+            button.setTooltip(ttp);
+          });
+    }
   }
 }

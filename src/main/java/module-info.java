@@ -9,6 +9,11 @@ module org.integratedmodelling.klab.ide {
     requires jakarta.annotation;
     requires atlantafx.base;
     requires klab.core.common;
+    requires org.kordamp.ikonli.core;
+    requires org.kordamp.ikonli.material2;
+    requires org.kordamp.ikonli.fontawesome5;
+    requires org.kordamp.ikonli.bootstrapicons;
+    requires org.kordamp.ikonli.weathericons;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;

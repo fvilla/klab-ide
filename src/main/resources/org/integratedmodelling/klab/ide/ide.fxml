@@ -25,57 +25,33 @@
                         </ImageView>
                         <Separator prefWidth="200.0"/>
                         <Button fx:id="homeButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-home" iconSize="24" strokeType="OUTSIDE" strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Notebook view" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="workspacesButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="bi-border-all" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Add or select a Workspace" showDelay="200ms"/>
                             </tooltip>
                         </Button>
+                        <Button fx:id="resourcesManagerButton" styleClass="flat, button-circle">
+                            <tooltip>
+                                <Tooltip text="Create and manage resources" showDelay="200ms"/>
+                            </tooltip>
+                        </Button>
                         <Button fx:id="digitalTwinsButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="wi-earthquake" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Add or select a Digital Twin" showDelay="200ms"/>
                             </tooltip>
                         </Button>
+                        <Button fx:id="downloadButton" styleClass="flat, button-circle">
+                            <tooltip>
+                                <Tooltip text="Manage the local k.LAB distribution" showDelay="200ms"/>
+                            </tooltip>
+                        </Button>
                         <Button fx:id="helpButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-help_outline" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Open help" showDelay="200ms"/>
-                            </tooltip>
-                        </Button>
-                        <Separator prefWidth="200.0"/>
-                        <Button fx:id="rightButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-chevron_right" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
-                            <tooltip>
-                                <Tooltip text="Focus next window" showDelay="200ms"/>
-                            </tooltip>
-                        </Button>
-                        <Button fx:id="leftButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-chevron_left" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
-                            <tooltip>
-                                <Tooltip text="Focus previous window" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                     </children>
@@ -85,90 +61,49 @@
                 <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="2.0"
                       BorderPane.alignment="CENTER">
                     <children>
-                        <Button fx:id="downloadButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-get_app" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
-                            <tooltip>
-                                <Tooltip text="Manage the local k.LAB distribution" showDelay="200ms"/>
-                            </tooltip>
-                        </Button>
                         <Button fx:id="startButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdmz-power_settings_new" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Start/stop local k.LAB services" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="reasonerButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-blur_on" iconSize="24" layoutX="32.0" layoutY="124.0"
-                                          strokeType="OUTSIDE" strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Select or manage a Reasoner" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="resourcesButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-blur_on" iconSize="24" layoutX="32.0" layoutY="199.0"
-                                          strokeType="OUTSIDE" strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Select or manage a Resources service" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="resolverButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-blur_on" iconSize="24" layoutX="32.0" layoutY="199.0"
-                                          strokeType="OUTSIDE" strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Select or manage a Resolver" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="runtimeButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="mdal-blur_on" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Select or manage a Runtime" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Separator prefWidth="200.0"/>
                         <Button fx:id="settingsButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-cog" iconSize="24" strokeType="OUTSIDE" strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Change local settings" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="inspectorButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="fas-lightbulb" iconSize="24" strokeType="OUTSIDE"
-                                          strokeWidth="0.0"/>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="Open the Knowledge Inspector" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="profileButton" styleClass="flat, button-circle">
-                            <graphic>
-                                <FontIcon iconLiteral="far-user-circle" iconSize="36" strokeType="OUTSIDE"
-                                          strokeWidth="0.0">
-                                    <VBox.margin>
-                                        <Insets bottom="12.0"/>
-                                    </VBox.margin>
-                                </FontIcon>
-                            </graphic>
                             <tooltip>
                                 <Tooltip text="User Profile" showDelay="200ms"/>
                             </tooltip>
+                            <VBox.margin>
+                                <Insets bottom="12.0"/>
+                            </VBox.margin>
                         </Button>
                     </children>
                     <padding>
