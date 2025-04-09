@@ -35,17 +35,17 @@ public class KlabIDEApplication extends Application {
         event -> {
           /* TODO save status, ask to stop engine etc. */
         });
-    String cssString =
-        String.format(
-            ".ikonli-font-icon {-fx-icon-size: %d;}",
-            24); // TODO use a size based on screen resolution
-    scene.getRoot().getStylesheets().removeIf(uri -> uri.startsWith("data:text/css"));
-    scene
-        .getRoot()
-        .getStylesheets()
-        .add(
-            "data:text/css;base64,"
-                + Base64.getEncoder().encodeToString(cssString.toString().getBytes(UTF_8)));
+//    String cssString =
+//        String.format(
+//            ".ikonli-font-icon {-fx-icon-size: %d;}",
+//            24); // TODO use a size based on screen resolution
+//    scene.getRoot().getStylesheets().removeIf(uri -> uri.startsWith("data:text/css"));
+//    scene
+//        .getRoot()
+//        .getStylesheets()
+//        .add(
+//            "data:text/css;base64,"
+//                + Base64.getEncoder().encodeToString(cssString.toString().getBytes(UTF_8)));
     stage.setScene(scene);
     stage.show();
   }
