@@ -26,7 +26,7 @@ public class KlabIDEApplication extends Application {
     /*
      * TODO choose theme from settings and expose it to components
      */
-    Application.setUserAgentStylesheet(Theme.LIGHT_DEFAULT.getStylesheet());
+    Application.setUserAgentStylesheet(Theme.CURRENT_THEME.getStylesheet());
 
     FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
     Scene scene = new Scene(fxmlLoader.load(), 1280, 960);

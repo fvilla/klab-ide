@@ -160,7 +160,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     // painful and should not be necessary
     // TODO sync with theme from application
     homeButton.setGraphic(
-        new IconLabel(Material2AL.HOME, 24, Theme.LIGHT_DEFAULT.getDefaultTextColor()));
+        new IconLabel(Material2AL.HOME, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
     workspacesButton.setGraphic(new IconLabel(BootstrapIcons.BORDER_ALL, 24, Color.GREY));
     resourcesManagerButton.setGraphic(new IconLabel(FontAwesomeSolid.CUBES, 24, Color.GREY));
     digitalTwinsButton.setGraphic(new IconLabel(WeatherIcons.EARTHQUAKE, 24, Color.GREY));
@@ -197,14 +197,13 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
       viewButtons.get(key).setOnMouseClicked(mouseEvent -> selectView(key));
     }
 
-//    selectView(View.NOTEBOOK);
+//    if (settings.getStartServicesOnStartup().getValue()) {
+      Thread.ofPlatform().start(this::startServices);
+//    }
+  }
 
-    // TODO this shouldn't start by itself
-    Thread.ofPlatform()
-        .start(
-            () -> {
-              KlabIDEController.modeler().boot();
-            });
+  private void startServices() {
+    KlabIDEController.modeler().boot();
   }
 
   @Override
@@ -245,7 +244,28 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   }
 
   @Override
-  public void notifyUser(UserIdentity identity) {}
+  public void notifyUser(UserIdentity identity) {
+    if (identity.isAnonymous()) {
+      setButton(profileButton, FontAwesomeSolid.USER_CIRCLE, 32, Color.RED, "Anonymous user");
+    } else if (identity.isAuthenticated()) {
+      setButton(
+          profileButton,
+          FontAwesomeSolid.USER_CIRCLE,
+          32,
+          Color.GREEN,
+          "User " + identity.getFirstName() + " " + identity.getLastName() + " logged in");
+    } else {
+      setButton(
+          profileButton,
+          FontAwesomeSolid.USER_CIRCLE,
+          32,
+          Color.DARKGOLDENROD,
+          "Authentication failed for user "
+              + identity.getFirstName()
+              + " "
+              + identity.getLastName());
+    }
+  }
 
   @Override
   public void notifyDistribution(Distribution distribution) {

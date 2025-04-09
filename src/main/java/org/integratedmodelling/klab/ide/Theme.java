@@ -4,12 +4,14 @@ import atlantafx.base.theme.*;
 import javafx.scene.paint.Color;
 
 public enum Theme {
+
   LIGHT_DEFAULT,
   DARK_DEFAULT,
   LIGHT_COOL,
   DARK_COOL,
   DARK_ALTERNATIVE;
 
+  public static Theme CURRENT_THEME = DARK_COOL;
 
   public static final Color REASONER_COLOR_MUTED = Color.web("#b3d1ff");
   public static final Color RESOURCES_COLOR_MUTED = Color.web("#c2f0c2");
