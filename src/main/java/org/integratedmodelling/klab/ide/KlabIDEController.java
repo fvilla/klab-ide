@@ -160,19 +160,19 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     // painful and should not be necessary
     // TODO sync with theme from application
     homeButton.setGraphic(
-        new IconLabel(FontAwesomeSolid.HOME, 24, Theme.LIGHT_DEFAULT.getDefaultTextColor()));
+        new IconLabel(Material2AL.HOME, 24, Theme.LIGHT_DEFAULT.getDefaultTextColor()));
     workspacesButton.setGraphic(new IconLabel(BootstrapIcons.BORDER_ALL, 24, Color.GREY));
     resourcesManagerButton.setGraphic(new IconLabel(FontAwesomeSolid.CUBES, 24, Color.GREY));
     digitalTwinsButton.setGraphic(new IconLabel(WeatherIcons.EARTHQUAKE, 24, Color.GREY));
     downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 24, Color.GREY));
-    startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 24, Color.GREY));
+    startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 32, Color.GREY));
     reasonerButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.REASONER_COLOR_MUTED));
     resourcesButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RESOURCES_COLOR_MUTED));
     resolverButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RESOLVER_COLOR_MUTED));
     runtimeButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RUNTIME_COLOR_MUTED));
     settingsButton.setGraphic(new IconLabel(FontAwesomeSolid.COG, 24, Color.DARKBLUE));
     inspectorButton.setGraphic(new IconLabel(FontAwesomeSolid.LIGHTBULB, 24, Color.DARKGOLDENROD));
-    profileButton.setGraphic(new IconLabel(FontAwesomeRegular.USER_CIRCLE, 24, Color.GREY));
+    profileButton.setGraphic(new IconLabel(FontAwesomeSolid.USER_CIRCLE, 32, Color.GREY));
 
     viewButtons.put(View.NOTEBOOK, homeButton);
     viewButtons.put(View.DIGITAL_TWINS, digitalTwinsButton);
