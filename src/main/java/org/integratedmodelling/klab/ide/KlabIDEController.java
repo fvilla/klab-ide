@@ -35,17 +35,27 @@ import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 import org.kordamp.ikonli.weathericons.WeatherIcons;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 /** The main UI. Should probably include an Engine view. */
 public class KlabIDEController implements UI, ServicesView, AuthenticationView, DistributionView {
 
   private static Modeler modeler;
+  private View currentView;
+
+  /** The "circled" (current) view in the main area. */
+  public enum View {
+    NOTEBOOK,
+    RESOURCES,
+    WORKSPACES,
+    DIGITAL_TWINS
+  }
 
   @FXML Button homeButton;
   @FXML Button workspacesButton;
   @FXML Button digitalTwinsButton;
-  @FXML Button helpButton;
-  @FXML Button rightButton;
-  @FXML Button leftButton;
   @FXML Button downloadButton;
   @FXML Button startButton;
   @FXML Button reasonerButton;
@@ -66,6 +76,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   private DistributionViewController distributionController;
   private Distribution distribution;
   private IDESettings settings;
+  private Map<View, Button> viewButtons = new HashMap<>();
 
   public KlabIDEController() {
     createModeler();
@@ -111,6 +122,25 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     return null;
   }
 
+  public void selectView(View view) {
+    this.currentView = view;
+    for (var v : viewButtons.keySet()) {
+      var button = viewButtons.get(v);
+      if (v == view) {
+        button.getStyleClass().removeAll(Styles.FLAT);
+        button.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.BUTTON_OUTLINED);
+      } else {
+        button.getStyleClass().removeAll(Styles.BUTTON_OUTLINED);
+        button.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+      }
+    }
+    // TODO switch main panel to the view!
+  }
+
+  public View selectedView() {
+    return this.currentView;
+  }
+
   @FXML
   protected void initialize() {
 
@@ -134,7 +164,6 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     workspacesButton.setGraphic(new IconLabel(BootstrapIcons.BORDER_ALL, 24, Color.GREY));
     resourcesManagerButton.setGraphic(new IconLabel(FontAwesomeSolid.CUBES, 24, Color.GREY));
     digitalTwinsButton.setGraphic(new IconLabel(WeatherIcons.EARTHQUAKE, 24, Color.GREY));
-    helpButton.setGraphic(new IconLabel(Material2AL.HELP_OUTLINE, 24, Color.DARKBLUE));
     downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 24, Color.GREY));
     startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 24, Color.GREY));
     reasonerButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.REASONER_COLOR_MUTED));
@@ -144,6 +173,11 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     settingsButton.setGraphic(new IconLabel(FontAwesomeSolid.COG, 24, Color.DARKBLUE));
     inspectorButton.setGraphic(new IconLabel(FontAwesomeSolid.LIGHTBULB, 24, Color.DARKGOLDENROD));
     profileButton.setGraphic(new IconLabel(FontAwesomeRegular.USER_CIRCLE, 24, Color.GREY));
+
+    viewButtons.put(View.NOTEBOOK, homeButton);
+    viewButtons.put(View.DIGITAL_TWINS, digitalTwinsButton);
+    viewButtons.put(View.RESOURCES, resourcesManagerButton);
+    viewButtons.put(View.WORKSPACES, workspacesButton);
 
     startButton.setOnMouseClicked(
         mouseEvent -> {
@@ -158,6 +192,12 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     downloadButton.setOnMouseClicked(mouseEvent -> {});
     profileButton.setOnMouseClicked(mouseEvent -> {});
     settingsButton.setOnMouseClicked(mouseEvent -> {});
+
+    for (var key : viewButtons.keySet()) {
+      viewButtons.get(key).setOnMouseClicked(mouseEvent -> selectView(key));
+    }
+
+//    selectView(View.NOTEBOOK);
 
     // TODO this shouldn't start by itself
     Thread.ofPlatform()
@@ -219,7 +259,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
         && "source".equals(settings.getPrimaryDistribution().getValue())) {
 
       this.distribution = distribution;
-      icon = FontAwesomeSolid.COGS;
+      icon = BootstrapIcons.LAPTOP;
       tooltip = "Using locally available source k.LAB distribution";
 
     } else {

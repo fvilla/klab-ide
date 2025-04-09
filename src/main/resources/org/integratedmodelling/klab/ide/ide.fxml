@@ -24,7 +24,7 @@
                             </VBox.margin>
                         </ImageView>
                         <Separator prefWidth="200.0"/>
-                        <Button fx:id="homeButton" styleClass="flat, button-circle">
+                        <Button fx:id="homeButton" styleClass="button-outlined, button-circle">
                             <tooltip>
                                 <Tooltip text="Notebook view" showDelay="200ms"/>
                             </tooltip>
@@ -42,16 +42,6 @@
                         <Button fx:id="digitalTwinsButton" styleClass="flat, button-circle">
                             <tooltip>
                                 <Tooltip text="Add or select a Digital Twin" showDelay="200ms"/>
-                            </tooltip>
-                        </Button>
-                        <Button fx:id="downloadButton" styleClass="flat, button-circle">
-                            <tooltip>
-                                <Tooltip text="Manage the local k.LAB distribution" showDelay="200ms"/>
-                            </tooltip>
-                        </Button>
-                        <Button fx:id="helpButton" styleClass="flat, button-circle">
-                            <tooltip>
-                                <Tooltip text="Open help" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                     </children>
@@ -87,6 +77,11 @@
                             </tooltip>
                         </Button>
                         <Separator prefWidth="200.0"/>
+                        <Button fx:id="downloadButton" styleClass="flat, button-circle">
+                            <tooltip>
+                                <Tooltip text="Manage the local k.LAB distribution" showDelay="200ms"/>
+                            </tooltip>
+                        </Button>
                         <Button fx:id="settingsButton" styleClass="flat, button-circle">
                             <tooltip>
                                 <Tooltip text="Change local settings" showDelay="200ms"/>
