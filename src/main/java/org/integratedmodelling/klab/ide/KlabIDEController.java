@@ -331,15 +331,11 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
           tooltip = "No distribution available. Click to download";
           icon = Material2AL.GET_APP;
         }
-        case LOCAL_ONLY -> {
+        case LOCAL_ONLY, UP_TO_DATE -> {
           startColor = Color.GREEN;
           startTooltip = "Start local k.LAB services";
         }
-        case UP_TO_DATE -> {
-          startColor = Color.GREEN;
-          startTooltip = "Start local k.LAB services";
-        }
-        case OBSOLETE -> {
+          case OBSOLETE -> {
           startColor = Color.GREEN;
           color = Color.GOLDENROD;
           tooltip = "Updated k.LAB distribution available. Click to update";
