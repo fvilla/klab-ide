@@ -11,7 +11,7 @@ public enum Theme {
   DARK_COOL,
   DARK_ALTERNATIVE;
 
-  public static Theme CURRENT_THEME = DARK_COOL;
+  public static Theme CURRENT_THEME = LIGHT_DEFAULT;
 
   public static final Color REASONER_COLOR_MUTED = Color.web("#b3d1ff");
   public static final Color RESOURCES_COLOR_MUTED = Color.web("#c2f0c2");

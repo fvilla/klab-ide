@@ -12,6 +12,7 @@ import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.engine.distribution.Distribution;
 import org.integratedmodelling.klab.api.engine.distribution.Product;
 import org.integratedmodelling.klab.api.identities.UserIdentity;
+import org.integratedmodelling.klab.api.scope.UserScope;
 import org.integratedmodelling.klab.api.services.KlabService;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
 import org.integratedmodelling.klab.api.services.runtime.Notification;
@@ -28,15 +29,13 @@ import org.integratedmodelling.klab.ide.settings.IDESettings;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeRegular;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 import org.kordamp.ikonli.weathericons.WeatherIcons;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /** The main UI. Should probably include an Engine view. */
@@ -44,6 +43,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
 
   private static Modeler modeler;
   private View currentView;
+  private UserScope user;
 
   /** The "circled" (current) view in the main area. */
   public enum View {
@@ -87,7 +87,18 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   }
 
   private void createModeler() {
+
     modeler = new ModelerImpl(this);
+
+    this.settings = new IDESettings();
+
+    this.servicesController = modeler.viewController(ServicesViewController.class);
+    this.authenticationController = modeler.viewController(AuthenticationViewController.class);
+    this.distributionController = modeler.viewController(DistributionViewController.class);
+
+    this.servicesController.registerView(this);
+    this.authenticationController.registerView(this);
+    this.distributionController.registerView(this);
   }
 
   @Override
@@ -144,19 +155,6 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
   @FXML
   protected void initialize() {
 
-    this.settings = new IDESettings();
-
-    this.servicesController =
-        KlabIDEController.modeler().viewController(ServicesViewController.class);
-    this.authenticationController =
-        KlabIDEController.modeler().viewController(AuthenticationViewController.class);
-    this.distributionController =
-        KlabIDEController.modeler().viewController(DistributionViewController.class);
-
-    this.servicesController.registerView(this);
-    this.authenticationController.registerView(this);
-    this.distributionController.registerView(this);
-
     // painful and should not be necessary
     // TODO sync with theme from application
     homeButton.setGraphic(
@@ -197,13 +195,44 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
       viewButtons.get(key).setOnMouseClicked(mouseEvent -> selectView(key));
     }
 
-//    if (settings.getStartServicesOnStartup().getValue()) {
-      Thread.ofPlatform().start(this::startServices);
-//    }
+    this.user = modeler.authenticate();
+
+    // must call explicitly because the callback won't be used before boot.
+    notifyUser(this.user.getUser());
+    notifyDistribution(modeler().getDistribution());
+    checkServices(this.user);
+
+    if (settings.getStartServicesOnStartup().getValue()) {
+      Thread.ofPlatform().start(this::toggleLocalServices);
+    }
   }
 
-  private void startServices() {
-    KlabIDEController.modeler().boot();
+  private void checkServices(UserScope user) {
+
+    for (var serviceType :
+        List.of(
+            KlabService.Type.RESOURCES,
+            KlabService.Type.REASONER,
+            KlabService.Type.RUNTIME,
+            KlabService.Type.RESOLVER)) {
+
+      var defaultService = user.getService(serviceType.classify());
+      for (var service : user.getServices(serviceType.classify())) {
+        if (service.isExclusive()) {
+
+        } else {
+
+        }
+      }
+    }
+  }
+
+  private void toggleLocalServices() {
+    if (modeler().engine().isOnline()) {
+      KlabIDEController.modeler().shutdown(true);
+    } else {
+       KlabIDEController.modeler().boot();
+    }
   }
 
   @Override
@@ -245,25 +274,28 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
 
   @Override
   public void notifyUser(UserIdentity identity) {
+
     if (identity.isAnonymous()) {
-      setButton(profileButton, FontAwesomeSolid.USER_CIRCLE, 32, Color.RED, "Anonymous user");
+      setButton(
+          profileButton,
+          FontAwesomeSolid.USER_CIRCLE,
+          32,
+          Color.RED,
+          "Anonymous user. Please obtain a certificate.");
     } else if (identity.isAuthenticated()) {
       setButton(
           profileButton,
           FontAwesomeSolid.USER_CIRCLE,
           32,
           Color.GREEN,
-          "User " + identity.getFirstName() + " " + identity.getLastName() + " logged in");
+          "User " + identity.getUsername() + " logged in");
     } else {
       setButton(
           profileButton,
           FontAwesomeSolid.USER_CIRCLE,
           32,
           Color.DARKGOLDENROD,
-          "Authentication failed for user "
-              + identity.getFirstName()
-              + " "
-              + identity.getLastName());
+          "Authentication failed for user " + identity.getUsername());
     }
   }
 
@@ -272,8 +304,10 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
 
     Ikon icon = Material2AL.BLUR_ON;
     var color = Color.GREEN;
-    var status = Authentication.INSTANCE.getDistributionStatus();
+    var status = modeler().engine().getDistributionStatus();
     var tooltip = "Wait hostia";
+    var startColor = Color.GREY;
+    var startTooltip = "Local services are not available";
 
     if (status.getDevelopmentStatus() == Product.Status.UP_TO_DATE
         && "source".equals(settings.getPrimaryDistribution().getValue())) {
@@ -281,6 +315,8 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
       this.distribution = distribution;
       icon = BootstrapIcons.LAPTOP;
       tooltip = "Using locally available source k.LAB distribution";
+      startColor = Color.GREEN;
+      startTooltip = "Start local k.LAB services";
 
     } else {
       switch (status.getDownloadedStatus()) {
@@ -289,18 +325,25 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
           tooltip = "No distribution available. Click to download";
           icon = Material2AL.GET_APP;
         }
-        case LOCAL_ONLY -> {}
-        case UP_TO_DATE -> {}
+        case LOCAL_ONLY -> {
+          startColor = Color.GREEN;
+          startTooltip = "Start local k.LAB services";
+        }
+        case UP_TO_DATE -> {
+          startColor = Color.GREEN;
+          startTooltip = "Start local k.LAB services";
+        }
         case OBSOLETE -> {
+          startColor = Color.GREEN;
           color = Color.GOLDENROD;
           tooltip = "Updated k.LAB distribution available. Click to update";
+          startTooltip = "Start out-of-date local services";
           icon = Material2AL.GET_APP;
         }
       }
     }
-
+    setButton(startButton, Material2MZ.POWER_SETTINGS_NEW, 32, startColor, startTooltip);
     setButton(downloadButton, icon, 24, color, tooltip);
-    // TODO set the ON button as needed if not starting automatically
   }
 
   public static void setButton(Button button, Ikon icon, int size, Color color, String tooltip) {

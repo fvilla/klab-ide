@@ -12,6 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.2</junit.version>
+        <xtextVersion>2.27.0</xtextVersion>
     </properties>
 
     <dependencies>
@@ -56,30 +57,30 @@
             <artifactId>controlsfx</artifactId>
             <version>11.2.1</version>
         </dependency>
-<!--
-        <dependency>
-            <groupId>com.dlsc.formsfx</groupId>
-            <artifactId>formsfx-core</artifactId>
-            <version>11.6.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.synedra</groupId>
-            <artifactId>validatorfx</artifactId>
-            <version>0.5.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
--->
+        <!--
+                <dependency>
+                    <groupId>com.dlsc.formsfx</groupId>
+                    <artifactId>formsfx-core</artifactId>
+                    <version>11.6.0</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>net.synedra</groupId>
+                    <artifactId>validatorfx</artifactId>
+                    <version>0.5.0</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+        -->
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
@@ -105,30 +106,64 @@
             <artifactId>ikonli-weathericons-pack</artifactId>
             <version>12.3.1</version>
         </dependency>
-<!--
+        <!--
+                <dependency>
+                    <groupId>eu.hansolo</groupId>
+                    <artifactId>tilesfx</artifactId>
+                    <version>21.0.3</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>com.github.almasb</groupId>
+                    <artifactId>fxgl</artifactId>
+                    <version>17.3</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.openjfx</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+        -->
+
+        <!-- language server support -->
+        <!-- this contains the LSP server launcher -->
         <dependency>
-            <groupId>eu.hansolo</groupId>
-            <artifactId>tilesfx</artifactId>
-            <version>21.0.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.eclipse.xtext</groupId>
+            <artifactId>org.eclipse.xtext.ide</artifactId>
+            <version>${xtextVersion}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.almasb</groupId>
-            <artifactId>fxgl</artifactId>
-            <version>17.3</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.integratedmodelling</groupId>
+            <artifactId>org.integratedmodelling.languages.observable</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
--->
+        <dependency>
+            <groupId>org.integratedmodelling</groupId>
+            <artifactId>org.integratedmodelling.languages.worldview</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.integratedmodelling</groupId>
+            <artifactId>org.integratedmodelling.languages.kim</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.integratedmodelling</groupId>
+            <artifactId>org.integratedmodelling.languages.observation</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.integratedmodelling</groupId>
+            <artifactId>org.integratedmodelling.languages.kactors</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
