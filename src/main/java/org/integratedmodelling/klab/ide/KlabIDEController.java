@@ -164,10 +164,10 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     digitalTwinsButton.setGraphic(new IconLabel(WeatherIcons.EARTHQUAKE, 24, Color.GREY));
     downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 24, Color.GREY));
     startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 32, Color.GREY));
-    reasonerButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.REASONER_COLOR_MUTED));
-    resourcesButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RESOURCES_COLOR_MUTED));
-    resolverButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RESOLVER_COLOR_MUTED));
-    runtimeButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Theme.RUNTIME_COLOR_MUTED));
+    reasonerButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
+    resourcesButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
+    resolverButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
+    runtimeButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
     settingsButton.setGraphic(new IconLabel(FontAwesomeSolid.COG, 24, Color.DARKBLUE));
     inspectorButton.setGraphic(new IconLabel(FontAwesomeSolid.LIGHTBULB, 24, Color.DARKGOLDENROD));
     profileButton.setGraphic(new IconLabel(FontAwesomeSolid.USER_CIRCLE, 32, Color.GREY));
@@ -231,7 +231,7 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
     if (modeler().engine().isOnline()) {
       KlabIDEController.modeler().shutdown(true);
     } else {
-       KlabIDEController.modeler().boot();
+      KlabIDEController.modeler().boot();
     }
   }
 
@@ -297,6 +297,12 @@ public class KlabIDEController implements UI, ServicesView, AuthenticationView, 
           Color.DARKGOLDENROD,
           "Authentication failed for user " + identity.getUsername());
     }
+
+    /*
+    TODO set the service icons to the color and icon for the services currently available after authentication.
+     They can be local or remote, should have different icons and service-dependent colors.
+     */
+
   }
 
   @Override
