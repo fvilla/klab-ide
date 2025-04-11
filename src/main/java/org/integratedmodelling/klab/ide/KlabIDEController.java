@@ -219,13 +219,13 @@ public class KlabIDEController
                           Color.DARKGOLDENROD,
                           "Wait while the services are starting");
                       engineStarted.set(true);
-                      setButton(
-                          startButton,
-                          Material2MZ.STOP_CIRCLE,
-                          32,
-                          Color.RED,
-                          "Click to stop the services");
                       KlabIDEController.modeler().engine().startLocalServices();
+                      setButton(
+                              startButton,
+                              Material2MZ.STOP_CIRCLE,
+                              32,
+                              Color.RED,
+                              "Click to stop the services");
                     }
                     engineTransitioning.set(false);
                   });
