@@ -26,22 +26,22 @@
                         <Separator prefWidth="200.0"/>
                         <Button fx:id="homeButton" styleClass="button-outlined, button-circle">
                             <tooltip>
-                                <Tooltip text="Notebook view" showDelay="200ms"/>
+                                <Tooltip text="Interactive Dashboard" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="workspacesButton" styleClass="flat, button-circle">
                             <tooltip>
-                                <Tooltip text="Add or select a Workspace" showDelay="200ms"/>
+                                <Tooltip text="Create or connect to a Workspace" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="resourcesManagerButton" styleClass="flat, button-circle">
                             <tooltip>
-                                <Tooltip text="Create and manage resources" showDelay="200ms"/>
+                                <Tooltip text="Create or manage resources" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="digitalTwinsButton" styleClass="flat, button-circle">
                             <tooltip>
-                                <Tooltip text="Add or select a Digital Twin" showDelay="200ms"/>
+                                <Tooltip text="Create or connect to a Digital Twin" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                     </children>
@@ -53,7 +53,7 @@
                     <children>
                         <Button fx:id="startButton" styleClass="flat, button-circle">
                             <tooltip>
-                                <Tooltip text="Start/stop local k.LAB services" showDelay="200ms"/>
+                                <Tooltip text="Start local k.LAB services" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="reasonerButton" styleClass="flat, button-circle">

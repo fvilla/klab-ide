@@ -15,6 +15,7 @@ module org.integratedmodelling.klab.ide {
     requires org.kordamp.ikonli.bootstrapicons;
     requires org.kordamp.ikonli.weathericons;
     requires org.eclipse.xtext.ide;
+    requires java.desktop;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;
