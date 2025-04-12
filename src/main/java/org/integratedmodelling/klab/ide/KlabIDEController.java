@@ -163,6 +163,9 @@ public class KlabIDEController
   @FXML
   protected void initialize() {
 
+    modeler.boot();
+
+
     // painful and should not be necessary
     // TODO sync with theme from application
     homeButton.setGraphic(
