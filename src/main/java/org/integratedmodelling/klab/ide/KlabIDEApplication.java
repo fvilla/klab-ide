@@ -45,6 +45,7 @@ public class KlabIDEApplication extends Application {
     stage.setOnCloseRequest(
         event -> {
           /* TODO save status, ask to stop engine etc. */
+          System.exit(0);
         });
     stage.setScene(scene);
     stage.show();

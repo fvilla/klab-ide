@@ -1,6 +1,7 @@
 package org.integratedmodelling.klab.ide;
 
 import atlantafx.base.theme.Styles;
+import com.ibm.icu.impl.Relation;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -50,6 +51,7 @@ public class KlabIDEController
   private static Modeler modeler;
   private View currentView;
   private UserScope user;
+  private Map<KlabService.Type, KlabService.ServiceCapabilities> capabilities = new HashMap<>();
 
   /** The "circled" (current) view in the main area. */
   public enum View {
@@ -165,7 +167,6 @@ public class KlabIDEController
 
     modeler.boot();
 
-
     // painful and should not be necessary
     // TODO sync with theme from application
     homeButton.setGraphic(
@@ -195,6 +196,8 @@ public class KlabIDEController
             return;
           }
 
+          Utils.DebugFile.println("CLICKED THE BUTTON");
+
           Thread.ofPlatform()
               .start(
                   () -> {
@@ -203,7 +206,7 @@ public class KlabIDEController
                       engineStarted.set(false);
                       setButton(
                           startButton,
-                          Material2MZ.STOP_CIRCLE,
+                          Material2AL.ACCESS_TIME,
                           32,
                           Color.DARKGOLDENROD,
                           "Wait while the services are stopping");
@@ -217,18 +220,12 @@ public class KlabIDEController
                     } else {
                       setButton(
                           startButton,
-                          Material2MZ.POWER_SETTINGS_NEW,
+                          Material2AL.ACCESS_TIME,
                           32,
                           Color.DARKGOLDENROD,
                           "Wait while the services are starting");
                       engineStarted.set(true);
                       KlabIDEController.modeler().engine().startLocalServices();
-                      setButton(
-                              startButton,
-                              Material2MZ.STOP_CIRCLE,
-                              32,
-                              Color.RED,
-                              "Click to stop the services");
                     }
                     engineTransitioning.set(false);
                   });
@@ -318,17 +315,26 @@ public class KlabIDEController
 
   @Override
   public void servicesConfigurationChanged(KlabService.ServiceCapabilities service) {
-    System.out.println("PUTAZZA CONFIG");
+    this.capabilities.put(service.getType(), service);
   }
 
   @Override
   public void notifyServiceStatus(KlabService.ServiceStatus status) {
-    System.out.println("ZOBO " + status);
+    /* won't happen automatically - should be deprecated */
+
   }
 
   @Override
   public void engineStatusChanged(Engine.Status status) {
-    System.out.println("ZUBO " + (status.isAvailable() ? "AVAILABLE" : "INCULENTO"));
+    // This only gets called when the status has changed.
+    Utils.DebugFile.println("" + status);
+    if (status.isAvailable()) {
+      setButton(startButton, Material2AL.CROP_SQUARE, 32, Color.RED, "Click to stop the services");
+    }
+
+    for (var s : status.getServicesStatus().values()) {
+      notifyServiceStatus(s);
+    }
   }
 
   @Override
