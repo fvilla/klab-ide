@@ -247,7 +247,8 @@ public class KlabIDEController
     checkServices(this.user);
 
     if (settings.getStartServicesOnStartup().getValue()) {
-      Thread.ofPlatform().start(this::toggleLocalServices);
+      // TODO
+      //      Thread.ofPlatform().start(this::toggleLocalServices);
     }
   }
 
@@ -294,22 +295,18 @@ public class KlabIDEController
 
       var color =
           switch (serviceType) {
-            case REASONER -> Theme.REASONER_COLOR_ACTIVE;
-            case RESOURCES -> Theme.RESOURCES_COLOR_ACTIVE;
-            case RESOLVER -> Theme.RESOLVER_COLOR_ACTIVE;
-            case RUNTIME -> Theme.RUNTIME_COLOR_ACTIVE;
+            case REASONER ->
+                engineStarted.get() ? Theme.REASONER_COLOR_ACTIVE : Theme.REASONER_COLOR_MUTED;
+            case RESOURCES ->
+                engineStarted.get() ? Theme.RESOURCES_COLOR_ACTIVE : Theme.RESOURCES_COLOR_MUTED;
+            case RESOLVER ->
+                engineStarted.get() ? Theme.RESOLVER_COLOR_ACTIVE : Theme.RESOLVER_COLOR_MUTED;
+            case RUNTIME ->
+                engineStarted.get() ? Theme.RUNTIME_COLOR_ACTIVE : Theme.RUNTIME_COLOR_MUTED;
             default -> throw new KlabInternalErrorException("?"); // can't happen
           };
 
       setButton(button, icon, 24, color, tooltip);
-    }
-  }
-
-  private void toggleLocalServices() {
-    if (modeler().engine().isOnline()) {
-      KlabIDEController.modeler().shutdown(true);
-    } else {
-      KlabIDEController.modeler().boot();
     }
   }
 
@@ -325,16 +322,30 @@ public class KlabIDEController
   }
 
   @Override
+  public void serviceFocusChanged(KlabService.ServiceCapabilities serviceCapabilities) {
+    Utils.DebugFile.println("PUTO SERVIZIO CHANGED " + serviceCapabilities);
+  }
+
+  @Override
   public void engineStatusChanged(Engine.Status status) {
     // This only gets called when the status has changed.
     Utils.DebugFile.println("" + status);
     if (status.isAvailable()) {
       setButton(startButton, Material2AL.CROP_SQUARE, 32, Color.RED, "Click to stop the services");
+      this.engineStarted.set(true);
     }
 
     for (var s : status.getServicesStatus().values()) {
       notifyServiceStatus(s);
     }
+
+    /**
+     * Services: absent or !available -> grey; available && !operational -> clock; available && operational -> icon;
+     * Engine on/off: all services operational -> stop; no service or none available -> on; anything else -> wait;
+     *
+     */
+
+    checkServices(modeler().user());
   }
 
   @Override

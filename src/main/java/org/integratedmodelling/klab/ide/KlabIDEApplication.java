@@ -10,6 +10,9 @@ import org.eclipse.xtext.ide.server.ServerLauncher;
 
 public class KlabIDEApplication extends Application {
 
+  public static final int MIN_WIDTH = 1200;
+  public static final int SIDEBAR_WIDTH = 270;
+
   private Thread lspThread;
 
   @Override
