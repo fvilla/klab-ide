@@ -17,6 +17,7 @@ module org.integratedmodelling.klab.ide {
     requires org.eclipse.xtext.ide;
     requires java.desktop;
     requires com.ibm.icu;
+    requires org.eclipse.emf.ecore;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;

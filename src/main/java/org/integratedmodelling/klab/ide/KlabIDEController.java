@@ -1,15 +1,14 @@
 package org.integratedmodelling.klab.ide;
 
 import atlantafx.base.theme.Styles;
-import com.ibm.icu.impl.Relation;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import org.integratedmodelling.common.authentication.Authentication;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.engine.distribution.Distribution;
 import org.integratedmodelling.klab.api.engine.distribution.Product;
@@ -17,6 +16,8 @@ import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
 import org.integratedmodelling.klab.api.identities.UserIdentity;
 import org.integratedmodelling.klab.api.scope.UserScope;
 import org.integratedmodelling.klab.api.services.KlabService;
+import org.integratedmodelling.klab.api.services.ResourcesService;
+import org.integratedmodelling.klab.api.services.RuntimeService;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
 import org.integratedmodelling.klab.api.services.runtime.Notification;
 import org.integratedmodelling.klab.api.utils.Utils;
@@ -28,7 +29,7 @@ import org.integratedmodelling.klab.api.view.modeler.views.ServicesView;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.AuthenticationViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.DistributionViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
-import org.integratedmodelling.klab.ide.components.IconLabel;
+import org.integratedmodelling.klab.ide.components.*;
 import org.integratedmodelling.klab.ide.settings.IDESettings;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
 import org.kordamp.ikonli.Ikon;
@@ -75,9 +76,10 @@ public class KlabIDEController
   @FXML Button profileButton;
   @FXML Button resourcesManagerButton;
 
+  @FXML NotebookView notebook;
   @FXML Pane mainArea;
   @FXML Pane inspectorArea;
-  @FXML Pane browsingArea;
+  //  @FXML Pane browsingArea;
 
   private ServicesViewController servicesController;
   private AuthenticationViewController authenticationController;
@@ -87,6 +89,11 @@ public class KlabIDEController
   private Map<View, Button> viewButtons = new HashMap<>();
   private AtomicBoolean engineStarted = new AtomicBoolean(false);
   private AtomicBoolean engineTransitioning = new AtomicBoolean(false);
+
+  private WorkspaceView workspaceView;
+  private ResourcesView resourcesView;
+  private DigitalTwinView digitalTwinView;
+  private InspectorView inspectorView;
 
   public KlabIDEController() {
     createModeler();
@@ -113,18 +120,19 @@ public class KlabIDEController
 
   @Override
   public void alert(Notification notification) {
-    var alert = new Alert(Alert.AlertType.CONFIRMATION);
-    alert.setTitle("Confirmation Dialog");
-    alert.setHeaderText("Notification");
+    var alert =
+        new Alert(
+            switch (notification.getLevel()) {
+              case Debug, Info -> Alert.AlertType.INFORMATION;
+              case Notification.Level.Warning -> Alert.AlertType.WARNING;
+              case Error, SystemError -> Alert.AlertType.ERROR;
+            });
+    alert.setTitle("Notification");
+    alert.setHeaderText("Alert");
     alert.setContentText(notification.getMessage());
-
-    ButtonType yesBtn = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-    ButtonType noBtn = new ButtonType("No", ButtonBar.ButtonData.NO);
-    ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-
-    alert.getButtonTypes().setAll(yesBtn, noBtn, cancelBtn);
-    //    alert.initOwner(welcomeText.getScene().getWindow());
-    alert.show();
+    alert.initOwner(KlabIDEApplication.scene().getWindow());
+    alert.initStyle(StageStyle.DECORATED);
+    alert.showAndWait();
   }
 
   @Override
@@ -156,6 +164,19 @@ public class KlabIDEController
       }
     }
     // TODO switch main panel to the view!
+    Platform.runLater(
+        () -> {
+          mainArea.getChildren().remove(0, mainArea.getChildren().size());
+          mainArea
+              .getChildren()
+              .add(
+                  switch (view) {
+                    case NOTEBOOK -> notebook;
+                    case RESOURCES -> resourcesView;
+                    case DIGITAL_TWINS -> digitalTwinView;
+                    case WORKSPACES -> workspaceView;
+                  });
+        });
   }
 
   public View selectedView() {
@@ -167,8 +188,6 @@ public class KlabIDEController
 
     modeler.boot();
 
-    // painful and should not be necessary
-    // TODO sync with theme from application
     homeButton.setGraphic(
         new IconLabel(Material2AL.HOME, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
     workspacesButton.setGraphic(new IconLabel(BootstrapIcons.BORDER_ALL, 24, Color.GREY));
@@ -180,14 +199,26 @@ public class KlabIDEController
     resourcesButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
     resolverButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
     runtimeButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
-    settingsButton.setGraphic(new IconLabel(FontAwesomeSolid.COG, 24, Color.DARKBLUE));
-    inspectorButton.setGraphic(new IconLabel(FontAwesomeSolid.LIGHTBULB, 24, Color.DARKGOLDENROD));
+    settingsButton.setGraphic(
+        new IconLabel(FontAwesomeSolid.COG, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
+    inspectorButton.setGraphic(
+        new IconLabel(FontAwesomeSolid.LIGHTBULB, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
     profileButton.setGraphic(new IconLabel(FontAwesomeSolid.USER_CIRCLE, 32, Color.GREY));
 
     viewButtons.put(View.NOTEBOOK, homeButton);
     viewButtons.put(View.DIGITAL_TWINS, digitalTwinsButton);
     viewButtons.put(View.RESOURCES, resourcesManagerButton);
     viewButtons.put(View.WORKSPACES, workspacesButton);
+
+    digitalTwinView = new DigitalTwinView();
+    workspaceView = new WorkspaceView();
+    resourcesView = new ResourcesView();
+    inspectorView = new InspectorView();
+
+    inspectorButton.setOnMouseClicked(
+        event -> {
+          toggleInspector();
+        });
 
     startButton.setOnMouseClicked(
         mouseEvent -> {
@@ -244,13 +275,15 @@ public class KlabIDEController
     // must call explicitly because the callback won't be used before boot.
     notifyUser(this.user.getUser());
     notifyDistribution(modeler().getDistribution());
-    checkServices(this.user);
+    checkServices(this.user, null);
 
     if (settings.getStartServicesOnStartup().getValue()) {
       // TODO
       //      Thread.ofPlatform().start(this::toggleLocalServices);
     }
   }
+
+  private void toggleInspector() {}
 
   /**
    * If single service in the cloud, use BootstrapIcons.CLOUDY_FILL If multiple services in the
@@ -259,7 +292,7 @@ public class KlabIDEController
    *
    * @param user
    */
-  private void checkServices(UserScope user) {
+  private void checkServices(UserScope user, Engine.Status status) {
 
     for (var serviceType :
         List.of(
@@ -306,6 +339,54 @@ public class KlabIDEController
             default -> throw new KlabInternalErrorException("?"); // can't happen
           };
 
+      if (serviceType == KlabService.Type.RESOURCES
+          && user.getServices(ResourcesService.class).stream()
+              .anyMatch(s -> s.status().isOperational())) {
+        setButton(
+            workspacesButton,
+            BootstrapIcons.BORDER_ALL,
+            24,
+            Color.DARKGREEN,
+            workspacesButton.getTooltip().getText());
+        setButton(
+            resourcesManagerButton,
+            FontAwesomeSolid.CUBES,
+            24,
+            Color.DARKGREEN,
+            resourcesManagerButton.getTooltip().getText());
+      } else {
+        setButton(
+            workspacesButton,
+            BootstrapIcons.BORDER_ALL,
+            24,
+            Color.GREY,
+            workspacesButton.getTooltip().getText());
+        setButton(
+            resourcesManagerButton,
+            FontAwesomeSolid.CUBES,
+            24,
+            Color.GREY,
+            resourcesManagerButton.getTooltip().getText());
+      }
+
+      if (serviceType == KlabService.Type.RUNTIME
+          && user.getServices(RuntimeService.class).stream()
+              .anyMatch(s -> s.status().isOperational())) {
+        setButton(
+            digitalTwinsButton,
+            WeatherIcons.EARTHQUAKE,
+            24,
+            Color.DARKRED,
+            digitalTwinsButton.getTooltip().getText());
+      } else {
+        setButton(
+            digitalTwinsButton,
+            WeatherIcons.EARTHQUAKE,
+            24,
+            Color.GREY,
+            digitalTwinsButton.getTooltip().getText());
+      }
+
       setButton(button, icon, 24, color, tooltip);
     }
   }
@@ -340,12 +421,11 @@ public class KlabIDEController
     }
 
     /**
-     * Services: absent or !available -> grey; available && !operational -> clock; available && operational -> icon;
-     * Engine on/off: all services operational -> stop; no service or none available -> on; anything else -> wait;
-     *
+     * Services: absent or !available -> grey; available && !operational -> clock; available &&
+     * operational -> icon; Engine on/off: all services operational -> stop; no service or none
+     * available -> on; anything else -> wait;
      */
-
-    checkServices(modeler().user());
+    checkServices(modeler().user(), status);
   }
 
   @Override

@@ -35,21 +35,21 @@ public interface Page {
   int VGAP_10 = 10;
   int VGAP_20 = 20;
 
-  Random RANDOM = new Random();
-  String JFX_JAVADOC_URI_TEMPLATE =
-      "https://openjfx.io/javadoc/20/javafx.controls/javafx/scene/%s.html";
-  String AFX_JAVADOC_URI_TEMPLATE =
-      "https://mkpaz.github.io/atlantafx/apidocs/atlantafx.base/atlantafx/base/%s.html";
+//  Random RANDOM = new Random();
+//  String JFX_JAVADOC_URI_TEMPLATE =
+//      "https://openjfx.io/javadoc/20/javafx.controls/javafx/scene/%s.html";
+//  String AFX_JAVADOC_URI_TEMPLATE =
+//      "https://mkpaz.github.io/atlantafx/apidocs/atlantafx.base/atlantafx/base/%s.html";
 
   String getName();
 
   Parent getView();
 
-  boolean canDisplaySourceCode();
+//  boolean canDisplaySourceCode();
 
-  URI getJavadocUri();
+//  URI getJavadocUri();
 
-  Node getSnapshotTarget();
+//  Node getSnapshotTarget();
 
   void reset();
 
@@ -112,23 +112,23 @@ public interface Page {
       titleLbl.getStyleClass().add(Styles.TITLE_2);
 
       var sourceCodeItem = new MenuItem("Source Code" /*, new FontIcon(Feather.CODE)*/);
-      sourceCodeItem.setDisable(!page.canDisplaySourceCode());
+//      sourceCodeItem.setDisable(!page.canDisplaySourceCode());
       sourceCodeItem.setAccelerator(new KeyCodeCombination(KeyCode.C, ALT_DOWN));
       sourceCodeItem.setOnAction(
           e ->
               EventBus.getInstance()
                   .publish(new EventBus.PageEvent(EventBus.PageEvent.Action.SOURCE_CODE_ON)));
 
-      final var uri = page.getJavadocUri();
+//      final var uri = page.getJavadocUri();
       var javadocItem = new MenuItem("Javadoc" /*, new FontIcon(Feather.COFFEE)*/);
       javadocItem.setAccelerator(new KeyCodeCombination(KeyCode.J, ALT_DOWN));
-      javadocItem.setDisable(uri == null);
-      javadocItem.setOnAction(
-          e -> {
-            if (uri != null) {
-              EventBus.getInstance().publish(new EventBus.BrowseEvent(uri));
-            }
-          });
+//      javadocItem.setDisable(uri == null);
+//      javadocItem.setOnAction(
+//          e -> {
+//            if (uri != null) {
+//              EventBus.getInstance().publish(new EventBus.BrowseEvent(uri));
+//            }
+//          });
 
       var menuBtn = new MenuButton(null, new FontIcon(Material2AL.EXPAND_MORE));
       menuBtn.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_ICON, Tweaks.NO_ARROW);

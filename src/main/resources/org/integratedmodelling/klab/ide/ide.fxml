@@ -110,20 +110,18 @@
     </left>
     <center>
         <BorderPane BorderPane.alignment="CENTER">
-            <left>
-                <Pane id="browsingArea" prefWidth="0.0" prefHeight="0.0" visible="false" BorderPane.alignment="CENTER"/>
-            </left>
+<!--            <left>-->
+<!--                <Pane fx:id="browsingArea" prefWidth="0.0" prefHeight="0.0" visible="false" BorderPane.alignment="CENTER"/>-->
+<!--            </left>-->
             <center>
                 <BorderPane BorderPane.alignment="CENTER">
                     <center>
-                        <StackPane id="mainArea">
-                            <children>
-                                <NotebookView/>
-                            </children>
+                        <StackPane fx:id="mainArea">
+                            <NotebookView fx:id="notebook"/>
                         </StackPane>
                     </center>
                     <bottom>
-                        <Pane id="inspectorArea" prefHeight="0.0" prefWidth="0.0" visible="false"
+                        <Pane fx:id="inspectorArea" prefHeight="0.0" prefWidth="0.0" visible="false"
                               BorderPane.alignment="CENTER"/>
                     </bottom>
                 </BorderPane>

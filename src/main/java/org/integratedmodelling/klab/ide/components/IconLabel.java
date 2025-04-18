@@ -7,7 +7,10 @@ import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.IkonHandler;
 import org.kordamp.ikonli.javafx.IkonResolver;
 
-/** Trick class to use Ikonli without FontIcon, whose CSS specs are closed and cannot be changed. */
+/**
+ * Trick class to use Ikonli without FontIcon, whose CSS specs are hard-coded and can only be
+ * changed globally.
+ */
 public class IconLabel extends Label {
 
   public IconLabel(Ikon ikon, int size, Color color) {

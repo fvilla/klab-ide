@@ -13,10 +13,15 @@ public class KlabIDEApplication extends Application {
   public static final int MIN_WIDTH = 1200;
   public static final int SIDEBAR_WIDTH = 270;
 
+  private static Scene scene;
+  private static KlabIDEApplication instance;
+
   private Thread lspThread;
 
   @Override
   public void start(Stage stage) throws IOException {
+
+    instance = this;
 
     /*
      * TODO choose theme from settings and expose it to components
@@ -43,7 +48,7 @@ public class KlabIDEApplication extends Application {
     this.lspThread.start();
 
     FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
-    Scene scene = new Scene(fxmlLoader.load(), 1280, 960);
+    scene = new Scene(fxmlLoader.load(), 1280, 960);
     stage.setTitle("k.LAB Modeler :: v1.0 alpha :: © 2025 Integrated Modelling Partnership");
     stage.setOnCloseRequest(
         event -> {
@@ -52,6 +57,14 @@ public class KlabIDEApplication extends Application {
         });
     stage.setScene(scene);
     stage.show();
+  }
+
+  public static KlabIDEApplication instance() {
+    return instance;
+  }
+
+  public static Scene scene() {
+    return scene;
   }
 
   public static void main(String[] args) {
