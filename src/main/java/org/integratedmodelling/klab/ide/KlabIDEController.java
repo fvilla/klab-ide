@@ -32,6 +32,7 @@ import org.integratedmodelling.klab.api.view.modeler.views.controllers.Distribut
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
 import org.integratedmodelling.klab.ide.components.*;
 import org.integratedmodelling.klab.ide.settings.IDESettings;
+import org.integratedmodelling.klab.ide.utils.NodeUtils;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
@@ -54,6 +55,7 @@ public class KlabIDEController
   private View currentView;
   private UserScope user;
   private Map<KlabService.Type, KlabService.ServiceCapabilities> capabilities = new HashMap<>();
+  private boolean inspectorIsOn;
 
   /** The "circled" (current) view in the main area. */
   public enum View {
@@ -276,7 +278,7 @@ public class KlabIDEController
     // must call explicitly because the callback won't be used before boot.
     notifyUser(this.user.getUser());
     notifyDistribution(modeler().getDistribution());
-//    checkServices(this.user, null);
+    //    checkServices(this.user, null);
 
     if (settings.getStartServicesOnStartup().getValue()) {
       // TODO
@@ -284,7 +286,30 @@ public class KlabIDEController
     }
   }
 
-  private void toggleInspector() {}
+  private void toggleInspector() {
+
+    setButton(
+        inspectorButton,
+        FontAwesomeSolid.LIGHTBULB,
+        24,
+        inspectorIsOn ? Theme.CURRENT_THEME.getDefaultTextColor() : Color.GOLDENROD,
+        inspectorIsOn
+            ? "Click to show the knowledge inspector"
+            : "Click to hide the knowledge inspector");
+
+    Platform.runLater(
+        () -> {
+          if (inspectorIsOn) {
+            inspectorArea.getChildren().removeAll(inspectorView);
+            inspectorIsOn = false;
+            NodeUtils.toggleVisibility(inspectorArea, false);
+          } else {
+            inspectorArea.getChildren().add(inspectorView);
+            inspectorIsOn = true;
+            NodeUtils.toggleVisibility(inspectorArea, true);
+          }
+        });
+  }
 
   /**
    * If single service in the cloud, use BootstrapIcons.CLOUDY_FILL If multiple services in the

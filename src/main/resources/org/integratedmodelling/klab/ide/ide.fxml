@@ -110,9 +110,9 @@
     </left>
     <center>
         <BorderPane BorderPane.alignment="CENTER">
-<!--            <left>-->
-<!--                <Pane fx:id="browsingArea" prefWidth="0.0" prefHeight="0.0" visible="false" BorderPane.alignment="CENTER"/>-->
-<!--            </left>-->
+            <!--            <left>-->
+            <!--                <Pane fx:id="browsingArea" prefWidth="0.0" prefHeight="0.0" visible="false" BorderPane.alignment="CENTER"/>-->
+            <!--            </left>-->
             <center>
                 <BorderPane BorderPane.alignment="CENTER">
                     <center>
@@ -121,8 +121,8 @@
                         </StackPane>
                     </center>
                     <bottom>
-                        <Pane fx:id="inspectorArea" prefHeight="0.0" prefWidth="0.0" visible="false"
-                              BorderPane.alignment="CENTER"/>
+                        <Pane fx:id="inspectorArea" BorderPane.alignment="CENTER"
+                              style="-fx-background-color: -color-neutral-muted;"/>
                     </bottom>
                 </BorderPane>
             </center>
