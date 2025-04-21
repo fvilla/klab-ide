@@ -1,38 +1,44 @@
 package org.integratedmodelling.klab.ide.components;
 
 import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
-import org.eclipse.emf.ecore.impl.EcoreFactoryImpl;
+import org.integratedmodelling.klab.ide.pages.OutlinePage;
 import org.integratedmodelling.klab.ide.pages.Page;
-
-import java.io.IOException;
 
 public class NotebookView extends BorderPane implements Page {
 
-  @FXML private TextField inputBox;
-  @FXML private VBox notebook;
+  private final InputBox inputBox;
+  private final Notebook notebook;
 
   public NotebookView() {
-    var fxmlLoader = new FXMLLoader(getClass().getResource("notebook-view.fxml"));
-    fxmlLoader.setRoot(this);
-    fxmlLoader.setController(this);
-    try {
-      fxmlLoader.load();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+
+    this.notebook = new Notebook();
+    this.setCenter(this.notebook);
+    this.inputBox = new InputBox();
+    this.setBottom(inputBox);
+    this.setCenter(this.notebook);
+
     addComponent(new Components.About());
   }
 
-  @FXML
-  protected void initialize() {
-    inputBox.setText("Parent is " + getView());
+  public static class InputBox extends TextField {
+    InputBox() {
+      super();
+      setMargin(this, new Insets(24, 20, 20, 10));
+      setPromptText("Enter a command; 'help' for assistance");
+    }
+  }
+
+  public static class Notebook extends OutlinePage {
+
+    @Override
+    public String getName() {
+      return "Notebook";
+    }
   }
 
   @Override
@@ -49,14 +55,13 @@ public class NotebookView extends BorderPane implements Page {
     if (component instanceof Node node) {
       Platform.runLater(
           () -> {
-            // TODO add to index list
-            notebook.getChildren().add(node);
+            notebook.addSection(component.getTitle(), node);
           });
     }
   }
 
   @Override
   public void reset() {
-
+    notebook.reset();
   }
 }

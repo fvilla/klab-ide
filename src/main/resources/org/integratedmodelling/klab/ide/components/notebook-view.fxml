@@ -15,17 +15,18 @@
     <center>
       <BorderPane BorderPane.alignment="CENTER">
          <center>
-              <ScrollPane>
-                  <content>
-                      <VBox fx:id="notebook" spacing="2.0">
-                     <padding>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <center>
+                  <VBox fx:id="notebook" spacing="2.0" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
                         <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" />
-                     </padding></VBox>
-                  </content>
-               <BorderPane.margin>
-                  <Insets />
-               </BorderPane.margin>
-              </ScrollPane>
+                     </BorderPane.margin>
+                  </VBox>
+               </center>
+              <!-- <right>
+                  <ListView fx:id="listView" prefHeight="200.0" prefWidth="200.0" style="-fx-border-width: 0px;" BorderPane.alignment="CENTER" />
+               </right>-->
+            </BorderPane>
          </center>
       </BorderPane>
     </center>

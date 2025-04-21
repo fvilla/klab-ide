@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.engine.distribution.Distribution;
 import org.integratedmodelling.klab.api.engine.distribution.Product;
@@ -227,7 +228,7 @@ public class KlabIDEController
             return;
           }
 
-          Utils.DebugFile.println("CLICKED THE BUTTON");
+          Logging.INSTANCE.info("CLICKED THE BUTTON");
 
           Thread.ofPlatform()
               .start(
@@ -275,7 +276,7 @@ public class KlabIDEController
     // must call explicitly because the callback won't be used before boot.
     notifyUser(this.user.getUser());
     notifyDistribution(modeler().getDistribution());
-    checkServices(this.user, null);
+//    checkServices(this.user, null);
 
     if (settings.getStartServicesOnStartup().getValue()) {
       // TODO
@@ -404,13 +405,13 @@ public class KlabIDEController
 
   @Override
   public void serviceFocusChanged(KlabService.ServiceCapabilities serviceCapabilities) {
-    Utils.DebugFile.println("PUTO SERVIZIO CHANGED " + serviceCapabilities);
+    Logging.INSTANCE.info("PUTO SERVIZIO CHANGED " + serviceCapabilities);
   }
 
   @Override
   public void engineStatusChanged(Engine.Status status) {
     // This only gets called when the status has changed.
-    Utils.DebugFile.println("" + status);
+    Logging.INSTANCE.info("" + status);
     if (status.isAvailable()) {
       setButton(startButton, Material2AL.CROP_SQUARE, 32, Color.RED, "Click to stop the services");
       this.engineStarted.set(true);
