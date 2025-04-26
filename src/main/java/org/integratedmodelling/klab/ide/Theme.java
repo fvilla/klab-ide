@@ -1,10 +1,19 @@
 package org.integratedmodelling.klab.ide;
 
 import atlantafx.base.theme.*;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
+import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
+import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableFolder;
+import org.integratedmodelling.klab.modeler.model.NavigableKimNamespace;
+import org.integratedmodelling.klab.modeler.model.NavigableKimOntology;
+import org.integratedmodelling.klab.modeler.model.NavigableProject;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2AL;
+import org.kordamp.ikonli.material2.Material2MZ;
 
 public enum Theme {
-
   LIGHT_DEFAULT,
   DARK_DEFAULT,
   LIGHT_COOL,
@@ -22,6 +31,32 @@ public enum Theme {
   public static final Color RESOLVER_COLOR_ACTIVE = Color.web("#cc6600");
   public static final Color RUNTIME_COLOR_ACTIVE = Color.web("#cc0000");
 
+  private static Ikon PROJECT_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon ONTOLOGY_ICON = Material2AL.LIGHTBULB;
+  private static Ikon NAMESPACE_ICON = Material2AL.DEVELOPER_BOARD;
+  private static Ikon MODEL_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon CONCEPT_DEFINITION_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon DEFINITION_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon BEHAVIOR_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon FOLDER_ICON = Material2AL.FOLDER_OPEN;
+  private static Ikon TESTCASE_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon APP_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon COMPONENT_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon ACTION_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon STRATEGY_DOCUMENT_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon STRATEGY_ICON = Material2MZ.WORK_OUTLINE;
+  private static Ikon UNKNOWN_ICON = Material2AL.BUILD_CIRCLE;
+
+  public static Node getGraphics(Object asset) {
+    return new FontIcon(
+        switch (asset) {
+          case NavigableProject ignored -> PROJECT_ICON;
+          case NavigableKimOntology ignored -> ONTOLOGY_ICON;
+          case NavigableKimNamespace ignored -> NAMESPACE_ICON;
+          case NavigableFolder ignored -> FOLDER_ICON;
+          default -> UNKNOWN_ICON;
+        });
+  }
 
   public String getStylesheet() {
     return switch (this) {

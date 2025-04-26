@@ -29,8 +29,10 @@ import org.integratedmodelling.klab.api.view.modeler.views.DistributionView;
 import org.integratedmodelling.klab.api.view.modeler.views.ServicesView;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.AuthenticationViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.DistributionViewController;
+import org.integratedmodelling.klab.api.view.modeler.views.controllers.ResourcesNavigatorController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
 import org.integratedmodelling.klab.ide.components.*;
+import org.integratedmodelling.klab.ide.pages.BrowsablePage;
 import org.integratedmodelling.klab.ide.settings.IDESettings;
 import org.integratedmodelling.klab.ide.utils.NodeUtils;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
@@ -42,9 +44,8 @@ import org.kordamp.ikonli.material2.Material2MZ;
 import org.kordamp.ikonli.weathericons.WeatherIcons;
 
 import java.awt.*;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** The main UI. Should probably include an Engine view. */
@@ -56,6 +57,7 @@ public class KlabIDEController
   private UserScope user;
   private Map<KlabService.Type, KlabService.ServiceCapabilities> capabilities = new HashMap<>();
   private boolean inspectorIsOn;
+  private Set<View> neverSeen = EnumSet.of(View.RESOURCES, View.WORKSPACES, View.DIGITAL_TWINS);
 
   /** The "circled" (current) view in the main area. */
   public enum View {
@@ -119,6 +121,11 @@ public class KlabIDEController
     this.servicesController.registerView(this);
     this.authenticationController.registerView(this);
     this.distributionController.registerView(this);
+
+    digitalTwinView = new DigitalTwinView();
+    workspaceView = new WorkspaceView();
+    resourcesView = new ResourcesView();
+    inspectorView = new InspectorView();
   }
 
   @Override
@@ -166,19 +173,26 @@ public class KlabIDEController
         button.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
       }
     }
-    // TODO switch main panel to the view!
+
+    var ui =
+        switch (view) {
+          case NOTEBOOK -> notebook;
+          case RESOURCES -> resourcesView;
+          case DIGITAL_TWINS -> digitalTwinView;
+          case WORKSPACES -> workspaceView;
+        };
+
+    // If it's a browser and it hasn't been seen yet, open the browser
+    if (neverSeen.remove(view) && ui instanceof BrowsablePage<?> browsablePage) {
+//      browsablePage.showBrowser();
+    }
+
+
+    // switch the main area to the requested view.
     Platform.runLater(
         () -> {
           mainArea.getChildren().remove(0, mainArea.getChildren().size());
-          mainArea
-              .getChildren()
-              .add(
-                  switch (view) {
-                    case NOTEBOOK -> notebook;
-                    case RESOURCES -> resourcesView;
-                    case DIGITAL_TWINS -> digitalTwinView;
-                    case WORKSPACES -> workspaceView;
-                  });
+          mainArea.getChildren().add(ui);
         });
   }
 
@@ -213,11 +227,6 @@ public class KlabIDEController
     viewButtons.put(View.RESOURCES, resourcesManagerButton);
     viewButtons.put(View.WORKSPACES, workspacesButton);
 
-    digitalTwinView = new DigitalTwinView();
-    workspaceView = new WorkspaceView();
-    resourcesView = new ResourcesView();
-    inspectorView = new InspectorView();
-
     inspectorButton.setOnMouseClicked(
         event -> {
           toggleInspector();
@@ -229,8 +238,6 @@ public class KlabIDEController
             Toolkit.getDefaultToolkit().beep();
             return;
           }
-
-          Logging.INSTANCE.info("CLICKED THE BUTTON");
 
           Thread.ofPlatform()
               .start(
@@ -265,9 +272,41 @@ public class KlabIDEController
                   });
         });
 
-    downloadButton.setOnMouseClicked(mouseEvent -> {});
-    profileButton.setOnMouseClicked(mouseEvent -> {});
-    settingsButton.setOnMouseClicked(mouseEvent -> {});
+    downloadButton.setOnMouseClicked(
+        mouseEvent -> {
+          notebook.focus(Components.Type.Distribution);
+          selectView(View.NOTEBOOK);
+        });
+    profileButton.setOnMouseClicked(
+        mouseEvent -> {
+          notebook.focus(Components.Type.UserInfo);
+          selectView(View.NOTEBOOK);
+        });
+    settingsButton.setOnMouseClicked(
+        mouseEvent -> {
+          notebook.focus(Components.Type.Settings);
+          selectView(View.NOTEBOOK);
+        });
+    reasonerButton.setOnMouseClicked(
+        mouseEvent -> {
+          notebook.focus(Components.Type.ServiceInfo, KlabService.Type.REASONER);
+          selectView(View.NOTEBOOK);
+        });
+    resourcesButton.setOnMouseClicked(
+        mouseEvent -> {
+          notebook.focus(Components.Type.ServiceInfo, KlabService.Type.RESOURCES);
+          selectView(View.NOTEBOOK);
+        });
+    resolverButton.setOnMouseClicked(
+        mouseEvent -> {
+          notebook.focus(Components.Type.ServiceInfo, KlabService.Type.RESOLVER);
+          selectView(View.NOTEBOOK);
+        });
+    runtimeButton.setOnMouseClicked(
+        mouseEvent -> {
+          notebook.focus(Components.Type.ServiceInfo, KlabService.Type.RUNTIME);
+          selectView(View.NOTEBOOK);
+        });
 
     for (var key : viewButtons.keySet()) {
       viewButtons.get(key).setOnMouseClicked(mouseEvent -> selectView(key));
@@ -278,7 +317,6 @@ public class KlabIDEController
     // must call explicitly because the callback won't be used before boot.
     notifyUser(this.user.getUser());
     notifyDistribution(modeler().getDistribution());
-    //    checkServices(this.user, null);
 
     if (settings.getStartServicesOnStartup().getValue()) {
       // TODO
@@ -452,6 +490,8 @@ public class KlabIDEController
      * available -> on; anything else -> wait;
      */
     checkServices(modeler().user(), status);
+
+    this.workspaceView.updateServices(status);
   }
 
   @Override

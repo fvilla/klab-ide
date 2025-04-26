@@ -3,9 +3,12 @@ package org.integratedmodelling.klab.ide.pages;
 import atlantafx.base.controls.ModalPane;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -13,6 +16,8 @@ import java.awt.*;
 
 /** The generic browser with a modal index on the left. */
 public abstract class BrowsablePage<T extends Node> extends StackPane implements Page {
+
+  private final TabPane tabPane;
 
   private static class Dialog extends VBox {
 
@@ -31,13 +36,26 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
   private Dialog browserArea;
 
   protected BrowsablePage() {
-    getChildren().add(modalPane);
-    this.browserArea = new Dialog(280, -1);
-    modalPane.setOnMouseMoved(
+    super();
+    this.browserArea = new Dialog(380, -1);
+    this.browserArea.setAlignment(Pos.TOP_CENTER);
+    this.browserArea.setPadding(new Insets(2.0));
+    this.tabPane = new TabPane();
+    tabPane.setOnMouseMoved(
         event -> {
           if (event.getSceneX() < 100 && event.getSceneY() < 100) {
             showBrowser();
           }
+        });
+    getChildren().addAll(tabPane, modalPane);
+  }
+
+  public void addEditor(EditorPage<?> node, String title /* TODO icon */) {
+    var tab = new Tab(title, node);
+    Platform.runLater(
+        () -> {
+          this.tabPane.getTabs().add(tab);
+          node.showContent();
         });
   }
 

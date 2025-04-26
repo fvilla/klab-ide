@@ -138,7 +138,7 @@ public abstract class OutlinePage extends StackPane implements Page {
     }
 
     public void addSection(String title, Node content) {
-        var titleIcon = new FontIcon(Material2AL.HEADSET);
+        var titleIcon = new FontIcon(Material2AL.ATTACH_FILE);
         titleIcon.getStyleClass().add("icon-subtle");
 
         var titleLabel = new Label(title);
