@@ -15,7 +15,9 @@ import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableContain
 import org.integratedmodelling.klab.api.view.modeler.views.ResourcesNavigator;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ResourcesNavigatorController;
 import org.integratedmodelling.klab.ide.KlabIDEController;
+import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.pages.BrowsablePage;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,7 +80,7 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     } else {
       var newEditor = new WorkspaceEditor(services.get(resourceInfo), resourceInfo);
       openEditors.put(resourceInfo.getUrn(), newEditor);
-      addEditor(newEditor, resourceInfo.getUrn());
+      addEditor(newEditor, resourceInfo.getUrn(), new FontIcon(Theme.WORKSPACE_ICON));
     }
   }
 

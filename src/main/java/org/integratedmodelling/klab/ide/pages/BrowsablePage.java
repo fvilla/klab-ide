@@ -11,6 +11,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.awt.*;
 
@@ -37,7 +38,7 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
 
   protected BrowsablePage() {
     super();
-    this.browserArea = new Dialog(380, -1);
+    this.browserArea = new Dialog(280, -1);
     this.browserArea.setAlignment(Pos.TOP_CENTER);
     this.browserArea.setPadding(new Insets(2.0));
     this.tabPane = new TabPane();
@@ -50,8 +51,9 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
     getChildren().addAll(tabPane, modalPane);
   }
 
-  public void addEditor(EditorPage<?> node, String title /* TODO icon */) {
+  public void addEditor(EditorPage<?> node, String title, FontIcon icon) {
     var tab = new Tab(title, node);
+    tab.setGraphic(icon);
     Platform.runLater(
         () -> {
           this.tabPane.getTabs().add(tab);

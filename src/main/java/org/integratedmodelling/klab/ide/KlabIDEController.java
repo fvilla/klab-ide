@@ -340,10 +340,12 @@ public class KlabIDEController
           if (inspectorIsOn) {
             inspectorArea.getChildren().removeAll(inspectorView);
             inspectorIsOn = false;
+            KlabIDEApplication.instance().setInspectorShown(false);
             NodeUtils.toggleVisibility(inspectorArea, false);
           } else {
             inspectorArea.getChildren().add(inspectorView);
             inspectorIsOn = true;
+            KlabIDEApplication.instance().setInspectorShown(true);
             NodeUtils.toggleVisibility(inspectorArea, true);
           }
         });

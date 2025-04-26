@@ -19,4 +19,15 @@ public class ResourceEditor extends EditorPage<Resource> {
         var ret = new HBox();
         return ret;
     }
+
+    @Override
+    protected void onSingleClickItemSelection(Resource value) {
+
+    }
+
+    @Override
+    protected void onDoubleClickItemSelection(Resource value) {
+
+    }
+
 }

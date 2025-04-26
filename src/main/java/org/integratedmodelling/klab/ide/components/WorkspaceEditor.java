@@ -6,9 +6,13 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
+import org.integratedmodelling.common.logging.Logging;
+import org.integratedmodelling.klab.api.lang.kim.KlabDocument;
+import org.integratedmodelling.klab.api.lang.kim.KlabStatement;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
+import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
@@ -16,8 +20,8 @@ import org.integratedmodelling.klab.modeler.model.NavigableWorkspace;
 
 public class WorkspaceEditor extends EditorPage<NavigableAsset> {
 
-  ResourcesService service;
-  NavigableWorkspace workspace;
+  private final ResourcesService service;
+  private final NavigableWorkspace workspace;
 
   public WorkspaceEditor(ResourcesService service, ResourceInfo resourceInfo) {
     this.service = service;
@@ -33,9 +37,9 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     treeView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE);
     treeView.setShowRoot(false);
     treeView.setPrefWidth(340);
-//    treeView.setPrefHeight(-1);
-//    treeView.setMaxHeight(Double.MAX_VALUE);
-//    treeView.setMaxWidth(Double.MAX_VALUE);
+    //    treeView.setPrefHeight(-1);
+    //    treeView.setMaxHeight(Double.MAX_VALUE);
+    //    treeView.setMaxWidth(Double.MAX_VALUE);
     return treeView;
   }
 
@@ -65,5 +69,22 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   protected HBox createMenuArea() {
     var ret = new HBox();
     return ret;
+  }
+
+  @Override
+  protected void onSingleClickItemSelection(NavigableAsset value) {
+    if (KlabIDEApplication.instance().isInspectorShown()) {
+      // TODO
+    }
+  }
+
+  @Override
+  protected void onDoubleClickItemSelection(NavigableAsset value) {
+    if (value instanceof KlabDocument<?> document) {
+      // TODO open editor in tab
+      Logging.INSTANCE.info(document.getSourceCode());
+    } else if (value instanceof KlabStatement statement) {
+      // TODO show editor and set the cursor there
+    }
   }
 }

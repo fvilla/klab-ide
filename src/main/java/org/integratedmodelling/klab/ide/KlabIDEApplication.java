@@ -17,6 +17,7 @@ public class KlabIDEApplication extends Application {
   private static KlabIDEApplication instance;
 
   private Thread lspThread;
+  private boolean inspectorShown;
 
   @Override
   public void start(Stage stage) throws IOException {
@@ -69,5 +70,13 @@ public class KlabIDEApplication extends Application {
 
   public static void main(String[] args) {
     launch();
+  }
+
+  public void setInspectorShown(boolean b) {
+    this.inspectorShown = b;
+  }
+
+  public boolean isInspectorShown() {
+    return this.inspectorShown;
   }
 }
