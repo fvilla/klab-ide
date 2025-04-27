@@ -5,14 +5,18 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Side;
+import javafx.scene.Node;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.util.Duration;
-import org.integratedmodelling.common.logging.Logging;
+import org.integratedmodelling.klab.ide.Theme;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Editor for a first-class container - resource, digital twin or workspace.
@@ -28,12 +32,13 @@ public abstract class EditorPage<T> extends BorderPane {
   Duration clickDuration = Duration.millis(350);
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
   boolean isClickTimelinePlaying = false;
+  private Map<T, Node> assetEditors = new HashMap<>();
 
   public EditorPage() {
     this.browsingArea = new BorderPane();
     this.menuArea = createMenuArea();
     this.editorTabs = new TabPane();
-    editorTabs.setStyle(Styles.TABS_CLASSIC);
+    editorTabs.setStyle(Styles.TABS_FLOATING);
     editorTabs.setSide(Side.BOTTOM);
     browsingArea.setBottom(menuArea);
     this.setCenter(editorTabs);
@@ -47,11 +52,12 @@ public abstract class EditorPage<T> extends BorderPane {
           var tree = createContentTree();
           tree.setOnMouseClicked(
               event -> {
+                // painful
                 TreeItem<?> item = tree.getSelectionModel().getSelectedItem();
                 if (isClickTimelinePlaying) {
                   // when clicking the second time before the time line finishes
                   isClickTimelinePlaying = false;
-                  Thread.ofVirtual().start(() -> onDoubleClickItemSelection((T) item.getValue()));
+                  onDoubleClickItemSelection((T) item.getValue());
                   clickTimeline.stop();
                 } else {
                   // when clicking for the first time
@@ -62,8 +68,7 @@ public abstract class EditorPage<T> extends BorderPane {
                   clickTimeline.setOnFinished(
                       x -> {
                         if (item != null) {
-                          Thread.ofVirtual()
-                              .start(() -> onSingleClickItemSelection((T) item.getValue()));
+                          onSingleClickItemSelection((T) item.getValue());
                         }
                         isClickTimelinePlaying = false;
                       });
@@ -75,8 +80,35 @@ public abstract class EditorPage<T> extends BorderPane {
         });
   }
 
+  protected void edit(T asset) {
+    if (!assetEditors.containsKey(asset)) {
+      var editor = createEditor(asset);
+      if (editor != null) {
+        assetEditors.put(asset, editor);
+        var tab = new Tab(asset.toString(), /* TODO actual name */ assetEditors.get(asset));
+        tab.setGraphic(Theme.getGraphics(asset));
+        editorTabs.getTabs().add(tab);
+      }
+    }
+    if (assetEditors.containsKey(asset)) {
+      assetEditors.get(asset).requestFocus();
+    }
+  }
+
+  protected abstract Node createEditor(T asset);
+
+  /**
+   * Handle a single click in the browse tree. Note: runs inside the platform UI thread
+   *
+   * @param value
+   */
   protected abstract void onSingleClickItemSelection(T value);
 
+  /**
+   * Handle a double click in the browse tree. Note: runs inside the platform UI thread
+   *
+   * @param value
+   */
   protected abstract void onDoubleClickItemSelection(T value);
 
   protected abstract TreeView<T> createContentTree();

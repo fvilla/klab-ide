@@ -2,6 +2,8 @@ package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
+import eu.mihosoft.monacofx.MonacoFX;
+import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -12,6 +14,7 @@ import org.integratedmodelling.klab.api.lang.kim.KlabStatement;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
+import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableDocument;
 import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
@@ -72,6 +75,18 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   @Override
+  protected Node createEditor(NavigableAsset asset) {
+    if (asset instanceof KlabDocument<?> document) {
+      var ret = new MonacoFX();
+      ret.getEditor().setCurrentTheme(Theme.CURRENT_THEME.isDark() ? "vs-dark" : "vs-light");
+      ret.getEditor().getDocument().setText(document.getSourceCode());
+      // TODO language stuff
+      return ret;
+    }
+    return null;
+  }
+
+  @Override
   protected void onSingleClickItemSelection(NavigableAsset value) {
     if (KlabIDEApplication.instance().isInspectorShown()) {
       // TODO
@@ -81,8 +96,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   @Override
   protected void onDoubleClickItemSelection(NavigableAsset value) {
     if (value instanceof KlabDocument<?> document) {
-      // TODO open editor in tab
-      Logging.INSTANCE.info(document.getSourceCode());
+      edit(value);
     } else if (value instanceof KlabStatement statement) {
       // TODO show editor and set the cursor there
     }

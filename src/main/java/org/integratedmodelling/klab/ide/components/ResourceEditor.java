@@ -1,5 +1,6 @@
 package org.integratedmodelling.klab.ide.components;
 
+import javafx.scene.Node;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import org.integratedmodelling.klab.api.knowledge.Resource;
@@ -28,6 +29,11 @@ public class ResourceEditor extends EditorPage<Resource> {
     @Override
     protected void onDoubleClickItemSelection(Resource value) {
 
+    }
+
+    @Override
+    protected Node createEditor(Resource asset) {
+        return null;
     }
 
 }

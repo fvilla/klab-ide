@@ -1,8 +1,10 @@
 package org.integratedmodelling.klab.ide.components;
 
+import javafx.scene.Node;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import org.integratedmodelling.klab.api.scope.ContextScope;
+import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
 
 public class DigitalTwinEditor extends EditorPage<ContextScope> {
@@ -26,4 +28,10 @@ public class DigitalTwinEditor extends EditorPage<ContextScope> {
     protected HBox createMenuArea() {
         return null;
     }
+
+    @Override
+    protected Node createEditor(ContextScope asset) {
+        return null;
+    }
+
 }

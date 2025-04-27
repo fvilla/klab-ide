@@ -14,13 +14,24 @@ import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 
 public enum Theme {
-  LIGHT_DEFAULT,
-  DARK_DEFAULT,
-  LIGHT_COOL,
-  DARK_COOL,
-  DARK_ALTERNATIVE;
 
-  public static Theme CURRENT_THEME = LIGHT_DEFAULT;
+  LIGHT_DEFAULT(false),
+  DARK_DEFAULT(true),
+  LIGHT_COOL(false),
+  DARK_COOL(true),
+  DARK_ALTERNATIVE(true);
+
+  private boolean dark;
+
+  Theme(boolean dark) {
+    this.dark = dark;
+  }
+
+  public boolean isDark() {
+    return dark;
+  }
+
+  public static Theme CURRENT_THEME = DARK_COOL;
 
   public static final Color REASONER_COLOR_MUTED = Color.web("#b3d1ff");
   public static final Color RESOURCES_COLOR_MUTED = Color.web("#c2f0c2");
