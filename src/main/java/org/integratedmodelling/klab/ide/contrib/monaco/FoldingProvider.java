@@ -24,5 +24,5 @@
 package org.integratedmodelling.klab.ide.contrib.monaco;
 
 public interface FoldingProvider {
-    Folding[] computeFoldings(Editor editor);
+  Folding[] computeFoldings(Editor editor);
 }

@@ -29,69 +29,74 @@ import netscape.javascript.JSObject;
 
 public final class ViewController {
 
-    private final org.integratedmodelling.klab.ide.contrib.monaco.Editor editor;
-    private JSObject window;
+  private final org.integratedmodelling.klab.ide.contrib.monaco.Editor editor;
+  private JSObject window;
 
-    //private final ObjectProperty<Position> cursorPositionProperty = new SimpleObjectProperty<>();
-    private final IntegerProperty scrollPositionProperty = new SimpleIntegerProperty();
+  // private final ObjectProperty<Position> cursorPositionProperty = new SimpleObjectProperty<>();
+  private final IntegerProperty scrollPositionProperty = new SimpleIntegerProperty();
 
-    private JFunction scrollChangeListener;
+  private JFunction scrollChangeListener;
 
-    public ViewController(Editor editor) {
-        this.editor = editor;
-    }
+  public ViewController(Editor editor) {
+    this.editor = editor;
+  }
 
-    void setEditor(JSObject window, JSObject editor) {
-        this.window = window;
-         // initial scroll
-        editor.call("setScrollPosition", getScrollPosition());
-        // scroll changes -> js
-        scrollPositionProperty().addListener((ov) -> {
-            editor.call("setScrollPosition", getScrollPosition());
-        });
-         // scroll changes <- js
-        scrollChangeListener = new JFunction( args -> {
-            int pos = (int) editor.call("getScrollTop");
-            setScrollPosition(pos);
-            return null;
-        });
-        window.setMember("scrollChangeListener", scrollChangeListener);
-    }
+  void setEditor(JSObject window, JSObject editor) {
+    this.window = window;
+    // initial scroll
+    editor.call("setScrollPosition", getScrollPosition());
+    // scroll changes -> js
+    scrollPositionProperty()
+        .addListener(
+            (ov) -> {
+              editor.call("setScrollPosition", getScrollPosition());
+            });
+    // scroll changes <- js
+    scrollChangeListener =
+        new JFunction(
+            args -> {
+              int pos = (int) editor.call("getScrollTop");
+              setScrollPosition(pos);
+              return null;
+            });
+    window.setMember("scrollChangeListener", scrollChangeListener);
+  }
 
-    public void undo() {
-        window.call("undo");
-    }
+  public void undo() {
+    window.call("undo");
+  }
 
-    public void redo() {
-        window.call("redo");
-    }
+  public void redo() {
+    window.call("redo");
+  }
 
-    public void setScrollPosition(int posIdx) {
-        //editor.setScrollPosition({scrollTop: 0});
-        //editor.getEngine().executeScript("editorView.setScrollPosition({scrollTop: " + posIdx + "});");
-        scrollPositionProperty().set(posIdx);
-    }
+  public void setScrollPosition(int posIdx) {
+    // editor.setScrollPosition({scrollTop: 0});
+    // editor.getEngine().executeScript("editorView.setScrollPosition({scrollTop: " + posIdx +
+    // "});");
+    scrollPositionProperty().set(posIdx);
+  }
 
-    public int getScrollPosition() {
-        // return editor.getScrollTop();
-        return scrollPositionProperty().get();
-    }
+  public int getScrollPosition() {
+    // return editor.getScrollTop();
+    return scrollPositionProperty().get();
+  }
 
-    public void scrollToLine(int line) {
-        // editor.revealLine(line);
-        editor.getJSEditor().call("revealLine", line);
-    }
+  public void scrollToLine(int line) {
+    // editor.revealLine(line);
+    editor.getJSEditor().call("revealLine", line);
+  }
 
-    public void scrollToLineCenter(int line) {
-        // editor.revealLineInCenter(15);
-        editor.getJSEditor().call("revealLineInCenter", line);
-    }
+  public void scrollToLineCenter(int line) {
+    // editor.revealLineInCenter(15);
+    editor.getJSEditor().call("revealLineInCenter", line);
+  }
 
-    // ObjectProperty<Position> cursorPositionProperty() {
-    //     return cursorPositionProperty;
-    // }
+  // ObjectProperty<Position> cursorPositionProperty() {
+  //     return cursorPositionProperty;
+  // }
 
-    public IntegerProperty scrollPositionProperty() {
-        return scrollPositionProperty;
-    }
+  public IntegerProperty scrollPositionProperty() {
+    return scrollPositionProperty;
+  }
 }

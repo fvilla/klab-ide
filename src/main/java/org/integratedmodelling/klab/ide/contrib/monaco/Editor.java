@@ -35,172 +35,187 @@ import netscape.javascript.JSObject;
 
 public final class Editor {
 
-    private final WebEngine engine;
-    private JSObject window;
-    private JSObject editor;
-    private final ViewController viewController;
-    private final ObjectProperty<Document> documentProperty = new SimpleObjectProperty<>();
-    private final ObservableList<LanguageSupport> languages = FXCollections.observableArrayList();
-    private final ObservableList<EditorTheme> themes = FXCollections.observableArrayList();
+  private final WebEngine engine;
+  private JSObject window;
+  private JSObject editor;
+  private final ViewController viewController;
+  private final ObjectProperty<Document> documentProperty = new SimpleObjectProperty<>();
+  private final ObservableList<LanguageSupport> languages = FXCollections.observableArrayList();
+  private final ObservableList<EditorTheme> themes = FXCollections.observableArrayList();
 
-    private final StringProperty currentThemeProperty = new SimpleStringProperty();
-    private final StringProperty currentLanguageProperty = new SimpleStringProperty();
+  private final StringProperty currentThemeProperty = new SimpleStringProperty();
+  private final StringProperty currentLanguageProperty = new SimpleStringProperty();
 
-    Editor(WebEngine engine) {
-        this.engine = engine;
-        this.viewController = new ViewController(this);
-        Document document = new Document();
-        setDocument(document);
+  Editor(WebEngine engine) {
+    this.engine = engine;
+    this.viewController = new ViewController(this);
+    Document document = new Document();
+    setDocument(document);
+  }
+
+  JSObject getJSEditor() {
+    return editor;
+  }
+
+  JSObject getJSWindow() {
+    return window;
+  }
+
+  WebEngine getEngine() {
+    return engine;
+  }
+
+  private void registerLanguageJS(LanguageSupport l) {
+
+    String registerScript = "require(['vs/editor/editor.main'], function() {\n";
+
+    String registerLang = "monaco.languages.register({ id: '" + l.getName() + "' })\n";
+
+    registerScript += registerLang;
+
+    if (l.getMonarchSyntaxHighlighter() != null) {
+      String registerMonarch =
+          "monaco.languages.setMonarchTokensProvider(\""
+              + l.getName()
+              + "\", {\n"
+              + l.getMonarchSyntaxHighlighter().getRules()
+              + "})\n";
+      registerScript += registerMonarch;
     }
 
-    JSObject getJSEditor() {
-        return editor;
+    if (l.getFoldingProvider() != null) {
+      window.setMember(
+          ("foldingProvider_" + l.getName()),
+          new JFunction((args) -> l.getFoldingProvider().computeFoldings(this)));
+
+      String registerFoldingProvider =
+          "monaco.languages.registerFoldingRangeProvider('mylang', {\n"
+              + "         provideFoldingRanges: function(model, context, token) {\n"
+              + "     return foldingProvider_"
+              + l.getName()
+              + ".apply([model,context,token]);\n"
+              + "}\n"
+              + "});\n";
+
+      registerScript += registerFoldingProvider;
     }
 
-    JSObject getJSWindow() {
-        return window;
-    }
+    registerScript += "\n})";
 
-    WebEngine getEngine() {
-        return engine;
-    }
+    engine.executeScript(registerScript);
+  }
 
-    private void registerLanguageJS(LanguageSupport l) {
+  private void registerThemeJS(EditorTheme t) {
+    String script = "monaco.editor.defineTheme('" + t.name + "', " + t.toJS() + ")";
+    engine.executeScript(script);
+  }
 
-        String registerScript = "require(['vs/editor/editor.main'], function() {\n";
+  void setEditor(JSObject window, JSObject editor) {
+    this.editor = editor;
+    this.window = window;
 
-        String registerLang = "monaco.languages.register({ id: '"+ l.getName() + "' })\n";
-
-        registerScript+=registerLang;
-
-        if(l.getMonarchSyntaxHighlighter()!=null) {
-            String registerMonarch = "monaco.languages.setMonarchTokensProvider(\"" + l.getName() + "\", {\n"
-                    + l.getMonarchSyntaxHighlighter().getRules()
-                    + "})\n";
-            registerScript+=registerMonarch;
-        }
-
-        if(l.getFoldingProvider()!=null) {
-            window.setMember(("foldingProvider_" + l.getName()),
-                    new JFunction((args) -> l.getFoldingProvider().computeFoldings(this))
-            );
-
-
-            String registerFoldingProvider = "monaco.languages.registerFoldingRangeProvider('mylang', {\n"
-                    + "         provideFoldingRanges: function(model, context, token) {\n"
-                    + "     return foldingProvider_" + l.getName() + ".apply([model,context,token]);\n"
-                    + "}\n"
-                    + "});\n";
-
-            registerScript+=registerFoldingProvider;
-        }
-
-        registerScript+="\n})";
-
-        engine.executeScript(registerScript);
-    }
-
-    private void registerThemeJS(EditorTheme t) {
-        String script = "monaco.editor.defineTheme('"+t.name+"', " + t.toJS()+")";
-        engine.executeScript(script);
-    }
-
-    void setEditor(JSObject window, JSObject editor) {
-        this.editor = editor;
-        this.window = window;
-
-        // register custom languages
-        languages.forEach(this::registerLanguageJS);
-        languages.addListener((ListChangeListener<LanguageSupport>) c -> {
-            while(c.next()) {
+    // register custom languages
+    languages.forEach(this::registerLanguageJS);
+    languages.addListener(
+        (ListChangeListener<LanguageSupport>)
+            c -> {
+              while (c.next()) {
                 c.getAddedSubList().stream().forEach(this::registerLanguageJS);
-            }
-        });
+              }
+            });
 
-        // register custom themes
-        themes.forEach(this::registerThemeJS);
-        themes.addListener((ListChangeListener<EditorTheme>) c -> {
-            while(c.next()) {
+    // register custom themes
+    themes.forEach(this::registerThemeJS);
+    themes.addListener(
+        (ListChangeListener<EditorTheme>)
+            c -> {
+              while (c.next()) {
                 c.getAddedSubList().stream().forEach(this::registerThemeJS);
-            }
-        });
+              }
+            });
 
-        // initial theme
-        if(getCurrentTheme()!=null) {
-            engine.executeScript("monaco.editor.setTheme('"+getCurrentTheme()+"')");
-        }
-
-        // theme changes -> js
-        currentThemeProperty().addListener((ov) -> {
-            engine.executeScript("monaco.editor.setTheme('"+getCurrentTheme()+"')");
-        });
-
-        // initial lang
-        if(getCurrentLanguage()!=null) {
-            engine.executeScript("monaco.editor.setModelLanguage(editorView.getModel(),'"+getCurrentLanguage()+"')");
-        }
-
-        // lang changes -> js
-        currentLanguageProperty().addListener((ov) -> {
-            engine.executeScript("monaco.editor.setModelLanguage(editorView.getModel(),'"+getCurrentLanguage()+"')");
-        });
-
-        getDocument().setEditor(engine, window, editor);
-
-        getViewController().setEditor(window, editor);
+    // initial theme
+    if (getCurrentTheme() != null) {
+      engine.executeScript("monaco.editor.setTheme('" + getCurrentTheme() + "')");
     }
 
-    public StringProperty currentThemeProperty() {
-        return this.currentThemeProperty;
+    // theme changes -> js
+    currentThemeProperty()
+        .addListener(
+            (ov) -> {
+              engine.executeScript("monaco.editor.setTheme('" + getCurrentTheme() + "')");
+            });
+
+    // initial lang
+    if (getCurrentLanguage() != null) {
+      engine.executeScript(
+          "monaco.editor.setModelLanguage(editorView.getModel(),'" + getCurrentLanguage() + "')");
     }
 
-    public void setCurrentTheme(String theme) {
-        currentThemeProperty().set(theme);
-    }
+    // lang changes -> js
+    currentLanguageProperty()
+        .addListener(
+            (ov) -> {
+              engine.executeScript(
+                  "monaco.editor.setModelLanguage(editorView.getModel(),'"
+                      + getCurrentLanguage()
+                      + "')");
+            });
 
-    public String getCurrentTheme() {
-        return currentThemeProperty().get();
-    }
+    getDocument().setEditor(engine, window, editor);
 
-    public StringProperty currentLanguageProperty() {
-        return this.currentLanguageProperty;
-    }
+    getViewController().setEditor(window, editor);
+  }
 
-    public void setCurrentLanguage(String language) {
-        currentLanguageProperty().set(language);
-    }
+  public StringProperty currentThemeProperty() {
+    return this.currentThemeProperty;
+  }
 
-    public String getCurrentLanguage() {
-        return currentLanguageProperty().get();
-    }
+  public void setCurrentTheme(String theme) {
+    currentThemeProperty().set(theme);
+  }
 
-    public ObjectProperty<Document> documentProperty() {
-        return documentProperty;
-    }
+  public String getCurrentTheme() {
+    return currentThemeProperty().get();
+  }
 
-    public void setDocument(Document document) {
-        documentProperty().set(document);
-    }
+  public StringProperty currentLanguageProperty() {
+    return this.currentLanguageProperty;
+  }
 
-    public Document getDocument() {
-        return documentProperty().get();
-    }
+  public void setCurrentLanguage(String language) {
+    currentLanguageProperty().set(language);
+  }
 
-    public ViewController getViewController() {
-        return viewController;
-    }
+  public String getCurrentLanguage() {
+    return currentLanguageProperty().get();
+  }
 
-//    List<LanguageSupport> getLanguages() {
-//        return languages;
-//    }
+  public ObjectProperty<Document> documentProperty() {
+    return documentProperty;
+  }
 
-    public void registerLanguage(LanguageSupport language) {
-        this.languages.add(language);
-    }
+  public void setDocument(Document document) {
+    documentProperty().set(document);
+  }
 
-    public void registerTheme(EditorTheme theme) {
-        this.themes.add(theme);
-    }
+  public Document getDocument() {
+    return documentProperty().get();
+  }
 
+  public ViewController getViewController() {
+    return viewController;
+  }
 
+  //    List<LanguageSupport> getLanguages() {
+  //        return languages;
+  //    }
+
+  public void registerLanguage(LanguageSupport language) {
+    this.languages.add(language);
+  }
+
+  public void registerTheme(EditorTheme theme) {
+    this.themes.add(theme);
+  }
 }

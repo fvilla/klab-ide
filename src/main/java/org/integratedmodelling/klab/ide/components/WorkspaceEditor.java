@@ -2,9 +2,6 @@ package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
-import eu.mihosoft.monacofx.MonacoFX;
-
-import java.util.Arrays;
 import java.util.List;
 import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
@@ -21,10 +18,10 @@ import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
-import org.integratedmodelling.klab.common.data.Notification;
 import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
+import org.integratedmodelling.klab.ide.contrib.monaco.MonacoEditor;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
 import org.integratedmodelling.klab.modeler.model.NavigableProject;
 import org.integratedmodelling.klab.modeler.model.NavigableWorkspace;
@@ -87,7 +84,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   @Override
   protected Node createEditor(NavigableAsset asset) {
     if (asset instanceof KlabDocument<?> document) {
-      var ret = new MonacoFX();
+      var ret = new MonacoEditor();
       ret.onKeyPressedProperty()
           .setValue(
               event -> {
@@ -105,7 +102,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     return null;
   }
 
-  private void saveDocument(MonacoFX editor, NavigableAsset asset) {
+  private void saveDocument(MonacoEditor editor, NavigableAsset asset) {
     if (service instanceof ResourcesService.Admin admin
         && asset instanceof KlabDocument<?> document) {
       var changes =

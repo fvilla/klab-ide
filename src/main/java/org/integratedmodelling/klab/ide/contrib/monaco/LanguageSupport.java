@@ -25,10 +25,13 @@ package org.integratedmodelling.klab.ide.contrib.monaco;
 
 public interface LanguageSupport {
 
-    String getName();
+  String getName();
 
-    default FoldingProvider getFoldingProvider(){return null;};
+  default FoldingProvider getFoldingProvider() {
+    return null;
+  }
 
-    default MonarchSyntaxHighlighter getMonarchSyntaxHighlighter(){return null;};
-
+  default MonarchSyntaxHighlighter getMonarchSyntaxHighlighter() {
+    return null;
+  }
 }

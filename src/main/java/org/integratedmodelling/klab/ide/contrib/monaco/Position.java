@@ -24,11 +24,11 @@
 package org.integratedmodelling.klab.ide.contrib.monaco;
 
 public final class Position {
-    public final int lineNumber;
-    public final int column;
+  public final int lineNumber;
+  public final int column;
 
-    public Position(int lineNumber, int column) {
-        this.lineNumber = lineNumber;
-        this.column = column;
-    }
+  public Position(int lineNumber, int column) {
+    this.lineNumber = lineNumber;
+    this.column = column;
+  }
 }

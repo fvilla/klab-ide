@@ -24,11 +24,11 @@
 package org.integratedmodelling.klab.ide.contrib.monaco;
 
 public class CursorSelection {
-    public final Selection primarySelection;
-    public final Selection[] secondarySelections;
+  public final Selection primarySelection;
+  public final Selection[] secondarySelections;
 
-    public CursorSelection(Selection primarySelection, Selection[] secondarySelections) {
-        this.primarySelection = primarySelection;
-        this.secondarySelections = secondarySelections;
-    }
+  public CursorSelection(Selection primarySelection, Selection[] secondarySelections) {
+    this.primarySelection = primarySelection;
+    this.secondarySelections = secondarySelections;
+  }
 }
