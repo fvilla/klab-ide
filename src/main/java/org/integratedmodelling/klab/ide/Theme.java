@@ -70,6 +70,14 @@ public enum Theme {
         });
   }
 
+  public static <T> String getLabel(T asset) {
+    if (asset instanceof NavigableAsset navigableAsset) {
+      return navigableAsset.getUrn();
+    }
+    return "BLAAAAH";
+  }
+
+
   public String getStylesheet() {
     return switch (this) {
       case LIGHT_DEFAULT -> new PrimerLight().getUserAgentStylesheet();

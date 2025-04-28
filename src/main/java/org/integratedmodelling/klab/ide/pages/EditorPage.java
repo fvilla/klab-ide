@@ -32,7 +32,7 @@ public abstract class EditorPage<T> extends BorderPane {
   Duration clickDuration = Duration.millis(350);
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
   boolean isClickTimelinePlaying = false;
-  private Map<T, Node> assetEditors = new HashMap<>();
+  private Map<T, Tab> assetEditors = new HashMap<>();
 
   public EditorPage() {
     this.browsingArea = new BorderPane();
@@ -84,14 +84,15 @@ public abstract class EditorPage<T> extends BorderPane {
     if (!assetEditors.containsKey(asset)) {
       var editor = createEditor(asset);
       if (editor != null) {
-        assetEditors.put(asset, editor);
-        var tab = new Tab(asset.toString(), /* TODO actual name */ assetEditors.get(asset));
+        var tab = new Tab(Theme.getLabel(asset), /* TODO actual name */ editor);
         tab.setGraphic(Theme.getGraphics(asset));
         editorTabs.getTabs().add(tab);
+        assetEditors.put(asset, tab);
+        editorTabs.getSelectionModel().select(tab);
       }
     }
     if (assetEditors.containsKey(asset)) {
-      assetEditors.get(asset).requestFocus();
+      editorTabs.getSelectionModel().select(assetEditors.get(asset));
     }
   }
 

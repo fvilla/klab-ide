@@ -1,12 +1,17 @@
 package org.integratedmodelling.klab.ide;
 
 import java.io.IOException;
+import java.util.List;
+
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.controlsfx.control.Notifications;
 import org.integratedmodelling.common.logging.Logging;
 import org.eclipse.xtext.ide.server.ServerLauncher;
+import org.integratedmodelling.klab.api.services.runtime.Notification;
 
 public class KlabIDEApplication extends Application {
 
@@ -58,6 +63,41 @@ public class KlabIDEApplication extends Application {
         });
     stage.setScene(scene);
     stage.show();
+  }
+
+  /**
+   * Receive a set of notifications and handle them through the UI; return true if any of them was
+   * an error.
+   *
+   * @param notifications
+   * @return
+   */
+  public boolean handleNotifications(List<Notification> notifications) {
+
+    int errorCount = 0;
+    for (var notification : notifications) {
+      var popup =
+          Notifications.create()
+              .owner(scene().getRoot())
+              .title(notification.getLevel().name())
+              .text(notification.getMessage());
+
+      if (notification.getLevel().severity > 2) {
+        errorCount++;
+      }
+
+      Platform.runLater(
+          () -> {
+            switch (notification.getLevel()) {
+              case Debug, Info -> popup.showInformation();
+              case Warning -> popup.showWarning();
+              case Error, SystemError -> {
+                popup.showError();
+              }
+            }
+          });
+    }
+    return errorCount > 0;
   }
 
   public static KlabIDEApplication instance() {

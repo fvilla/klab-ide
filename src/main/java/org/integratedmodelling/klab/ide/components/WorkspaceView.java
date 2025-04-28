@@ -8,6 +8,7 @@ import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
+import org.integratedmodelling.klab.api.services.resources.ResourceSet;
 import org.integratedmodelling.klab.api.utils.Utils;
 import org.integratedmodelling.klab.api.view.modeler.Modeler;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
@@ -72,13 +73,15 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
           }
           vBox.getChildren().addAll(components);
         });
+
+    // TODO if we're empty and we only have one workspace, raise the workspace
   }
 
   private void raiseWorkspace(ResourceInfo resourceInfo) {
     if (openEditors.containsKey(resourceInfo.getUrn())) {
-      openEditors.get(resourceInfo.getUrn()).requestFocus();
+      openEditors.get(resourceInfo.getUrn()).requestFocus(); // FIXME must remember the tabs and select(tab) - in both cases
     } else {
-      var newEditor = new WorkspaceEditor(services.get(resourceInfo), resourceInfo);
+      var newEditor = new WorkspaceEditor(services.get(resourceInfo), resourceInfo, this);
       openEditors.put(resourceInfo.getUrn(), newEditor);
       addEditor(newEditor, resourceInfo.getUrn(), new FontIcon(Theme.WORKSPACE_ICON));
     }
@@ -101,4 +104,5 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     }
     Logging.INSTANCE.info(workspaces);
   }
+
 }

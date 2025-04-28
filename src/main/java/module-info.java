@@ -19,6 +19,7 @@ module org.integratedmodelling.klab.ide {
     requires com.ibm.icu;
     requires org.eclipse.emf.ecore;
     requires eu.mihosoft.monacofx;
+    requires jdk.jsobject;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;
