@@ -191,6 +191,19 @@
         editorView.focus();
     }
 
+    function readOnly(value) {
+        editorView.updateOptions({ readOnly: value })
+    }
+
+    function miniMap(value) {
+        editorView.updateOptions({ minimap: { enabled: value } })
+    }
+
+    function lineNumbers(value) {
+        editorView.updateOptions({ lineNumbers: (value ? 'on' : 'off') })
+    }
+
+
     function redo() {
         editorView.trigger('aaaa', 'redo', 'aaaa');
         editorView.focus();

@@ -52,7 +52,7 @@
 <body>
 <div id="container"></div>
 
-<script src="./package/min/vs/loader.js"></script>
+<script src="./package/dev/vs/loader.js"></script>
 
 <script>
 
@@ -63,11 +63,18 @@
 	var contentChangeListener;
 	var scrollChangeListener;
 
-	require.config({ paths: { 'vs': './package/min/vs' }});
+	require.config({ paths: { 'vs': './package/dev/vs' }});
 
 	require(['vs/editor/editor.main'], function() {
 
         const url = window.location.search;
+
+// needs this I think, but in js, not in ts
+//        window.MonacoEnvironment = {-->
+//	        getWorker(_workerId: any, _label: string) {-->
+//		        return new editorWorker();-->
+//	        }-->
+//        };-->
 
 		editorView = monaco.editor.create(document.getElementById('container'), {
 

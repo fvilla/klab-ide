@@ -1,6 +1,7 @@
 package org.integratedmodelling.klab.ide.pages;
 
 import atlantafx.base.controls.ModalPane;
+import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
@@ -42,6 +43,8 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
     this.browserArea.setAlignment(Pos.TOP_CENTER);
     this.browserArea.setPadding(new Insets(2.0));
     this.tabPane = new TabPane();
+    this.tabPane.setStyle(Styles.TABS_FLOATING);
+    this.tabPane.setSide(Side.BOTTOM);
     tabPane.setOnMouseMoved(
         event -> {
           if (event.getSceneX() < 100 && event.getSceneY() < 100) {

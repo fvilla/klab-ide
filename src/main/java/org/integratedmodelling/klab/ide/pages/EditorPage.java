@@ -38,8 +38,6 @@ public abstract class EditorPage<T> extends BorderPane {
     this.browsingArea = new BorderPane();
     this.menuArea = createMenuArea();
     this.editorTabs = new TabPane();
-    editorTabs.setStyle(Styles.TABS_FLOATING);
-    editorTabs.setSide(Side.BOTTOM);
     browsingArea.setBottom(menuArea);
     this.setCenter(editorTabs);
     this.setRight(browsingArea);

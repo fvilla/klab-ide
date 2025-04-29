@@ -2,7 +2,12 @@ package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
-import java.util.List;
+
+import java.util.*;
+
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -18,11 +23,14 @@ import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
+import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableDocument;
 import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.contrib.monaco.MonacoEditor;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
+import org.integratedmodelling.klab.modeler.model.NavigableKimConceptStatement;
+import org.integratedmodelling.klab.modeler.model.NavigableKimModel;
 import org.integratedmodelling.klab.modeler.model.NavigableProject;
 import org.integratedmodelling.klab.modeler.model.NavigableWorkspace;
 
@@ -31,6 +39,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   private final ResourcesService service;
   private final NavigableWorkspace workspace;
   private final WorkspaceView view;
+  private TreeItem<NavigableAsset> root;
 
   public WorkspaceEditor(ResourcesService service, ResourceInfo resourceInfo, WorkspaceView view) {
     this.service = service;
@@ -38,28 +47,55 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     this.workspace =
         new NavigableWorkspace(
             service.retrieveWorkspace(resourceInfo.getUrn(), KlabIDEController.modeler().user()));
+    if (service.isExclusive() && service instanceof ResourcesService.Admin admin) {
+      // lock all projects that let us
+      for (var project : workspace.getProjects()) {
+        if (admin.lockProject(project.getUrn(), KlabIDEController.modeler().user())
+            && project instanceof NavigableProject navigableProject) {
+          navigableProject.setLocked(true);
+        }
+      }
+    }
   }
 
   @Override
   protected TreeView<NavigableAsset> createContentTree() {
-    var treeView = new TreeView<>(defineTree(workspace));
+    var treeView = new TreeView<>(this.root = defineTree(workspace));
     treeView.setCellFactory(p -> new AssetTreeCell());
     treeView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE);
     treeView.setShowRoot(false);
     treeView.setPrefWidth(340);
-    //    treeView.setPrefHeight(-1);
-    //    treeView.setMaxHeight(Double.MAX_VALUE);
-    //    treeView.setMaxWidth(Double.MAX_VALUE);
     return treeView;
   }
 
   private static final class AssetTreeCell extends TreeCell<NavigableAsset> {
     @Override
-    protected void updateItem(NavigableAsset navigableAsset, boolean empty) {
-      super.updateItem(navigableAsset, empty);
-      if (navigableAsset != null && !empty) {
-        setText(navigableAsset.getUrn());
-        setGraphic(Theme.getGraphics(navigableAsset));
+    protected void updateItem(NavigableAsset asset, boolean empty) {
+      super.updateItem(asset, empty);
+      if (asset != null && !empty) {
+        setText(Theme.getLabel(asset));
+        setGraphic(Theme.getGraphics(asset));
+        switch (asset) {
+          case NavigableProject navigableProject -> {
+            if (navigableProject.isLocked()) {
+              setStyle("-fx-text-fill: -color-success-fg;");
+            }
+          }
+          case NavigableDocument navigableProject -> {
+            // leave these - there is an unclear style "leaking" phenomenon otherwise
+            setStyle(null);
+          }
+          case NavigableKimConceptStatement navigableProject -> {
+            setStyle(null);
+          }
+          case NavigableKimModel navigableProject -> {
+            setStyle(null);
+          }
+          default -> {
+            setStyle(null);
+          }
+        }
+
       } else {
         setText(null);
         setGraphic(null);
@@ -84,20 +120,25 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   @Override
   protected Node createEditor(NavigableAsset asset) {
     if (asset instanceof KlabDocument<?> document) {
-      var ret = new MonacoEditor();
-      ret.onKeyPressedProperty()
-          .setValue(
-              event -> {
-                if (event.isControlDown() && event.getCode() == KeyCode.S) {
-                  Thread.ofVirtual().start(() -> saveDocument(ret, asset));
-                }
-              });
-      ret.getEditor().setCurrentTheme(Theme.CURRENT_THEME.isDark() ? "vs-dark" : "vs");
-      ret.getEditor().getDocument().setText(document.getSourceCode());
-      // TODO language stuff
-      ret.getEditor().setCurrentLanguage("java"); // right
-
-      return ret;
+      return new MonacoEditor(
+          editor -> {
+            editor
+                .onKeyPressedProperty()
+                .setValue(
+                    event -> {
+                      if (event.isControlDown() && event.getCode() == KeyCode.S) {
+                        Thread.ofVirtual().start(() -> saveDocument(editor, asset));
+                      }
+                    });
+            editor.getEditor().setCurrentTheme(Theme.CURRENT_THEME.isDark() ? "vs-dark" : "vs");
+            var project = asset.parent(NavigableProject.class);
+            if (project != null && !project.isLocked()) {
+              editor.getEditor().getViewController().readOnly(true);
+            }
+            editor.getEditor().getDocument().setText(document.getSourceCode());
+            // TODO language stuff
+            editor.getEditor().setCurrentLanguage("java"); // right
+          });
     }
     return null;
   }
@@ -117,8 +158,6 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
 
   public void updateWorkspace(List<ResourceSet> changes) {
 
-    Logging.INSTANCE.info("UPDATE CHANGES DIOCA " + changes);
-
     var allNotifications =
         Utils.Collections.flatList(changes.stream().map(ResourceSet::getNotifications).toList());
     var codeNotifications =
@@ -135,20 +174,35 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
       return;
     }
 
+    Map<String, NavigableAsset> changed = new LinkedHashMap<>();
     for (var change : changes) {
       if (!change.isEmpty()) {
-        if (workspace.mergeChanges(change, KlabIDEController.modeler().user())) {
-          // TODO store the changed docs for updating in the tree, include their parents if docs
-          // have been added or removed
+        for (var asset : workspace.mergeChanges(change, KlabIDEController.modeler().user())) {
+          changed.put(asset.toString(), asset);
         }
       }
     }
 
-    // TODO update the items corresponding to the changed documents; check out icons for document
-    //  git status; use code notifications for error markers
+    Platform.runLater(
+        () -> {
+          updateTree(this.root, changed);
+        });
+  }
 
-    // TODO turn over the code notifications to any open editor for changes
-
+  private void updateTree(TreeItem<NavigableAsset> root, Map<String, NavigableAsset> changed) {
+    if (root.getValue() != null) {
+      if (changed.containsKey(root.getValue().toString())) {
+        var newAsset = changed.get(root.getValue().toString());
+        ObservableList<TreeItem<NavigableAsset>> children = FXCollections.observableArrayList();
+        for (var child : newAsset.children()) {
+          children.add(defineTree(child));
+        }
+        root.getChildren().setAll(children);
+      }
+    }
+    for (var child : root.getChildren()) {
+      updateTree(child, changed);
+    }
   }
 
   @Override

@@ -25,6 +25,8 @@ package org.integratedmodelling.klab.ide.contrib.monaco;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.geometry.HPos;
@@ -46,7 +48,7 @@ public class MonacoEditor extends Region {
   private final Editor editor;
   private final SystemClipboardWrapper systemClipboardWrapper;
 
-  public MonacoEditor() {
+  public MonacoEditor(final Consumer<MonacoEditor> configurer) {
     view = new WebView();
     getChildren().add(view);
     engine = view.getEngine();
@@ -88,6 +90,9 @@ public class MonacoEditor extends Region {
                                   if (jsEditorObj instanceof JSObject) {
                                     editor.setEditor(window, (JSObject) jsEditorObj);
                                     jsDone.set(true);
+                                    if (configurer != null) {
+                                      configurer.accept(this);
+                                    }
                                   }
                                 });
 

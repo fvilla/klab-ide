@@ -70,6 +70,10 @@ public final class ViewController {
     window.call("redo");
   }
 
+  public void readOnly(boolean value) {
+    window.call("readOnly", value);
+  }
+
   public void setScrollPosition(int posIdx) {
     // editor.setScrollPosition({scrollTop: 0});
     // editor.getEngine().executeScript("editorView.setScrollPosition({scrollTop: " + posIdx +

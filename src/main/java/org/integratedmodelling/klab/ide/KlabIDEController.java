@@ -207,9 +207,9 @@ public class KlabIDEController
 
     homeButton.setGraphic(
         new IconLabel(Material2AL.HOME, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
-    workspacesButton.setGraphic(new IconLabel(BootstrapIcons.BORDER_ALL, 24, Color.GREY));
-    resourcesManagerButton.setGraphic(new IconLabel(FontAwesomeSolid.CUBES, 24, Color.GREY));
-    digitalTwinsButton.setGraphic(new IconLabel(WeatherIcons.EARTHQUAKE, 24, Color.GREY));
+    workspacesButton.setGraphic(new IconLabel(Theme.WORKSPACES_ICON, 24, Color.GREY));
+    resourcesManagerButton.setGraphic(new IconLabel(Theme.RESOURCES_ICON, 24, Color.GREY));
+    digitalTwinsButton.setGraphic(new IconLabel(Theme.DIGITAL_TWINS_ICON, 24, Color.GREY));
     downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 24, Color.GREY));
     startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 32, Color.GREY));
     reasonerButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
@@ -368,7 +368,7 @@ public class KlabIDEController
             KlabService.Type.RESOLVER)) {
 
       String serviceName = serviceType.name().toLowerCase();
-      Ikon icon = Material2AL.BLUR_ON;
+      Ikon icon = Theme.LOCAL_SERVICE_ICON;
       var service = user.getService(serviceType.classify());
       String tooltip = Utils.Strings.capitalize(serviceName) + " ";
 
@@ -377,8 +377,8 @@ public class KlabIDEController
           tooltip = "Remote " + serviceName + " " + service.getServiceName();
           icon =
               user.getServices(serviceType.classify()).size() > 1
-                  ? BootstrapIcons.CLOUDS_FILL
-                  : BootstrapIcons.CLOUD_FILL;
+                  ? Theme.REMOTE_SERVICE_ICON_MANY
+                  : Theme.REMOTE_SERVICE_ICON_ONE;
         } else {
           tooltip = "Local " + serviceName;
         }
@@ -410,26 +410,26 @@ public class KlabIDEController
               .anyMatch(s -> s.status().isOperational())) {
         setButton(
             workspacesButton,
-            BootstrapIcons.BORDER_ALL,
+            Theme.RESOURCES_ICON,
             24,
             Color.DARKGREEN,
             workspacesButton.getTooltip().getText());
         setButton(
             resourcesManagerButton,
-            FontAwesomeSolid.CUBES,
+            Theme.RESOURCES_ICON,
             24,
             Color.DARKGREEN,
             resourcesManagerButton.getTooltip().getText());
       } else {
         setButton(
             workspacesButton,
-            BootstrapIcons.BORDER_ALL,
+            Theme.WORKSPACES_ICON,
             24,
             Color.GREY,
             workspacesButton.getTooltip().getText());
         setButton(
             resourcesManagerButton,
-            FontAwesomeSolid.CUBES,
+            Theme.RESOURCES_ICON,
             24,
             Color.GREY,
             resourcesManagerButton.getTooltip().getText());
@@ -440,14 +440,14 @@ public class KlabIDEController
               .anyMatch(s -> s.status().isOperational())) {
         setButton(
             digitalTwinsButton,
-            WeatherIcons.EARTHQUAKE,
+            Theme.DIGITAL_TWINS_ICON,
             24,
             Color.DARKRED,
             digitalTwinsButton.getTooltip().getText());
       } else {
         setButton(
             digitalTwinsButton,
-            WeatherIcons.EARTHQUAKE,
+            Theme.DIGITAL_TWINS_ICON,
             24,
             Color.GREY,
             digitalTwinsButton.getTooltip().getText());
