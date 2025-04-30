@@ -26,6 +26,9 @@ package org.integratedmodelling.klab.ide.contrib.monaco;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import netscape.javascript.JSObject;
+import org.integratedmodelling.common.logging.Logging;
+
+import java.util.Arrays;
 
 public final class ViewController {
 
@@ -36,6 +39,7 @@ public final class ViewController {
   private final IntegerProperty scrollPositionProperty = new SimpleIntegerProperty();
 
   private JFunction scrollChangeListener;
+  private JFunction caretMovementListener;
 
   public ViewController(Editor editor) {
     this.editor = editor;
@@ -55,11 +59,20 @@ public final class ViewController {
     scrollChangeListener =
         new JFunction(
             args -> {
+              Logging.INSTANCE.info("PUTO IMBONITORE " + Arrays.toString(args));
               int pos = (int) editor.call("getScrollTop");
               setScrollPosition(pos);
               return null;
             });
+    caretMovementListener =
+            new JFunction(
+                    args -> {
+                      Logging.INSTANCE.info("CARET MOVED " + Arrays.toString(args));
+                      return null;
+                    });
+
     window.setMember("scrollChangeListener", scrollChangeListener);
+    window.setMember("caretMovementListener", caretMovementListener);
   }
 
   public void undo() {

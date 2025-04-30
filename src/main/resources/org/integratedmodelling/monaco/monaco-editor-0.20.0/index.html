@@ -61,6 +61,7 @@
 	var foldingProvider;
 	var editorView;
 	var contentChangeListener;
+	var caretMovementListener;
 	var scrollChangeListener;
 
 	require.config({ paths: { 'vs': './package/min/vs' }});
@@ -139,6 +140,13 @@
                contentChangeListener.apply([ev]);
             }
         });
+
+// non funzia, dio bue
+//         editor.onDidChangeCursorSelection((e) => {
+//            if (caretMovementListener!= null) {
+//               caretMovementListener.apply([e]);
+//            }
+//        });
 
 		editorView.onDidScrollChange((ev) => {
             if(scrollChangeListener!=null) {

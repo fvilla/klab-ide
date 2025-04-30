@@ -78,6 +78,8 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
   }
 
   private void raiseWorkspace(ResourceInfo resourceInfo) {
+
+    hideBrowser();
     if (openEditors.containsKey(resourceInfo.getUrn())) {
       openEditors.get(resourceInfo.getUrn()).requestFocus(); // FIXME must remember the tabs and select(tab) - in both cases
     } else {

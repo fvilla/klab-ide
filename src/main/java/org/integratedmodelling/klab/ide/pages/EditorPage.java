@@ -13,6 +13,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
+import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.ide.Theme;
 
 import java.util.HashMap;
@@ -38,6 +39,8 @@ public abstract class EditorPage<T> extends BorderPane {
     this.browsingArea = new BorderPane();
     this.menuArea = createMenuArea();
     this.editorTabs = new TabPane();
+    this.editorTabs.setStyle(Styles.TABS_CLASSIC);
+    this.editorTabs.setSide(Side.BOTTOM);
     browsingArea.setBottom(menuArea);
     this.setCenter(editorTabs);
     this.setRight(browsingArea);

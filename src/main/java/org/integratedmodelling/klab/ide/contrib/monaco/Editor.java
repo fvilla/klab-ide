@@ -111,6 +111,7 @@ public final class Editor {
   }
 
   void setEditor(JSObject window, JSObject editor) {
+
     this.editor = editor;
     this.window = window;
 

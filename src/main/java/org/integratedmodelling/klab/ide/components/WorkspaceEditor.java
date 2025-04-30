@@ -193,11 +193,15 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     if (root.getValue() != null) {
       if (changed.containsKey(root.getValue().toString())) {
         var newAsset = changed.get(root.getValue().toString());
+        boolean open = root.isExpanded();
         ObservableList<TreeItem<NavigableAsset>> children = FXCollections.observableArrayList();
         for (var child : newAsset.children()) {
           children.add(defineTree(child));
         }
         root.getChildren().setAll(children);
+        if (open) {
+          root.setExpanded(true);
+        }
       }
     }
     for (var child : root.getChildren()) {

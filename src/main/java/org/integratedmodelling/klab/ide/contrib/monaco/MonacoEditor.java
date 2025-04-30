@@ -49,6 +49,7 @@ public class MonacoEditor extends Region {
   private final SystemClipboardWrapper systemClipboardWrapper;
 
   public MonacoEditor(final Consumer<MonacoEditor> configurer) {
+
     view = new WebView();
     getChildren().add(view);
     engine = view.getEngine();

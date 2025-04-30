@@ -12,7 +12,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.integratedmodelling.common.logging.Logging;
+import org.integratedmodelling.klab.ide.Theme;
+import org.integratedmodelling.klab.ide.components.IconLabel;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2MZ;
 
 import java.awt.*;
 
@@ -43,14 +47,18 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
     this.browserArea.setAlignment(Pos.TOP_CENTER);
     this.browserArea.setPadding(new Insets(2.0));
     this.tabPane = new TabPane();
-    this.tabPane.setStyle(Styles.TABS_FLOATING);
-    this.tabPane.setSide(Side.BOTTOM);
-    tabPane.setOnMouseMoved(
-        event -> {
-          if (event.getSceneX() < 100 && event.getSceneY() < 100) {
-            showBrowser();
-          }
-        });
+    var menuTab = new Tab("");
+    menuTab.setGraphic(
+        new IconLabel(Material2MZ.MENU, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
+    menuTab.setClosable(false);
+//    menuTab.setDisable(true);
+    menuTab
+        .getGraphic()
+        .setOnMouseClicked(
+            event -> {
+              showBrowser();
+            });
+    this.tabPane.getTabs().add(menuTab);
     getChildren().addAll(tabPane, modalPane);
   }
 
@@ -60,11 +68,25 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
     Platform.runLater(
         () -> {
           this.tabPane.getTabs().add(tab);
+          this.tabPane.getSelectionModel().select(tab);
           node.showContent();
         });
   }
 
   protected abstract void defineBrowser(VBox vBox);
+
+  public void hideBrowser() {
+
+      if (modalPane.contentProperty().isBound()) {
+          return;
+      }
+
+      //                  this.browserArea.getChildren().removeAll();
+      //                  defineBrowser(this.browserArea);
+      //                  modalPane.setAlignment(Pos.TOP_LEFT);
+      //                  modalPane.usePredefinedTransitionFactories(Side.LEFT);
+      Platform.runLater(modalPane::hide);
+  }
 
   public void showBrowser() {
 
