@@ -51,7 +51,7 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
     menuTab.setGraphic(
         new IconLabel(Material2MZ.MENU, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
     menuTab.setClosable(false);
-//    menuTab.setDisable(true);
+    menuTab.setDisable(true);
     menuTab
         .getGraphic()
         .setOnMouseClicked(
