@@ -32,6 +32,7 @@ import java.util.Arrays;
 
 public final class ViewController {
 
+  private boolean minibarVisible = false;
   private final org.integratedmodelling.klab.ide.contrib.monaco.Editor editor;
   private JSObject window;
 
@@ -46,6 +47,7 @@ public final class ViewController {
   }
 
   void setEditor(JSObject window, JSObject editor) {
+
     this.window = window;
     // initial scroll
     editor.call("setScrollPosition", getScrollPosition());
@@ -59,7 +61,6 @@ public final class ViewController {
     scrollChangeListener =
         new JFunction(
             args -> {
-              Logging.INSTANCE.info("PUTO IMBONITORE " + Arrays.toString(args));
               int pos = (int) editor.call("getScrollTop");
               setScrollPosition(pos);
               return null;
@@ -67,16 +68,21 @@ public final class ViewController {
     caretMovementListener =
             new JFunction(
                     args -> {
-                      Logging.INSTANCE.info("CARET MOVED " + Arrays.toString(args));
+                      // TODO compute or retrieve caret position
+                      onCaretMoved(1);
                       return null;
                     });
 
-    window.setMember("scrollChangeListener", scrollChangeListener);
-    window.setMember("caretMovementListener", caretMovementListener);
+    this.window.setMember("scrollChangeListener", scrollChangeListener);
+    this.window.setMember("caretMovementListener", caretMovementListener);
   }
 
   public void undo() {
     window.call("undo");
+  }
+
+  public void onCaretMoved(int offset) {
+    Logging.INSTANCE.info("CARET MOVED " + offset);
   }
 
   public void redo() {
@@ -107,6 +113,11 @@ public final class ViewController {
   public void scrollToLineCenter(int line) {
     // editor.revealLineInCenter(15);
     editor.getJSEditor().call("revealLineInCenter", line);
+  }
+
+  public void toggleMinibar() {
+    minibarVisible = !minibarVisible;
+    editor.getJSEditor().call("miniMap", minibarVisible);
   }
 
   // ObjectProperty<Position> cursorPositionProperty() {

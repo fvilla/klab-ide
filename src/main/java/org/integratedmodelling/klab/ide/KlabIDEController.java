@@ -29,7 +29,6 @@ import org.integratedmodelling.klab.api.view.modeler.views.DistributionView;
 import org.integratedmodelling.klab.api.view.modeler.views.ServicesView;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.AuthenticationViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.DistributionViewController;
-import org.integratedmodelling.klab.api.view.modeler.views.controllers.ResourcesNavigatorController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
 import org.integratedmodelling.klab.ide.components.*;
 import org.integratedmodelling.klab.ide.pages.BrowsablePage;
@@ -38,10 +37,10 @@ import org.integratedmodelling.klab.ide.utils.NodeUtils;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
+import org.kordamp.ikonli.evaicons.Evaicons;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
-import org.kordamp.ikonli.weathericons.WeatherIcons;
 
 import java.awt.*;
 import java.util.*;
@@ -64,7 +63,9 @@ public class KlabIDEController
     NOTEBOOK,
     RESOURCES,
     WORKSPACES,
-    DIGITAL_TWINS
+    DIGITAL_TWINS,
+    APPLICATIONS,
+    WORLDVIEW
   }
 
   @FXML Button homeButton;
@@ -80,6 +81,8 @@ public class KlabIDEController
   @FXML Button inspectorButton;
   @FXML Button profileButton;
   @FXML Button resourcesManagerButton;
+  @FXML Button sessionsButton;
+  @FXML Button worldviewButton;
 
   @FXML NotebookView notebook;
   @FXML Pane mainArea;
@@ -99,6 +102,8 @@ public class KlabIDEController
   private ResourcesView resourcesView;
   private DigitalTwinView digitalTwinView;
   private InspectorView inspectorView;
+  private SessionView applicationView;
+  private OntologyView ontologyView;
 
   public KlabIDEController() {
     createModeler();
@@ -126,6 +131,8 @@ public class KlabIDEController
     workspaceView = new WorkspaceView();
     resourcesView = new ResourcesView();
     inspectorView = new InspectorView();
+    applicationView = new SessionView();
+    ontologyView = new OntologyView();
   }
 
   @Override
@@ -180,13 +187,14 @@ public class KlabIDEController
           case RESOURCES -> resourcesView;
           case DIGITAL_TWINS -> digitalTwinView;
           case WORKSPACES -> workspaceView;
+          case APPLICATIONS -> applicationView;
+          case WORLDVIEW -> ontologyView;
         };
 
     // If it's a browser and it hasn't been seen yet, open the browser
     if (neverSeen.remove(view) && ui instanceof BrowsablePage<?> browsablePage) {
-//      browsablePage.showBrowser();
+      //      browsablePage.showBrowser();
     }
-
 
     // switch the main area to the requested view.
     Platform.runLater(
@@ -210,22 +218,26 @@ public class KlabIDEController
     workspacesButton.setGraphic(new IconLabel(Theme.WORKSPACES_ICON, 24, Color.GREY));
     resourcesManagerButton.setGraphic(new IconLabel(Theme.RESOURCES_ICON, 24, Color.GREY));
     digitalTwinsButton.setGraphic(new IconLabel(Theme.DIGITAL_TWINS_ICON, 24, Color.GREY));
+    sessionsButton.setGraphic(new IconLabel(Theme.APPLICATION_VIEW_ICON, 24, Color.GREY));
+    worldviewButton.setGraphic(new IconLabel(Theme.WORLDVIEW_ICON, 24, Color.GREY));
     downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 24, Color.GREY));
     startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 32, Color.GREY));
-    reasonerButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
-    resourcesButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
-    resolverButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
-    runtimeButton.setGraphic(new IconLabel(Material2AL.BLUR_ON, 24, Color.GREY));
+    reasonerButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 24, Color.GREY));
+    resourcesButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 24, Color.GREY));
+    resolverButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 24, Color.GREY));
+    runtimeButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 24, Color.GREY));
     settingsButton.setGraphic(
         new IconLabel(FontAwesomeSolid.COG, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
     inspectorButton.setGraphic(
-        new IconLabel(FontAwesomeSolid.LIGHTBULB, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
+        new IconLabel(Theme.INSPECTOR_ICON, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
     profileButton.setGraphic(new IconLabel(FontAwesomeSolid.USER_CIRCLE, 32, Color.GREY));
 
     viewButtons.put(View.NOTEBOOK, homeButton);
     viewButtons.put(View.DIGITAL_TWINS, digitalTwinsButton);
     viewButtons.put(View.RESOURCES, resourcesManagerButton);
+    viewButtons.put(View.APPLICATIONS, sessionsButton);
     viewButtons.put(View.WORKSPACES, workspacesButton);
+    viewButtons.put(View.WORLDVIEW, worldviewButton);
 
     inspectorButton.setOnMouseClicked(
         event -> {
@@ -328,7 +340,7 @@ public class KlabIDEController
 
     setButton(
         inspectorButton,
-        FontAwesomeSolid.LIGHTBULB,
+        Theme.INSPECTOR_ICON,
         24,
         inspectorIsOn ? Theme.CURRENT_THEME.getDefaultTextColor() : Color.GOLDENROD,
         inspectorIsOn
@@ -353,8 +365,8 @@ public class KlabIDEController
 
   /**
    * If single service in the cloud, use BootstrapIcons.CLOUDY_FILL If multiple services in the
-   * cloud, use BootstrapIcons.CLOUDS_FILL If local service, use Material2AL.BLUR_ON All with the
-   * color from Theme
+   * cloud, use BootstrapIcons.CLOUDS_FILL If local service, use Material2AL.DONUT_SMALL All with
+   * the color from Theme
    *
    * @param user
    */
@@ -478,7 +490,7 @@ public class KlabIDEController
     // This only gets called when the status has changed.
     Logging.INSTANCE.info("" + status);
     if (status.isAvailable()) {
-      setButton(startButton, Material2AL.CROP_SQUARE, 32, Color.RED, "Click to stop the services");
+      setButton(startButton, Material2MZ.STOP, 32, Color.DARKRED, "Click to stop the services");
       this.engineStarted.set(true);
     }
 
@@ -526,14 +538,14 @@ public class KlabIDEController
           profileButton,
           FontAwesomeSolid.USER_CIRCLE,
           32,
-          Color.RED,
+          Color.DARKRED,
           "Anonymous user. Please obtain a certificate.");
     } else if (identity.isAuthenticated()) {
       setButton(
           profileButton,
           FontAwesomeSolid.USER_CIRCLE,
           32,
-          Color.GREEN,
+          Color.DARKGREEN,
           "User " + identity.getUsername() + " logged in");
     } else {
       setButton(

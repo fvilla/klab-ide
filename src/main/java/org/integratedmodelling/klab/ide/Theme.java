@@ -12,6 +12,7 @@ import org.integratedmodelling.klab.modeler.model.NavigableKimOntology;
 import org.integratedmodelling.klab.modeler.model.NavigableProject;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
+import org.kordamp.ikonli.evaicons.Evaicons;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
@@ -35,7 +36,7 @@ public enum Theme {
     return dark;
   }
 
-  public static Theme CURRENT_THEME = DARK_COOL;
+  public static Theme CURRENT_THEME = LIGHT_DEFAULT;
 
   // color coding for services. TODO may be non-static, styled according to the current theme
   public static final Color REASONER_COLOR_MUTED = Color.web("#b3d1ff");
@@ -69,9 +70,12 @@ public enum Theme {
   public static Ikon RESOURCES_ICON = FontAwesomeSolid.CUBES;
   public static Ikon WORKSPACES_ICON = Material2AL.ARCHITECTURE; // BootstrapIcons.BORDER_ALL;
   public static Ikon DIGITAL_TWINS_ICON = Material2AL.GRAPHIC_EQ;
+  public static Ikon APPLICATION_VIEW_ICON = Material2AL.APPS;
+  public static Ikon WORLDVIEW_ICON = Evaicons.BULB_OUTLINE;
+  public static Ikon INSPECTOR_ICON = Evaicons.EYE;
 
   // services
-  public static final Ikon LOCAL_SERVICE_ICON = Material2AL.BLUR_ON;
+  public static final Ikon LOCAL_SERVICE_ICON = Material2AL.DONUT_SMALL;
   public static final Ikon REMOTE_SERVICE_ICON_ONE = BootstrapIcons.CLOUDS_FILL;
   public static final Ikon REMOTE_SERVICE_ICON_MANY = BootstrapIcons.CLOUDS;
 

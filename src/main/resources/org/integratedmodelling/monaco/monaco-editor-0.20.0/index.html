@@ -141,12 +141,12 @@
             }
         });
 
-// non funzia, dio bue
-//         editor.onDidChangeCursorSelection((e) => {
-//            if (caretMovementListener!= null) {
-//               caretMovementListener.apply([e]);
-//            }
-//        });
+        editorView.onDidChangeCursorSelection((e) => {
+            // FIXME works but can't get the value at the Java side
+            if (caretMovementListener!= null) {
+               caretMovementListener.apply([e]);
+            }
+        });
 
 		editorView.onDidScrollChange((ev) => {
             if(scrollChangeListener!=null) {

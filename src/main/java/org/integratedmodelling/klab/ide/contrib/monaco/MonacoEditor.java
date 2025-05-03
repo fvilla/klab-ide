@@ -30,14 +30,20 @@ import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2AL;
 
-public class MonacoEditor extends Region {
+public class MonacoEditor extends BorderPane {
 
   private final WebView view;
   private final WebEngine engine;
@@ -50,8 +56,9 @@ public class MonacoEditor extends Region {
 
   public MonacoEditor(final Consumer<MonacoEditor> configurer) {
 
+    setTop(createMenuBar());
     view = new WebView();
-    getChildren().add(view);
+    setCenter(view);
     engine = view.getEngine();
     String url = getClass().getResource(EDITOR_HTML_RESOURCE_LOCATION).toExternalForm();
 
@@ -115,6 +122,19 @@ public class MonacoEditor extends Region {
                   "editorView.getModel().getValueInRange(editorView.getSelection())");
           systemClipboardWrapper.handleCopyCutKeyEvent(event, obj);
         });
+  }
+
+  public HBox createMenuBar() {
+    var left = new HBox();
+    left.setAlignment(Pos.CENTER_LEFT);
+    var right = new HBox();
+    right.setAlignment(Pos.CENTER_RIGHT);
+    var button = new Button("", new FontIcon(Material2AL.CHROME_READER_MODE));
+    button.setOnMouseClicked(e -> {
+      editor.getViewController().toggleMinibar();
+    });
+    right.getChildren().add(button);
+    return new HBox(left, right);
   }
 
   @Override

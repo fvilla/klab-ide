@@ -3,6 +3,8 @@ package org.integratedmodelling.klab.ide.components;
 import atlantafx.base.controls.Card;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
@@ -10,6 +12,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
@@ -72,9 +75,16 @@ public class Components {
 
     protected void createContent() {
       var card = new Card();
-      //      HBox hBox =
-      //          new HBox(new ImageView(new Image("@../icons/klab-im.png")));
-      this.getChildren().add(card);
+      try (var lg =
+          this.getClass()
+              .getResourceAsStream("/org/integratedmodelling/klab/ide/icons/klab-im.png")) {
+        var logo = new Image(lg, 420, 180, true, true);
+        HBox hBox = new HBox(new ImageView(logo));
+        card.setBody(hBox);
+        this.getChildren().add(card);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -347,5 +357,4 @@ public class Components {
       this.getChildren().add(card);
     }
   }
-
 }

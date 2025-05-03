@@ -130,6 +130,11 @@
             <artifactId>ikonli-weathericons-pack</artifactId>
             <version>12.3.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-evaicons-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
         <!--
                 <dependency>
                     <groupId>eu.hansolo</groupId>

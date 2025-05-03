@@ -164,7 +164,6 @@ public final class Editor {
             });
 
     getDocument().setEditor(engine, window, editor);
-
     getViewController().setEditor(window, editor);
   }
 

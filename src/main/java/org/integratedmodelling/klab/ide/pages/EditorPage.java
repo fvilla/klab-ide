@@ -38,6 +38,8 @@ public abstract class EditorPage<T> extends BorderPane {
   public EditorPage() {
     this.browsingArea = new BorderPane();
     this.menuArea = createMenuArea();
+    menuArea.setStyle("-fx-background-color: -color-neutral-subtle;");
+    menuArea.setPrefHeight(44);
     this.editorTabs = new TabPane();
     this.editorTabs.getStyleClass().add(Styles.TABS_CLASSIC);
     this.editorTabs.setSide(Side.BOTTOM);
@@ -85,7 +87,7 @@ public abstract class EditorPage<T> extends BorderPane {
     if (!assetEditors.containsKey(asset)) {
       var editor = createEditor(asset);
       if (editor != null) {
-        var tab = new Tab(Theme.getLabel(asset), /* TODO actual name */ editor);
+        var tab = new Tab(Theme.getLabel(asset), editor);
         tab.setGraphic(Theme.getGraphics(asset));
         editorTabs.getTabs().add(tab);
         assetEditors.put(asset, tab);

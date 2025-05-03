@@ -26,22 +26,32 @@
                         <Separator prefWidth="200.0"/>
                         <Button fx:id="homeButton" styleClass="button-outlined, button-circle">
                             <tooltip>
-                                <Tooltip text="Interactive Dashboard" showDelay="200ms"/>
+                                <Tooltip text="Dashboard" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="workspacesButton" styleClass="flat, button-circle">
                             <tooltip>
-                                <Tooltip text="Create or connect to a Workspace" showDelay="200ms"/>
+                                <Tooltip text="Workspaces" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="resourcesManagerButton" styleClass="flat, button-circle">
                             <tooltip>
-                                <Tooltip text="Create or manage resources" showDelay="200ms"/>
+                                <Tooltip text="Resources" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="digitalTwinsButton" styleClass="flat, button-circle">
                             <tooltip>
-                                <Tooltip text="Create or connect to a Digital Twin" showDelay="200ms"/>
+                                <Tooltip text="Digital Twins" showDelay="200ms"/>
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="sessionsButton" styleClass="flat, button-circle">
+                            <tooltip>
+                                <Tooltip text="Applications, Scripts and Test cases" showDelay="200ms"/>
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="worldviewButton" styleClass="flat, button-circle">
+                            <tooltip>
+                                <Tooltip text="Worldview" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                     </children>

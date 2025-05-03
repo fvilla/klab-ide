@@ -25,6 +25,7 @@ package org.integratedmodelling.klab.ide.contrib.monaco;
 
 import java.util.function.Function;
 import netscape.javascript.JSObject;
+import org.integratedmodelling.common.logging.Logging;
 
 public class JFunction implements Function<JSObject, Object> {
 
@@ -36,6 +37,8 @@ public class JFunction implements Function<JSObject, Object> {
 
   @Override
   public Object apply(JSObject args) {
+
+    Logging.INSTANCE.info("ZUORBA " + args);
 
     Integer numArgs = 0;
     boolean isArray = false;
@@ -58,6 +61,7 @@ public class JFunction implements Function<JSObject, Object> {
       }
 
       return this.actualCallable.apply(array);
+
     } else {
       return this.actualCallable.apply(new Object[] {args});
     }

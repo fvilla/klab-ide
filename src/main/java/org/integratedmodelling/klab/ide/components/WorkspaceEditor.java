@@ -12,7 +12,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
-import org.integratedmodelling.common.utils.Utils;
 import org.integratedmodelling.klab.api.knowledge.organization.ProjectStorage;
 import org.integratedmodelling.klab.api.lang.kim.KlabDocument;
 import org.integratedmodelling.klab.api.lang.kim.KlabStatement;
@@ -149,20 +148,22 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
               ProjectStorage.ResourceType.classify(document),
               editor.getEditor().getDocument().getText(),
               KlabIDEController.modeler().user());
-      updateWorkspace(changes);
+      var workspaceChanges =
+          changes.stream()
+              .filter(ch -> this.workspace.getUrn().equals(ch.getWorkspace()))
+              .findFirst();
+      workspaceChanges.ifPresent(this::updateWorkspace);
     }
   }
 
-  public void updateWorkspace(List<ResourceSet> changes) {
+  public void updateWorkspace(ResourceSet changes) {
 
-    var allNotifications =
-        Utils.Collections.flatList(changes.stream().map(ResourceSet::getNotifications).toList());
     var codeNotifications =
-        allNotifications.stream()
+        changes.getNotifications().stream()
             .filter(notification -> notification.getLexicalContext() != null)
             .toList();
     var systemNotifications =
-        allNotifications.stream()
+        changes.getNotifications().stream()
             .filter(notification -> notification.getLexicalContext() == null)
             .toList();
 
@@ -171,12 +172,14 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
       return;
     }
 
+    /*
+    TODO code notifications must be shown in the editor for their asset
+     */
+
     Map<String, NavigableAsset> changed = new LinkedHashMap<>();
-    for (var change : changes) {
-      if (!change.isEmpty()) {
-        for (var asset : workspace.mergeChanges(change, KlabIDEController.modeler().user())) {
-          changed.put(asset.toString(), asset);
-        }
+    if (!changes.isEmpty()) {
+      for (var asset : workspace.mergeChanges(changes, KlabIDEController.modeler().user())) {
+        changed.put(asset.toString(), asset);
       }
     }
 
@@ -187,6 +190,23 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   private void updateTree(TreeItem<NavigableAsset> root, Map<String, NavigableAsset> changed) {
+
+    /*
+    1. Find the tree nodes corresponding to the asset that has changed. All of those should be documents for
+    the time being, but it's not impossible that this changes in the future.
+
+    If node found: asset may be REMOVED or UPDATED. If removed, remove node; else call updateNode()
+    If node not found: asset was ADDED. Find the place for it - it can be a project or a document, so find insertion point based on type and insert in alphabetical order, then
+    select it. If a doc, bring it in a new editor.
+     */
+
+    /*
+    2. Each root changed should be matched with their potentially new structure. Nodes may have been removed, added or changed. If we find the
+        node corresponding to a child of the asset, we substitute the value in it and let the tree model do the rest. Otherwise we remove what
+        is not in the asset children and add what is not in the node structure. We can simply look sequentially because the sequence should be
+        the same.
+     */
+
     if (root.getValue() != null) {
       if (changed.containsKey(root.getValue().toString())) {
         var newAsset = changed.get(root.getValue().toString());
