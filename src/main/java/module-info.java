@@ -20,6 +20,8 @@ module org.integratedmodelling.klab.ide {
     requires org.eclipse.emf.ecore;
     requires jdk.jsobject;
     requires org.kordamp.ikonli.evaicons;
+    requires com.google.common;
+    requires org.jline;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;

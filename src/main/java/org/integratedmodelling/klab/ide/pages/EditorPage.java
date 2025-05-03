@@ -12,6 +12,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.util.Duration;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.ide.Theme;
@@ -28,7 +29,7 @@ public abstract class EditorPage<T> extends BorderPane {
 
   private final BorderPane browsingArea;
   private final TabPane editorTabs;
-  private final HBox menuArea;
+  private final Region menuArea;
   final Timeline clickTimeline = new Timeline();
   Duration clickDuration = Duration.millis(350);
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
@@ -117,5 +118,5 @@ public abstract class EditorPage<T> extends BorderPane {
 
   protected abstract TreeView<T> createContentTree();
 
-  protected abstract HBox createMenuArea();
+  protected abstract Region createMenuArea();
 }

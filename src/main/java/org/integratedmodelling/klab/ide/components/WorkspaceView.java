@@ -1,8 +1,12 @@
 package org.integratedmodelling.klab.ide.components;
 
+import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.engine.Engine;
@@ -55,10 +59,12 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
 
   @Override
   protected void defineBrowser(VBox vBox) {
+
     Platform.runLater(
         () -> {
           vBox.getChildren().removeAll(components);
           components.clear();
+          components.add(makeHeader("Workspaces", this::addWorkspace));
           for (var workspace :
               workspaces.values().stream()
                   .sorted(
@@ -77,11 +83,17 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     // TODO if we're empty and we only have one workspace, raise the workspace
   }
 
+  private void addWorkspace() {
+    Logging.INSTANCE.info("add workspace");
+  }
+
   private void raiseWorkspace(ResourceInfo resourceInfo) {
 
     hideBrowser();
     if (openEditors.containsKey(resourceInfo.getUrn())) {
-      openEditors.get(resourceInfo.getUrn()).requestFocus(); // FIXME must remember the tabs and select(tab) - in both cases
+      openEditors
+          .get(resourceInfo.getUrn())
+          .requestFocus(); // FIXME must remember the tabs and select(tab) - in both cases
     } else {
       var newEditor = new WorkspaceEditor(services.get(resourceInfo), resourceInfo, this);
       openEditors.put(resourceInfo.getUrn(), newEditor);
@@ -106,5 +118,4 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     }
     Logging.INSTANCE.info(workspaces);
   }
-
 }

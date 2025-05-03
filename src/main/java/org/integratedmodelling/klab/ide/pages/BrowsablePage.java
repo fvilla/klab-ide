@@ -8,8 +8,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.integratedmodelling.common.logging.Logging;
@@ -23,6 +25,7 @@ import java.awt.*;
 /** The generic browser with a modal index on the left. */
 public abstract class BrowsablePage<T extends Node> extends StackPane implements Page {
 
+  protected static final int BROWSER_WIDTH = 280;
   private final TabPane tabPane;
 
   private static class Dialog extends VBox {
@@ -43,7 +46,7 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
 
   protected BrowsablePage() {
     super();
-    this.browserArea = new Dialog(280, -1);
+    this.browserArea = new Dialog(BROWSER_WIDTH, -1);
     this.browserArea.setAlignment(Pos.TOP_CENTER);
     this.browserArea.setPadding(new Insets(2.0));
     this.tabPane = new TabPane();
@@ -62,6 +65,23 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
     getChildren().addAll(tabPane, modalPane);
   }
 
+  protected Node makeHeader(String title, Runnable addAction) {
+    javafx.scene.control.Label workspacesLabel = new javafx.scene.control.Label("Workspaces");
+    workspacesLabel.setPrefWidth(BrowsablePage.BROWSER_WIDTH - 40);
+    workspacesLabel.getStyleClass().add(Styles.TITLE_4);
+    workspacesLabel.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+    workspacesLabel.setPadding(new javafx.geometry.Insets(0, 0, 0, 8));
+    workspacesLabel.setStyle("-fx-text-fill: -color-fg-subtle;");
+    javafx.scene.control.Button addButton =
+        new Button(
+            "", new IconLabel(Theme.ADD_ASSET_ICON, 20, Theme.CURRENT_THEME.getDefaultTextColor()));
+    addButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
+    HBox alignedButton = new HBox(addButton);
+    alignedButton.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+    addButton.setOnAction(event -> addAction.run());
+    return new HBox(workspacesLabel, alignedButton);
+  }
+
   public void addEditor(EditorPage<?> node, String title, FontIcon icon) {
     var tab = new Tab(title, node);
     tab.setGraphic(icon);
@@ -77,15 +97,15 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
 
   public void hideBrowser() {
 
-      if (modalPane.contentProperty().isBound()) {
-          return;
-      }
+    if (modalPane.contentProperty().isBound()) {
+      return;
+    }
 
-      //                  this.browserArea.getChildren().removeAll();
-      //                  defineBrowser(this.browserArea);
-      //                  modalPane.setAlignment(Pos.TOP_LEFT);
-      //                  modalPane.usePredefinedTransitionFactories(Side.LEFT);
-      Platform.runLater(modalPane::hide);
+    //                  this.browserArea.getChildren().removeAll();
+    //                  defineBrowser(this.browserArea);
+    //                  modalPane.setAlignment(Pos.TOP_LEFT);
+    //                  modalPane.usePredefinedTransitionFactories(Side.LEFT);
+    Platform.runLater(modalPane::hide);
   }
 
   public void showBrowser() {

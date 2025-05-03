@@ -74,6 +74,9 @@ public enum Theme {
   public static Ikon WORLDVIEW_ICON = Evaicons.BULB_OUTLINE;
   public static Ikon INSPECTOR_ICON = Evaicons.EYE;
 
+  // functionalities
+  public static final Ikon ADD_ASSET_ICON = Material2AL.ADD_CIRCLE;
+
   // services
   public static final Ikon LOCAL_SERVICE_ICON = Material2AL.DONUT_SMALL;
   public static final Ikon REMOTE_SERVICE_ICON_ONE = BootstrapIcons.CLOUDS_FILL;

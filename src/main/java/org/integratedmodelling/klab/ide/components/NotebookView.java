@@ -1,6 +1,7 @@
 package org.integratedmodelling.klab.ide.components;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -8,7 +9,11 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
+import org.integratedmodelling.klab.ide.cli.DashboardLineReader;
+import org.integratedmodelling.klab.ide.cli.DashboardTerminal;
+import org.integratedmodelling.klab.ide.contrib.AutoCompleteTextField;
 import org.integratedmodelling.klab.ide.pages.OutlinePage;
 import org.integratedmodelling.klab.ide.pages.Page;
 
@@ -16,22 +21,39 @@ public class NotebookView extends BorderPane implements Page {
 
   private final InputBox inputBox;
   private final Notebook notebook;
+  private DashboardTerminal terminal;
+  private DashboardLineReader lineReader;
   private final Map<Components.Type, Components.Component> componentMap = new HashMap<>();
 
   public NotebookView() {
 
     this.notebook = new Notebook();
     this.setCenter(this.notebook);
-    this.inputBox = new InputBox();
+    this.inputBox = new InputBox(text -> List.of("Dio", "Can"));
     this.setBottom(inputBox);
     this.setCenter(this.notebook);
+
+    this.lineReader =
+        new DashboardLineReader(
+            this.inputBox,
+            new DashboardLineReader.PrintCallback() {
+              @Override
+              public void onPrint(String text) {
+                Logging.INSTANCE.info(text);
+              }
+
+              @Override
+              public void onPrintAbove(String text) {
+                Logging.INSTANCE.info(text);
+              }
+            });
 
     addComponent(new Components.About());
   }
 
-  public static class InputBox extends TextField {
-    InputBox() {
-      super();
+  public static class InputBox extends AutoCompleteTextField {
+    InputBox(AutoCompleteTextField.EntryProvider entryProvider) {
+      super(entryProvider);
       setMargin(this, new Insets(24, 20, 20, 10));
       setPromptText("Enter a command; 'help' for assistance");
     }

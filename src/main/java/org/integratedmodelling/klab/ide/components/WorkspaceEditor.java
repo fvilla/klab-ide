@@ -12,6 +12,9 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.control.Separator;
 import org.integratedmodelling.klab.api.knowledge.organization.ProjectStorage;
 import org.integratedmodelling.klab.api.lang.kim.KlabDocument;
 import org.integratedmodelling.klab.api.lang.kim.KlabStatement;
@@ -61,6 +64,40 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     treeView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE);
     treeView.setShowRoot(false);
     treeView.setPrefWidth(340);
+    treeView.setOnContextMenuRequested(
+        event -> {
+          TreeItem<NavigableAsset> item = treeView.getSelectionModel().getSelectedItem();
+          if (item != null) {
+            var contextMenu = new javafx.scene.control.ContextMenu();
+            switch (item.getValue()) {
+              case NavigableProject project -> {
+                var lockUnlock =
+                    new javafx.scene.control.MenuItem(project.isLocked() ? "Unlock" : "Lock");
+                lockUnlock.setOnAction(
+                    e -> {
+                      if (service instanceof ResourcesService.Admin admin) {
+                        if (project.isLocked()) {
+                          admin.unlockProject(project.getUrn(), KlabIDEController.modeler().user());
+                          project.setLocked(false);
+                        } else {
+                          admin.lockProject(project.getUrn(), KlabIDEController.modeler().user());
+                          project.setLocked(true);
+                        }
+                      }
+                    });
+                contextMenu.getItems().add(lockUnlock);
+              }
+              case KlabDocument<?> document -> {
+                var openEdit = new javafx.scene.control.MenuItem("Open");
+                openEdit.setOnAction(e -> edit(item.getValue()));
+                contextMenu.getItems().add(openEdit);
+              }
+              default -> {}
+            }
+            contextMenu.show(treeView, event.getScreenX(), event.getScreenY());
+          }
+        });
+
     return treeView;
   }
 
@@ -108,9 +145,12 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   @Override
-  protected HBox createMenuArea() {
+  protected Region createMenuArea() {
     var ret = new HBox();
-    return ret;
+    var separator = new Separator();
+    separator.setPrefHeight(3);
+    separator.setPadding(new javafx.geometry.Insets(0, 0, 0, 0));
+    return new VBox(separator, ret);
   }
 
   @Override
