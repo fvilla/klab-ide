@@ -96,16 +96,19 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
   protected abstract void defineBrowser(VBox vBox);
 
   public void hideBrowser() {
-
     if (modalPane.contentProperty().isBound()) {
       return;
     }
-
-    //                  this.browserArea.getChildren().removeAll();
-    //                  defineBrowser(this.browserArea);
-    //                  modalPane.setAlignment(Pos.TOP_LEFT);
-    //                  modalPane.usePredefinedTransitionFactories(Side.LEFT);
     Platform.runLater(modalPane::hide);
+  }
+
+  public void updateBrowser() {
+
+    Platform.runLater(
+        () -> {
+          this.browserArea.getChildren().removeAll();
+          defineBrowser(this.browserArea);
+        });
   }
 
   public void showBrowser() {

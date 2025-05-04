@@ -222,10 +222,10 @@ public class KlabIDEController
     worldviewButton.setGraphic(new IconLabel(Theme.WORLDVIEW_ICON, 24, Color.GREY));
     downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 24, Color.GREY));
     startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 32, Color.GREY));
-    reasonerButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 24, Color.GREY));
-    resourcesButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 24, Color.GREY));
-    resolverButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 24, Color.GREY));
-    runtimeButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 24, Color.GREY));
+    reasonerButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 16, Color.GREY));
+    resourcesButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 16, Color.GREY));
+    resolverButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 16, Color.GREY));
+    runtimeButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 16, Color.GREY));
     settingsButton.setGraphic(
         new IconLabel(FontAwesomeSolid.COG, 24, Theme.CURRENT_THEME.getDefaultTextColor()));
     inspectorButton.setGraphic(
@@ -465,7 +465,7 @@ public class KlabIDEController
             digitalTwinsButton.getTooltip().getText());
       }
 
-      setButton(button, icon, 24, color, tooltip);
+      setButton(button, icon, 16, color, tooltip);
     }
   }
 

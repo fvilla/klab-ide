@@ -76,6 +76,7 @@ public enum Theme {
 
   // functionalities
   public static final Ikon ADD_ASSET_ICON = Material2AL.ADD_CIRCLE;
+  public static final Ikon EDIT_ICON = Material2AL.EDIT;
 
   // services
   public static final Ikon LOCAL_SERVICE_ICON = Material2AL.DONUT_SMALL;
