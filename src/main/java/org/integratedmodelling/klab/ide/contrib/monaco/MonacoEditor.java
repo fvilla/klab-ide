@@ -125,6 +125,9 @@ public class MonacoEditor extends BorderPane {
   }
 
   public HBox createMenuBar() {
+
+    // FIXME for some reason this does not show
+
     var left = new HBox();
     left.setAlignment(Pos.CENTER_LEFT);
     var right = new HBox();

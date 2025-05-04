@@ -66,7 +66,8 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
   }
 
   protected Node makeHeader(String title, Runnable addAction) {
-    javafx.scene.control.Label workspacesLabel = new javafx.scene.control.Label("Workspaces");
+
+    javafx.scene.control.Label workspacesLabel = new javafx.scene.control.Label(title);
     workspacesLabel.setPrefWidth(BrowsablePage.BROWSER_WIDTH - 40);
     workspacesLabel.getStyleClass().add(Styles.TITLE_4);
     workspacesLabel.setAlignment(javafx.geometry.Pos.CENTER_LEFT);

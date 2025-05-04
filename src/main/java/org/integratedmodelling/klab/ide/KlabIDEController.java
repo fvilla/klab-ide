@@ -143,7 +143,7 @@ public class KlabIDEController
               case Debug, Info -> Alert.AlertType.INFORMATION;
               case Notification.Level.Warning -> Alert.AlertType.WARNING;
               case Error, SystemError -> Alert.AlertType.ERROR;
-            });
+            }); 
     alert.setTitle("Notification");
     alert.setHeaderText("Alert");
     alert.setContentText(notification.getMessage());

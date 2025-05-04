@@ -99,10 +99,11 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     GridPane grid = new GridPane();
     grid.setHgap(10);
     grid.setVgap(10);
-//    grid.setPadding(new Insets(2, 2, 2, 2));
+    grid.setStyle("-fx-background-color: -color-neutral-muted;");
+    grid.setPadding(new Insets(6, 6, 6, 6));
 
     TextField workspaceTitle = new TextField();
-    workspaceTitle.setPromptText("Workspace Name");
+    workspaceTitle.setPromptText("Workspace name");
     TextArea description = new TextArea();
     description.setPromptText("Description");
     description.setPrefRowCount(3);
@@ -122,12 +123,11 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     buttons.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
     buttons.setSpacing(4);
     cancel.getStyleClass().addAll(Styles.BUTTON_OUTLINED, Styles.DANGER, Styles.SMALL);
-    grid.add(new Separator(), 0, 0, 2, 1);
-    grid.add(new FontIcon(Theme.WORKSPACE_ICON), 0, 1);
-    grid.add(workspaceTitle, 1, 1);
-    grid.add(new FontIcon(Theme.EDIT_ICON), 0, 2);
-    grid.add(description, 1, 2);
-    grid.add(buttons, 0, 3, 2, 1);
+    grid.add(new FontIcon(Theme.WORKSPACE_ICON), 0, 0);
+    grid.add(workspaceTitle, 1, 0);
+    grid.add(new FontIcon(Theme.EDIT_ICON), 0, 1);
+    grid.add(description, 1, 1);
+    grid.add(buttons, 0, 2, 2, 1);
 
     return grid;
     
