@@ -107,7 +107,7 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     TextArea description = new TextArea();
     description.setPromptText("Description");
     description.setPrefRowCount(3);
-    var ok = new Button("OK");
+    var ok = new Button("Create");
     var cancel = new Button("Cancel");
     ok.setOnAction(event -> {
       // TODO launch workspace creation: when done ->
