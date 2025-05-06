@@ -6,6 +6,7 @@ import java.util.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -143,10 +144,33 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
 
   @Override
   protected Region createMenuArea() {
-    var ret = new HBox();
     var separator = new Separator();
     separator.setPrefHeight(3);
     separator.setPadding(new javafx.geometry.Insets(0, 0, 0, 0));
+    var left = new HBox();
+    left.setAlignment(Pos.CENTER_LEFT);
+    left.setSpacing(5);
+    var addButton =
+        new Button(
+            "", new IconLabel(Theme.ADD_ASSET_ICON, 16, Theme.CURRENT_THEME.getDefaultTextColor()));
+    var importButton =
+        new Button(
+            "", new IconLabel(Theme.EDIT_ICON, 16, Theme.CURRENT_THEME.getDefaultTextColor()));
+    left.getChildren().addAll(addButton, importButton);
+
+    var right = new HBox();
+    right.setAlignment(Pos.CENTER_RIGHT);
+    right.setSpacing(5);
+    var collapseButton =
+        new Button(
+            "", new IconLabel(Theme.INSPECTOR_ICON, 16, Theme.CURRENT_THEME.getDefaultTextColor()));
+    var expandButton =
+        new Button(
+            "", new IconLabel(Theme.WORLDVIEW_ICON, 16, Theme.CURRENT_THEME.getDefaultTextColor()));
+    right.getChildren().addAll(collapseButton, expandButton);
+
+    var ret = new HBox();
+    ret.getChildren().addAll(left, right);
     return new VBox(separator, ret);
   }
 
