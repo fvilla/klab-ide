@@ -1,6 +1,10 @@
 package org.integratedmodelling.klab.ide;
 
 import atlantafx.base.theme.Styles;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -37,15 +41,9 @@ import org.integratedmodelling.klab.ide.utils.NodeUtils;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
-import org.kordamp.ikonli.evaicons.Evaicons;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
-
-import java.awt.*;
-import java.util.*;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /** The main UI. Should probably include an Engine view. */
 public class KlabIDEController
@@ -57,6 +55,7 @@ public class KlabIDEController
   private Map<KlabService.Type, KlabService.ServiceCapabilities> capabilities = new HashMap<>();
   private boolean inspectorIsOn;
   private Set<View> neverSeen = EnumSet.of(View.RESOURCES, View.WORKSPACES, View.DIGITAL_TWINS);
+  private static KlabIDEController _this;
 
   /** The "circled" (current) view in the main area. */
   public enum View {
@@ -106,7 +105,12 @@ public class KlabIDEController
   private OntologyView ontologyView;
 
   public KlabIDEController() {
+    _this = this;
     createModeler();
+  }
+
+  public static KlabIDEController instance() {
+    return _this;
   }
 
   public static Modeler modeler() {

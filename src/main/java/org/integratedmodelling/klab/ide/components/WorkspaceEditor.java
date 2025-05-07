@@ -37,6 +37,8 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   private final NavigableWorkspace workspace;
   private final WorkspaceView view;
   private TreeItem<NavigableAsset> root;
+  private ProgressBar progressBar;
+  private TreeView<NavigableAsset> treeView;
 
   public WorkspaceEditor(ResourcesService service, ResourceInfo resourceInfo, WorkspaceView view) {
     this.service = service;
@@ -57,7 +59,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
 
   @Override
   protected TreeView<NavigableAsset> createContentTree() {
-    var treeView = new TreeView<>(this.root = defineTree(workspace));
+    treeView = new TreeView<>(this.root = defineTree(workspace));
     treeView.setCellFactory(p -> new AssetTreeCell());
     treeView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE);
     treeView.setShowRoot(false);
@@ -134,6 +136,10 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     }
   }
 
+  private void setWaiting(boolean b) {
+    Platform.runLater(() -> this.progressBar.progressProperty().setValue(b ? -1d : 0d));
+  }
+
   private TreeItem<NavigableAsset> defineTree(NavigableAsset asset) {
     var root = new TreeItem<>(asset);
     for (var child : asset.children()) {
@@ -149,28 +155,46 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     separator.setPadding(new javafx.geometry.Insets(0, 0, 0, 0));
     var left = new HBox();
     left.setAlignment(Pos.CENTER_LEFT);
-    left.setSpacing(5);
+    left.setSpacing(2);
     var addButton =
         new Button(
-            "", new IconLabel(Theme.ADD_ASSET_ICON, 16, Theme.CURRENT_THEME.getDefaultTextColor()));
+            "",
+            new IconLabel(Theme.ADD_PROJECT_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
     var importButton =
         new Button(
-            "", new IconLabel(Theme.EDIT_ICON, 16, Theme.CURRENT_THEME.getDefaultTextColor()));
+            "",
+            new IconLabel(Theme.IMPORT_ASSET_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
     left.getChildren().addAll(addButton, importButton);
+    addButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+    importButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
 
     var right = new HBox();
     right.setAlignment(Pos.CENTER_RIGHT);
-    right.setSpacing(5);
+    right.setSpacing(2);
+
     var collapseButton =
         new Button(
-            "", new IconLabel(Theme.INSPECTOR_ICON, 16, Theme.CURRENT_THEME.getDefaultTextColor()));
+            "", new IconLabel(Theme.COLLAPSE_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
     var expandButton =
         new Button(
-            "", new IconLabel(Theme.WORLDVIEW_ICON, 16, Theme.CURRENT_THEME.getDefaultTextColor()));
+            "", new IconLabel(Theme.EXPAND_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
+    collapseButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+    expandButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+    collapseButton.setOnAction(actionEvent -> root.setExpanded(false));
+    expandButton.setOnAction(actionEvent -> root.setExpanded(true));
+
     right.getChildren().addAll(collapseButton, expandButton);
 
-    var ret = new HBox();
-    ret.getChildren().addAll(left, right);
+    progressBar = new ProgressBar(0);
+    progressBar.setPrefWidth(160);
+    progressBar.setPrefHeight(3);
+
+    var ret = new HBox(4);
+    ret.setAlignment(Pos.CENTER);
+    ret.setPadding(new javafx.geometry.Insets(5));
+    progressBar.setMaxWidth(Double.MAX_VALUE);
+    HBox.setHgrow(progressBar, javafx.scene.layout.Priority.ALWAYS);
+    ret.getChildren().addAll(left, progressBar, right);
     return new VBox(separator, ret);
   }
 
@@ -234,9 +258,11 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     }
 
     /*
-    TODO code notifications must be shown in the editor for their asset
+    TODO codeNotifications must be shown in the editors corresponding to the assets they belong to.
+     Icons for those same assets must change color accordingly.
      */
 
+    setWaiting(true);
     Map<String, NavigableAsset> changed = new LinkedHashMap<>();
     if (!changes.isEmpty()) {
       for (var asset : workspace.mergeChanges(changes, KlabIDEController.modeler().user())) {
@@ -247,6 +273,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     Platform.runLater(
         () -> {
           updateTree(this.root, changed);
+          setWaiting(false);
         });
   }
 

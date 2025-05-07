@@ -14,10 +14,8 @@ import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 import org.kordamp.ikonli.evaicons.Evaicons;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
-import org.kordamp.ikonli.weathericons.WeatherIcons;
 
 public enum Theme {
   LIGHT_DEFAULT(false),
@@ -76,7 +74,11 @@ public enum Theme {
 
   // functionalities
   public static final Ikon ADD_ASSET_ICON = Material2AL.ADD_CIRCLE;
+  public static final Ikon ADD_PROJECT_ICON = Evaicons.FOLDER_ADD_OUTLINE;
+  public static final Ikon IMPORT_ASSET_ICON = Material2AL.IMPORT_EXPORT;
   public static final Ikon EDIT_ICON = Material2AL.EDIT;
+  public static final Ikon COLLAPSE_ICON = Evaicons.COLLAPSE;
+  public static final Ikon EXPAND_ICON = Evaicons.EXPAND;
 
   // services
   public static final Ikon LOCAL_SERVICE_ICON = Material2AL.DONUT_SMALL;

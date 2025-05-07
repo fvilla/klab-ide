@@ -9,16 +9,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.authentication.CRUDOperation;
+import org.integratedmodelling.klab.api.data.Metadata;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
+import org.integratedmodelling.klab.api.services.runtime.Notification;
 import org.integratedmodelling.klab.api.utils.Utils;
 import org.integratedmodelling.klab.api.view.modeler.Modeler;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableContainer;
 import org.integratedmodelling.klab.api.view.modeler.views.ResourcesNavigator;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ResourcesNavigatorController;
+import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.pages.BrowsablePage;
@@ -120,12 +123,20 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     TextArea description = new TextArea();
     description.setPromptText("Description");
     description.setPrefRowCount(3);
+    final ComboBox<String> serviceSelector = new ComboBox<>();
+    serviceSelector
+        .getItems()
+        .addAll(availableServices.stream().map(ResourcesService::getServiceName).toList());
+    serviceSelector.setMaxWidth(Double.MAX_VALUE);
     var ok = new Button("Create");
     var cancel = new Button("Cancel");
     var service = (ResourcesService) null;
     ok.setOnAction(
         event -> {
-          createWorkspace(workspaceTitle.getText(), description.getText(), service);
+          createWorkspace(
+              workspaceTitle.getText(),
+              description.getText(),
+              availableServices.get(serviceSelector.getSelectionModel().getSelectedIndex()));
           workspaceDialog = null;
           updateBrowser();
         });
@@ -143,11 +154,6 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     grid.add(workspaceTitle, 1, 0);
     grid.add(new FontIcon(Theme.EDIT_ICON), 0, 1);
     grid.add(description, 1, 1);
-    ComboBox<String> serviceSelector = new ComboBox<>();
-    serviceSelector
-        .getItems()
-        .addAll(availableServices.stream().map(ResourcesService::getServiceName).toList());
-    serviceSelector.setMaxWidth(Double.MAX_VALUE);
     GridPane.setFillWidth(serviceSelector, true);
     grid.getColumnConstraints().add(new ColumnConstraints());
     grid.getColumnConstraints()
@@ -166,7 +172,16 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
     return grid;
   }
 
-  private void createWorkspace(String text, String text1, ResourcesService service) {}
+  private void createWorkspace(String workspaceName, String description, ResourcesService service) {
+    if (service instanceof ResourcesService.Admin admin) {
+      if (!admin.createWorkspace(
+          workspaceName,
+          Metadata.create(Metadata.DC_COMMENT, description),
+          KlabIDEController.modeler().user())) {
+        KlabIDEController.instance().alert(Notification.error("Workspace creation failed"));
+      }
+    }
+  }
 
   private void raiseWorkspace(ResourceInfo resourceInfo) {
 
