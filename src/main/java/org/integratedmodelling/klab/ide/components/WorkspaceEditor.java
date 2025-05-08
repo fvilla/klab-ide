@@ -13,10 +13,13 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
+import javafx.scene.input.*;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.data.RepositoryState;
 import org.integratedmodelling.klab.api.knowledge.organization.ProjectStorage;
 import org.integratedmodelling.klab.api.lang.kim.KlabDocument;
@@ -63,7 +66,27 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   @Override
+  protected void defineDigitalTwinTarget(Pane digitalTwinMinified) {
+    // TODO contents
+    digitalTwinMinified.setOnDragOver(
+        event -> {
+          if (event.getGestureSource() == this.treeView) {
+            event.acceptTransferModes(TransferMode.ANY);
+          }
+          event.consume();
+        });
+    digitalTwinMinified.setOnDragDropped(
+        event -> {
+          if (event.getGestureSource() == this.treeView) {
+            event.setDropCompleted(true);
+            event.consume();
+          }
+        });
+  }
+
+  @Override
   protected TreeView<NavigableAsset> createContentTree() {
+
     treeView = new TreeView<>(this.root = defineTree(workspace));
     treeView.setCellFactory(p -> new AssetTreeCell());
     treeView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE);
@@ -103,7 +126,37 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
           }
         });
 
+    treeView.setOnDragDetected(
+        event -> {
+          TreeItem<NavigableAsset> item = treeView.getSelectionModel().getSelectedItem();
+          if (item != null) {
+            // TODO check if this is draggable in the current conditions
+            showDigitalTwinMinified();
+            var dragboard = treeView.startDragAndDrop(TransferMode.ANY);
+            var content = new ClipboardContent();
+            content.putString(item.getValue().getUrn());
+            dragboard.setContent(content);
+            // TODO paint the dragged asset appropriately
+            //                dragboard.setDragView(Theme.getImageForAsset(item.getValue()));
+            event.consume();
+          }
+        });
+
+    treeView.setOnDragDone(
+        event -> {
+          TreeItem<NavigableAsset> item = treeView.getSelectionModel().getSelectedItem();
+          if (item != null && event.isAccepted()) {
+            hideDigitalTwinMinified();
+            handleAssetDrop(item.getValue());
+          }
+          event.consume();
+        });
+
     return treeView;
+  }
+
+  private void handleAssetDrop(NavigableAsset value) {
+    Logging.INSTANCE.info("DROPPED " + value);
   }
 
   private static final class AssetTreeCell extends TreeCell<NavigableAsset> {
@@ -218,14 +271,15 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
                 }
               });
 
-      // agh this must detect the language for the document and set the non-existing language support
+      // agh this must detect the language for the document and set the non-existing language
+      // support
       ret.getEditor().setCurrentLanguage("java");
       ret.getEditor().setCurrentTheme(Theme.CURRENT_THEME.isDark() ? "vs-dark" : "vs");
 
       return ret;
 
-      // FIXME going back to the original MonacoFX because the listeners in it actually work. This version
-      //  won't update the text property when editing
+      // FIXME going back to the original MonacoFX because the listeners in it actually work. This
+      //  version won't update the text property when editing
       //
       //      return new MonacoEditor(
       //          editor -> {
@@ -254,13 +308,15 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   private void saveDocument(String text, NavigableAsset asset) {
     if (service instanceof ResourcesService.Admin admin
         && asset instanceof KlabDocument<?> document) {
-//      var text = editor.getEditor().getDocument().getText();
+      //      var text = editor.getEditor().getDocument().getText();
       var changes =
           admin.updateDocument(
               asset.parent(NavigableProject.class).getUrn(),
               ProjectStorage.ResourceType.classify(document),
               text,
               KlabIDEController.modeler().user());
+      // FIXME dispatch EACH changeset to the respective workspace editor if one is present in the
+      //  parent view
       var workspaceChanges =
           changes.stream()
               .filter(ch -> this.workspace.getUrn().equals(ch.getWorkspace()))
@@ -288,18 +344,6 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     /*
     TODO codeNotifications must be shown in the editors corresponding to the assets they belong to.
      Icons for those same assets must change color accordingly.
-     */
-
-    /*
-    For each change (at PROJECT and DOCUMENT levels):
-    Change becomes asset (project or document).
-        - find existing root node in tree
-          if not exists: add new tree node with children
-          if exists:
-              change is DELETE? -> delete node
-              change is UPDATE? ->
-                swap node content with current
-                replay nodes vs. asset children, recursing (exists/add/delete now depends on the content)
      */
 
     if (!changes.isEmpty()) {

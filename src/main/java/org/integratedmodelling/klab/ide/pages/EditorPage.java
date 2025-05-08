@@ -10,12 +10,12 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.*;
 import javafx.util.Duration;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.ide.Theme;
+import org.integratedmodelling.klab.ide.utils.NodeUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,18 +29,22 @@ public abstract class EditorPage<T> extends BorderPane {
 
   private final BorderPane browsingArea;
   private final TabPane editorTabs;
-  private final Region menuArea;
+  private final Node menuArea;
   final Timeline clickTimeline = new Timeline();
   Duration clickDuration = Duration.millis(350);
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
   boolean isClickTimelinePlaying = false;
   private Map<T, Tab> assetEditors = new HashMap<>();
+  private Pane digitalTwinMinified;
+  private TreeView<T> tree;
 
   public EditorPage() {
     this.browsingArea = new BorderPane();
     this.menuArea = createMenuArea();
     menuArea.setStyle("-fx-background-color: -color-neutral-subtle;");
-    menuArea.setPrefHeight(44);
+    if (menuArea instanceof Region region) {
+      region.setPrefHeight(44);
+    }
     this.editorTabs = new TabPane();
     this.editorTabs.getStyleClass().add(Styles.TABS_CLASSIC);
     this.editorTabs.setSide(Side.BOTTOM);
@@ -50,11 +54,13 @@ public abstract class EditorPage<T> extends BorderPane {
     clickTimeline.getKeyFrames().add(clickKeyFrame);
   }
 
+  protected void defineDigitalTwinTarget(Pane digitalTwinMinified) {}
+
   protected void showContent() {
     Platform.runLater(
         () -> {
-          var tree = createContentTree();
-          tree.setOnMouseClicked(
+          this.tree = createContentTree();
+          this.tree.setOnMouseClicked(
               event -> {
                 // painful
                 TreeItem<?> item = tree.getSelectionModel().getSelectedItem();
@@ -80,8 +86,47 @@ public abstract class EditorPage<T> extends BorderPane {
                 }
               });
 
-          browsingArea.setCenter(tree);
+          digitalTwinMinified = new Pane();
+
+          var container = new VBox();
+          VBox.setVgrow(tree, Priority.ALWAYS);
+          container.setMaxWidth(Double.MAX_VALUE);
+          tree.setMaxWidth(Double.MAX_VALUE);
+          digitalTwinMinified.prefWidthProperty().bind(tree.widthProperty());
+          digitalTwinMinified.prefHeightProperty().bind(digitalTwinMinified.widthProperty());
+          defineDigitalTwinTarget(digitalTwinMinified);
+
+          NodeUtils.toggleVisibility(digitalTwinMinified, false);
+
+          container.getChildren().addAll(tree, digitalTwinMinified);
+
+          browsingArea.setCenter(container);
         });
+  }
+
+  //  protected Node getDigitalTwinTarget() {
+  //    var ret = new Pane();
+  //    // TODO make this a nice component
+  //
+  //    return ret;
+  //  }
+
+  protected void showDigitalTwinMinified() {
+    if (!digitalTwinMinified.isVisible()) {
+      Platform.runLater(
+          () -> {
+            NodeUtils.toggleVisibility(digitalTwinMinified, true);
+          });
+    }
+  }
+
+  protected void hideDigitalTwinMinified() {
+    if (digitalTwinMinified.isVisible()) {
+      Platform.runLater(
+          () -> {
+            NodeUtils.toggleVisibility(digitalTwinMinified, false);
+          });
+    }
   }
 
   protected void edit(T asset) {
@@ -118,5 +163,5 @@ public abstract class EditorPage<T> extends BorderPane {
 
   protected abstract TreeView<T> createContentTree();
 
-  protected abstract Region createMenuArea();
+  protected abstract Node createMenuArea();
 }
