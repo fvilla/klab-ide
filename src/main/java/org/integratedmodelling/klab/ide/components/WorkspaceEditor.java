@@ -15,10 +15,8 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.data.RepositoryState;
 import org.integratedmodelling.klab.api.knowledge.organization.ProjectStorage;
@@ -38,6 +36,7 @@ import org.integratedmodelling.klab.modeler.model.NavigableKimConceptStatement;
 import org.integratedmodelling.klab.modeler.model.NavigableKimModel;
 import org.integratedmodelling.klab.modeler.model.NavigableProject;
 import org.integratedmodelling.klab.modeler.model.NavigableWorkspace;
+import org.kordamp.ikonli.material2.Material2AL;
 
 public class WorkspaceEditor extends EditorPage<NavigableAsset> {
 
@@ -66,7 +65,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   @Override
-  protected void defineDigitalTwinTarget(Pane digitalTwinMinified) {
+  protected void defineDigitalTwinTarget(BorderPane digitalTwinMinified) {
     // TODO contents
     digitalTwinMinified.setOnDragOver(
         event -> {
@@ -82,6 +81,9 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
             event.consume();
           }
         });
+
+    digitalTwinMinified.setCenter(
+        new IconLabel(Material2AL.ARROW_CIRCLE_DOWN, 220, Color.DARKGREEN));
   }
 
   @Override

@@ -35,7 +35,7 @@ public abstract class EditorPage<T> extends BorderPane {
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
   boolean isClickTimelinePlaying = false;
   private Map<T, Tab> assetEditors = new HashMap<>();
-  private Pane digitalTwinMinified;
+  private BorderPane digitalTwinMinified;
   private TreeView<T> tree;
 
   public EditorPage() {
@@ -54,7 +54,7 @@ public abstract class EditorPage<T> extends BorderPane {
     clickTimeline.getKeyFrames().add(clickKeyFrame);
   }
 
-  protected void defineDigitalTwinTarget(Pane digitalTwinMinified) {}
+  protected void defineDigitalTwinTarget(BorderPane digitalTwinMinified) {}
 
   protected void showContent() {
     Platform.runLater(
@@ -86,7 +86,7 @@ public abstract class EditorPage<T> extends BorderPane {
                 }
               });
 
-          digitalTwinMinified = new Pane();
+          digitalTwinMinified = new BorderPane();
 
           var container = new VBox();
           VBox.setVgrow(tree, Priority.ALWAYS);
@@ -103,13 +103,6 @@ public abstract class EditorPage<T> extends BorderPane {
           browsingArea.setCenter(container);
         });
   }
-
-  //  protected Node getDigitalTwinTarget() {
-  //    var ret = new Pane();
-  //    // TODO make this a nice component
-  //
-  //    return ret;
-  //  }
 
   protected void showDigitalTwinMinified() {
     if (!digitalTwinMinified.isVisible()) {
