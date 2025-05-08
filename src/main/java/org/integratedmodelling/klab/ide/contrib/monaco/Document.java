@@ -57,6 +57,7 @@ public class Document {
         });
 
     // keep a global reference because it's garbage collected otherwise
+    // fixme DOES NOT SEEM TO WORK
     jsfListener =
         new JFunction(
             args -> {

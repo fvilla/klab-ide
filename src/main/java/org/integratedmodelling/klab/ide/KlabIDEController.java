@@ -367,6 +367,10 @@ public class KlabIDEController
         });
   }
 
+  public InspectorView getInspector() {
+    return inspectorView;
+  }
+
   /**
    * If single service in the cloud, use BootstrapIcons.CLOUDY_FILL If multiple services in the
    * cloud, use BootstrapIcons.CLOUDS_FILL If local service, use Material2AL.DONUT_SMALL All with

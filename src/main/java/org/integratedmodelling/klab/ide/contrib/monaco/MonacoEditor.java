@@ -133,9 +133,10 @@ public class MonacoEditor extends BorderPane {
     var right = new HBox();
     right.setAlignment(Pos.CENTER_RIGHT);
     var button = new Button("", new FontIcon(Material2AL.CHROME_READER_MODE));
-    button.setOnMouseClicked(e -> {
-      editor.getViewController().toggleMinibar();
-    });
+    button.setOnMouseClicked(
+        e -> {
+          editor.getViewController().toggleMinibar();
+        });
     right.getChildren().add(button);
     return new HBox(left, right);
   }

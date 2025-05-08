@@ -2,7 +2,11 @@ package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
+
+import java.security.cert.PolicyNode;
 import java.util.*;
+
+import eu.mihosoft.monacofx.MonacoFX;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,6 +17,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import org.integratedmodelling.klab.api.data.RepositoryState;
 import org.integratedmodelling.klab.api.knowledge.organization.ProjectStorage;
 import org.integratedmodelling.klab.api.lang.kim.KlabDocument;
 import org.integratedmodelling.klab.api.lang.kim.KlabStatement;
@@ -201,37 +206,60 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   @Override
   protected Node createEditor(NavigableAsset asset) {
     if (asset instanceof KlabDocument<?> document) {
-      return new MonacoEditor(
-          editor -> {
-            editor
-                .onKeyPressedProperty()
-                .setValue(
-                    event -> {
-                      if (event.isControlDown() && event.getCode() == KeyCode.S) {
-                        Thread.ofVirtual().start(() -> saveDocument(editor, asset));
-                      }
-                    });
-            editor.getEditor().setCurrentTheme(Theme.CURRENT_THEME.isDark() ? "vs-dark" : "vs");
-            var project = asset.parent(NavigableProject.class);
-            if (project != null && !project.isLocked()) {
-              editor.getEditor().getViewController().readOnly(true);
-            }
-            editor.getEditor().getDocument().setText(document.getSourceCode());
-            // TODO language stuff
-            editor.getEditor().setCurrentLanguage("java"); // right
-          });
+
+      var ret = new MonacoFX();
+      ret.getEditor().getDocument().setText(document.getSourceCode());
+      ret.onKeyPressedProperty()
+          .setValue(
+              event -> {
+                if (event.isControlDown() && event.getCode() == KeyCode.S) {
+                  Thread.ofVirtual()
+                      .start(() -> saveDocument(ret.getEditor().getDocument().getText(), asset));
+                }
+              });
+
+      // agh this must detect the language for the document and set the non-existing language support
+      ret.getEditor().setCurrentLanguage("java");
+      ret.getEditor().setCurrentTheme(Theme.CURRENT_THEME.isDark() ? "vs-dark" : "vs");
+
+      return ret;
+
+      // FIXME going back to the original MonacoFX because the listeners in it actually work. This version
+      //  won't update the text property when editing
+      //
+      //      return new MonacoEditor(
+      //          editor -> {
+      //            editor
+      //                .onKeyPressedProperty()
+      //                .setValue(
+      //                    event -> {
+      //                      if (event.isControlDown() && event.getCode() == KeyCode.S) {
+      //                        Thread.ofVirtual().start(() -> saveDocument(editor, asset));
+      //                      }
+      //                    });
+      //            editor.getEditor().setCurrentTheme(Theme.CURRENT_THEME.isDark() ? "vs-dark" :
+      // "vs");
+      //            var project = asset.parent(NavigableProject.class);
+      //            if (project != null && !project.isLocked()) {
+      //              editor.getEditor().getViewController().readOnly(true);
+      //            }
+      //            editor.getEditor().getDocument().setText(document.getSourceCode());
+      //            // TODO language stuff
+      //            editor.getEditor().setCurrentLanguage("java"); // right
+      //          });
     }
     return null;
   }
 
-  private void saveDocument(MonacoEditor editor, NavigableAsset asset) {
+  private void saveDocument(String text, NavigableAsset asset) {
     if (service instanceof ResourcesService.Admin admin
         && asset instanceof KlabDocument<?> document) {
+//      var text = editor.getEditor().getDocument().getText();
       var changes =
           admin.updateDocument(
               asset.parent(NavigableProject.class).getUrn(),
               ProjectStorage.ResourceType.classify(document),
-              editor.getEditor().getDocument().getText(),
+              text,
               KlabIDEController.modeler().user());
       var workspaceChanges =
           changes.stream()
@@ -262,62 +290,109 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
      Icons for those same assets must change color accordingly.
      */
 
-    setWaiting(true);
-    Map<String, NavigableAsset> changed = new LinkedHashMap<>();
-    if (!changes.isEmpty()) {
-      for (var asset : workspace.mergeChanges(changes, KlabIDEController.modeler().user())) {
-        changed.put(asset.toString(), asset);
-      }
-    }
+    /*
+    For each change (at PROJECT and DOCUMENT levels):
+    Change becomes asset (project or document).
+        - find existing root node in tree
+          if not exists: add new tree node with children
+          if exists:
+              change is DELETE? -> delete node
+              change is UPDATE? ->
+                swap node content with current
+                replay nodes vs. asset children, recursing (exists/add/delete now depends on the content)
+     */
 
-    Platform.runLater(
-        () -> {
-          updateTree(this.root, changed);
-          setWaiting(false);
-        });
+    if (!changes.isEmpty()) {
+
+      setWaiting(true);
+      Platform.runLater(
+          () -> {
+            for (var asset : workspace.mergeChanges(changes, KlabIDEController.modeler().user())) {
+
+              var status =
+                  asset
+                      .localMetadata()
+                      .get(NavigableAsset.REPOSITORY_STATUS_KEY, RepositoryState.Status.class);
+
+              var rootNode = findRootNode(asset);
+              if (rootNode == null) {
+                findParentNode(asset).getChildren().add(defineTree(asset));
+              } else if (status == RepositoryState.Status.REMOVED) {
+                rootNode.getParent().getChildren().remove(rootNode);
+              } else {
+                updateTree(rootNode, asset);
+              }
+            }
+            setWaiting(false);
+          });
+    }
   }
 
-  private void updateTree(TreeItem<NavigableAsset> root, Map<String, NavigableAsset> changed) {
+  private TreeItem<NavigableAsset> findParentNode(NavigableAsset asset) {
+    var parent = asset.parent();
+    if (parent != null) {
+      return findTreeNode(this.root, parent);
+    }
+    return this.root;
+  }
 
-    /*
-    1. Find the tree nodes corresponding to the asset that has changed. All of those should be documents for
-    the time being, but it's not impossible that this changes in the future.
-
-    If node found: asset may be REMOVED or UPDATED. If removed, remove node; else call updateNode()
-    If node not found: asset was ADDED. Find the place for it - it can be a project or a document, so find insertion point based on type and insert in alphabetical order, then
-    select it. If a doc, bring it in a new editor.
-     */
-
-    /*
-    2. Each root changed should be matched with their potentially new structure. Nodes may have been removed, added or changed. If we find the
-        node corresponding to a child of the asset, we substitute the value in it and let the tree model do the rest. Otherwise we remove what
-        is not in the asset children and add what is not in the node structure. We can simply look sequentially because the sequence should be
-        the same.
-     */
-
-    if (root.getValue() != null) {
-      if (changed.containsKey(root.getValue().toString())) {
-        var newAsset = changed.get(root.getValue().toString());
-        boolean open = root.isExpanded();
-        ObservableList<TreeItem<NavigableAsset>> children = FXCollections.observableArrayList();
-        for (var child : newAsset.children()) {
-          children.add(defineTree(child));
-        }
-        root.getChildren().setAll(children);
-        if (open) {
-          root.setExpanded(true);
-        }
+  private TreeItem<NavigableAsset> findTreeNode(
+      TreeItem<NavigableAsset> root, NavigableAsset asset) {
+    if (root.getValue().equals(asset)) {
+      return root;
+    }
+    for (TreeItem<NavigableAsset> child : root.getChildren()) {
+      var found = findTreeNode(child, asset);
+      if (found != null) {
+        return found;
       }
     }
-    for (var child : root.getChildren()) {
-      updateTree(child, changed);
+    return null;
+  }
+
+  private TreeItem<NavigableAsset> findRootNode(NavigableAsset asset) {
+    return findTreeNode(this.root, asset);
+  }
+
+  private void updateTree(TreeItem<NavigableAsset> root, NavigableAsset changed) {
+
+    if (root.getValue() != null) {
+
+      root.setValue(changed);
+
+      var existingChildren = new ArrayList<>(root.getChildren());
+      var newChildren = new ArrayList<>(changed.children());
+      var updatedChildren = new ArrayList<TreeItem<NavigableAsset>>();
+
+      // Process children in order of new asset's children
+      for (NavigableAsset newChild : newChildren) {
+        // Find existing child if present
+        var existingChild =
+            existingChildren.stream()
+                .filter(child -> child.getValue().equals(newChild))
+                .findFirst();
+
+        if (existingChild.isPresent()) {
+          // Update existing child
+          var child = existingChild.get();
+          updateTree(child, newChild);
+          updatedChildren.add(child);
+        } else {
+          // Add new child
+          updatedChildren.add(defineTree(newChild));
+        }
+      }
+
+      // Replace all children with ordered list
+      root.getChildren().clear();
+      root.getChildren().addAll(updatedChildren);
     }
   }
 
   @Override
   protected void onSingleClickItemSelection(NavigableAsset value) {
     if (KlabIDEApplication.instance().isInspectorShown()) {
-      // TODO
+      KlabIDEController.instance().getInspector().inspect(value);
     }
   }
 
