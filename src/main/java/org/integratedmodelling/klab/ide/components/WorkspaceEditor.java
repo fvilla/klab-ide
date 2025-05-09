@@ -281,7 +281,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
       return ret;
 
       // FIXME going back to the original MonacoFX because the listeners in it actually work. This
-      //  version won't update the text property when editing
+      //  version won't update the text property when editing as js->java listeners are broken.
       //
       //      return new MonacoEditor(
       //          editor -> {
