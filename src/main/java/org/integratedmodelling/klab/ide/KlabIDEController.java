@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.integratedmodelling.common.logging.Logging;
+import org.integratedmodelling.klab.api.digitaltwin.DigitalTwin;
 import org.integratedmodelling.klab.api.engine.Engine;
 import org.integratedmodelling.klab.api.engine.distribution.Distribution;
 import org.integratedmodelling.klab.api.engine.distribution.Product;
@@ -26,6 +27,7 @@ import org.integratedmodelling.klab.api.services.KlabService;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.RuntimeService;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
+import org.integratedmodelling.klab.api.services.runtime.Message;
 import org.integratedmodelling.klab.api.services.runtime.Notification;
 import org.integratedmodelling.klab.api.utils.Utils;
 import org.integratedmodelling.klab.api.view.UIView;
@@ -544,18 +546,8 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   }
 
   @Override
-  public void notifyObservationStarted(Observation observation) {
-      Logging.INSTANCE.info("Observation started: " + observation);
-  }
-
-  @Override
-  public void notifyObservationFailed(Observation observation) {
-    Logging.INSTANCE.info("Observation failed: " + observation);
-  }
-
-  @Override
-  public void notifyObservationFinished(Observation observation) {
-    Logging.INSTANCE.info("Observation finished: " + observation);
+  public void notifyDigitalTwinModified(DigitalTwin digitalTwin, Message change) {
+    Logging.INSTANCE.info("Digital twin changed: " + change);
   }
 
   //  @Override
