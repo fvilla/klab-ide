@@ -19,12 +19,14 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.data.RepositoryState;
+import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.knowledge.organization.ProjectStorage;
 import org.integratedmodelling.klab.api.lang.kim.KlabDocument;
 import org.integratedmodelling.klab.api.lang.kim.KlabStatement;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
+import org.integratedmodelling.klab.api.services.runtime.Notification;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableDocument;
 import org.integratedmodelling.klab.ide.KlabIDEApplication;
@@ -148,7 +150,6 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
         event -> {
           TreeItem<NavigableAsset> item = treeView.getSelectionModel().getSelectedItem();
           if (item != null && event.isAccepted()) {
-            hideDigitalTwinMinified();
             handleAssetDrop(item.getValue());
           }
           event.consume();
@@ -158,7 +159,20 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   private void handleAssetDrop(NavigableAsset value) {
-    Logging.INSTANCE.info("DROPPED " + value);
+    KlabIDEController.modeler()
+        .observe(value, /* TODO check drop params */ false)
+        .exceptionally(
+            throwable -> {
+              hideDigitalTwinMinified();
+              KlabIDEApplication.instance()
+                  .handleNotifications(List.of(Notification.error(throwable)));
+              return Observation.EMPTY_OBSERVATION;
+            })
+        .thenApply(
+            observation -> {
+              hideDigitalTwinMinified();
+              return observation;
+            });
   }
 
   private static final class AssetTreeCell extends TreeCell<NavigableAsset> {

@@ -4,6 +4,7 @@ import atlantafx.base.theme.*;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import org.integratedmodelling.klab.api.data.RepositoryState;
+import org.integratedmodelling.klab.api.data.RuntimeAsset;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableFolder;
 import org.integratedmodelling.klab.ide.components.IconLabel;
@@ -34,7 +35,7 @@ public enum Theme {
     return dark;
   }
 
-  public static Theme CURRENT_THEME = LIGHT_DEFAULT;
+  public static Theme CURRENT_THEME = DARK_COOL;
 
   // color coding for services. TODO may be non-static, styled according to the current theme
   public static final Color REASONER_COLOR_MUTED = Color.web("#b3d1ff");
@@ -63,12 +64,12 @@ public enum Theme {
   public static Ikon STRATEGY_ICON = Material2MZ.WORK_OUTLINE;
   public static Ikon WORKSPACE_ICON = Material2AL.APPS;
   public static Ikon UNKNOWN_ICON = Material2AL.BUILD_CIRCLE;
-
+  public static Ikon KNOWLEDGE_GRAPH_ICON = BootstrapIcons.DIAGRAM_3;
   // views
   public static Ikon RESOURCES_ICON = FontAwesomeSolid.CUBES;
-  public static Ikon WORKSPACES_ICON = Material2AL.ARCHITECTURE; // BootstrapIcons.BORDER_ALL;
+  public static Ikon WORKSPACES_ICON = Material2AL.APPS; // BootstrapIcons.BORDER_ALL;
   public static Ikon DIGITAL_TWINS_ICON = Material2AL.GRAPHIC_EQ;
-  public static Ikon APPLICATION_VIEW_ICON = Material2AL.APPS;
+  public static Ikon APPLICATION_VIEW_ICON = Material2AL.DIRECTIONS_RUN;
   public static Ikon WORLDVIEW_ICON = Evaicons.BULB_OUTLINE;
   public static Ikon INSPECTOR_ICON = Evaicons.EYE;
 
@@ -110,6 +111,8 @@ public enum Theme {
           case NavigableKimOntology ignored -> ONTOLOGY_ICON;
           case NavigableKimNamespace ignored -> NAMESPACE_ICON;
           case NavigableFolder ignored -> FOLDER_ICON;
+          // TODO all runtime asset first
+          case RuntimeAsset ignored -> KNOWLEDGE_GRAPH_ICON;
           default -> UNKNOWN_ICON;
         };
     var color = CURRENT_THEME.getDefaultTextColor();
@@ -130,7 +133,11 @@ public enum Theme {
               .localMetadata()
               .get(NavigableAsset.REPOSITORY_STATUS_KEY, RepositoryState.Status.class);
       return repositoryStatusPrefix(repositoryStatus) + navigableAsset.getUrn();
+    } else if (asset instanceof RuntimeAsset) {
+      // TODO all real chances first
+      return "Knowledge Graph";
     }
+
     return "BLAAAAH";
   }
 

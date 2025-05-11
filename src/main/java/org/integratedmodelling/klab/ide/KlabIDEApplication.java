@@ -54,8 +54,8 @@ public class KlabIDEApplication extends Application {
     this.lspThread.start();
 
     FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
-    scene = new Scene(fxmlLoader.load(), 1280, 960);
-    stage.setTitle("k.LAB Modeler :: v1.0 alpha :: © 2025 Integrated Modelling Partnership");
+    scene = new Scene(fxmlLoader.load(), 1480, 1060);
+    stage.setTitle("k.LAB Modeler :: v1.0 pre-alpha :: © 2025 Integrated Modelling Partnership");
     stage.setOnCloseRequest(
         event -> {
           /* TODO save status, ask to stop engine etc. */

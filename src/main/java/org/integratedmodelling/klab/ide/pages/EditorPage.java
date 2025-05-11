@@ -122,7 +122,7 @@ public abstract class EditorPage<T> extends BorderPane {
     }
   }
 
-  protected void edit(T asset) {
+  public void edit(T asset) {
     if (!assetEditors.containsKey(asset)) {
       var editor = createEditor(asset);
       if (editor != null) {

@@ -19,6 +19,8 @@ import org.integratedmodelling.klab.api.engine.distribution.Distribution;
 import org.integratedmodelling.klab.api.engine.distribution.Product;
 import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
 import org.integratedmodelling.klab.api.identities.UserIdentity;
+import org.integratedmodelling.klab.api.knowledge.observation.Observation;
+import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.scope.UserScope;
 import org.integratedmodelling.klab.api.services.KlabService;
 import org.integratedmodelling.klab.api.services.ResourcesService;
@@ -30,24 +32,25 @@ import org.integratedmodelling.klab.api.view.UIView;
 import org.integratedmodelling.klab.api.view.modeler.Modeler;
 import org.integratedmodelling.klab.api.view.modeler.views.AuthenticationView;
 import org.integratedmodelling.klab.api.view.modeler.views.DistributionView;
+import org.integratedmodelling.klab.api.view.modeler.views.RuntimeView;
 import org.integratedmodelling.klab.api.view.modeler.views.ServicesView;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.AuthenticationViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.DistributionViewController;
+import org.integratedmodelling.klab.api.view.modeler.views.controllers.RuntimeViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
 import org.integratedmodelling.klab.ide.components.*;
 import org.integratedmodelling.klab.ide.pages.BrowsablePage;
 import org.integratedmodelling.klab.ide.settings.IDESettings;
 import org.integratedmodelling.klab.ide.utils.NodeUtils;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
+import org.integratedmodelling.klab.modeler.views.controllers.RuntimeControllerImpl;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 
-/** The main UI. Should probably include an Engine view. */
-public class KlabIDEController
-    implements UIView, ServicesView, AuthenticationView, DistributionView {
+public class KlabIDEController implements UIView, ServicesView, RuntimeView {
 
   private static Modeler modeler;
   private View currentView;
@@ -89,8 +92,7 @@ public class KlabIDEController
   //  @FXML Pane browsingArea;
 
   private ServicesViewController servicesController;
-  private AuthenticationViewController authenticationController;
-  private DistributionViewController distributionController;
+  private RuntimeViewController runtimeController;
   private Distribution distribution;
   private IDESettings settings;
   private Map<View, Button> viewButtons = new HashMap<>();
@@ -124,12 +126,10 @@ public class KlabIDEController
     this.settings = new IDESettings();
 
     this.servicesController = modeler.viewController(ServicesViewController.class);
-    this.authenticationController = modeler.viewController(AuthenticationViewController.class);
-    this.distributionController = modeler.viewController(DistributionViewController.class);
+    this.runtimeController = modeler.viewController(RuntimeViewController.class);
 
     this.servicesController.registerView(this);
-    this.authenticationController.registerView(this);
-    this.distributionController.registerView(this);
+    this.runtimeController.registerView(this);
 
     digitalTwinView = new DigitalTwinView();
     workspaceView = new WorkspaceView();
@@ -147,7 +147,7 @@ public class KlabIDEController
               case Debug, Info -> Alert.AlertType.INFORMATION;
               case Notification.Level.Warning -> Alert.AlertType.WARNING;
               case Error, SystemError -> Alert.AlertType.ERROR;
-            }); 
+            });
     alert.setTitle("Notification");
     alert.setHeaderText("Alert");
     alert.setContentText(notification.getMessage());
@@ -539,6 +539,26 @@ public class KlabIDEController
   }
 
   @Override
+  public void notifyNewDigitalTwin(ContextScope scope, RuntimeService service) {
+    this.digitalTwinView.raiseDigitalTwin(scope, service);
+  }
+
+  @Override
+  public void notifyObservationStarted(Observation observation) {
+      Logging.INSTANCE.info("Observation started: " + observation);
+  }
+
+  @Override
+  public void notifyObservationFailed(Observation observation) {
+    Logging.INSTANCE.info("Observation failed: " + observation);
+  }
+
+  @Override
+  public void notifyObservationFinished(Observation observation) {
+    Logging.INSTANCE.info("Observation finished: " + observation);
+  }
+
+  //  @Override
   public void notifyUser(UserIdentity identity) {
 
     if (identity.isAnonymous()) {
@@ -571,7 +591,7 @@ public class KlabIDEController
 
   }
 
-  @Override
+  //  @Override
   public void notifyDistribution(Distribution distribution) {
 
     Ikon icon = BootstrapIcons.DOWNLOAD;

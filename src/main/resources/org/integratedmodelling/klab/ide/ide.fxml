@@ -34,14 +34,14 @@
                                 <Tooltip text="Workspaces" showDelay="200ms"/>
                             </tooltip>
                         </Button>
-                        <Button fx:id="resourcesManagerButton" styleClass="flat, button-circle">
-                            <tooltip>
-                                <Tooltip text="Resources" showDelay="200ms"/>
-                            </tooltip>
-                        </Button>
                         <Button fx:id="digitalTwinsButton" styleClass="flat, button-circle">
                             <tooltip>
                                 <Tooltip text="Digital Twins" showDelay="200ms"/>
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="resourcesManagerButton" styleClass="flat, button-circle">
+                            <tooltip>
+                                <Tooltip text="Resources" showDelay="200ms"/>
                             </tooltip>
                         </Button>
                         <Button fx:id="sessionsButton" styleClass="flat, button-circle">
