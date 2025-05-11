@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.common.services.client.digitaltwin.ClientDigitalTwin;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
+import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
 import org.integratedmodelling.klab.api.lang.kim.KlabDocument;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.ResourcesService;
@@ -30,6 +31,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> {
   private HBox menuArea;
   private TreeView<RuntimeAsset> treeView;
   private RuntimeAsset context;
+  private KnowledgeGraphView knowledgeGraphView;
 
   public DigitalTwinEditor(
       ContextScope contextScope, RuntimeService runtimeService, DigitalTwinView digitalTwinView) {
@@ -55,6 +57,16 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> {
   }
 
   private void processEvent(Message message) {
+    if (message.is(Message.MessageType.KnowledgeGraphCommitted) && this.knowledgeGraphView != null) {
+      this.knowledgeGraphView.addGraph(message.getPayload(RuntimeAssetGraph.class));
+      // TODO add observations to tree
+    } else if (message.is(Message.MessageType.ContextualizationAborted)) {
+      // TODO revise observation graphics (error icon)
+    } else if (message.is(Message.MessageType.ContextualizationSuccessful)) {
+      // TODO revise observation graphics (solid or check)
+    } else if (message.is(Message.MessageType.ContextualizationStarted)) {
+      // TODO revise observation graphics (clock)
+    }
     Logging.INSTANCE.info("Received event: " + message);
   }
 
@@ -136,7 +148,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> {
   @Override
   protected Node createEditor(RuntimeAsset asset) {
     if (asset == context) {
-      return new KnowledgeGraphView(this.contextScope, this);
+      return this.knowledgeGraphView = new KnowledgeGraphView(this.contextScope, this);
     }
     return null;
   }
