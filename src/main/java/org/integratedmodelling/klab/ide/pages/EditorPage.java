@@ -10,11 +10,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
-import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.ide.Theme;
+import org.integratedmodelling.klab.ide.components.DigitalTwinWidget;
 import org.integratedmodelling.klab.ide.utils.NodeUtils;
 
 import java.util.HashMap;
@@ -35,7 +34,7 @@ public abstract class EditorPage<T> extends BorderPane {
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
   boolean isClickTimelinePlaying = false;
   private Map<T, Tab> assetEditors = new HashMap<>();
-  private BorderPane digitalTwinMinified;
+  private DigitalTwinWidget digitalTwinMinified;
   private TreeView<T> tree;
 
   public EditorPage() {
@@ -54,7 +53,7 @@ public abstract class EditorPage<T> extends BorderPane {
     clickTimeline.getKeyFrames().add(clickKeyFrame);
   }
 
-  protected void defineDigitalTwinTarget(BorderPane digitalTwinMinified) {}
+  protected void configureDigitalTwinWidget(DigitalTwinWidget digitalTwinMinified) {}
 
   protected void showContent() {
     Platform.runLater(
@@ -86,15 +85,14 @@ public abstract class EditorPage<T> extends BorderPane {
                 }
               });
 
-          digitalTwinMinified = new BorderPane();
-
           var container = new VBox();
           VBox.setVgrow(tree, Priority.ALWAYS);
           container.setMaxWidth(Double.MAX_VALUE);
           tree.setMaxWidth(Double.MAX_VALUE);
+          digitalTwinMinified = new DigitalTwinWidget(tree.widthProperty().intValue());
           digitalTwinMinified.prefWidthProperty().bind(tree.widthProperty());
           digitalTwinMinified.prefHeightProperty().bind(digitalTwinMinified.widthProperty());
-          defineDigitalTwinTarget(digitalTwinMinified);
+          configureDigitalTwinWidget(digitalTwinMinified);
 
           NodeUtils.toggleVisibility(digitalTwinMinified, false);
 

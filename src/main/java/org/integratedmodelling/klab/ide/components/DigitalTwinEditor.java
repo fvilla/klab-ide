@@ -2,6 +2,7 @@ package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
+import java.util.List;
 import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -11,20 +12,15 @@ import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.common.services.client.digitaltwin.ClientDigitalTwin;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
 import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
-import org.integratedmodelling.klab.api.lang.kim.KlabDocument;
+import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.scope.ContextScope;
-import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.RuntimeService;
 import org.integratedmodelling.klab.api.services.runtime.Message;
-import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
-import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
+import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
-import org.integratedmodelling.klab.modeler.model.NavigableProject;
 
-import java.util.List;
-
-public class DigitalTwinEditor extends EditorPage<RuntimeAsset> {
+public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements DigitalTwinViewer {
 
   private final ContextScope contextScope;
   private final RuntimeService runtimeService;
@@ -131,6 +127,18 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> {
     return List.of();
   }
 
+  /**
+   * Tree behavior:
+   *
+   * on explicit observation submission received: add it in ctx with clock icon
+   * on resolved tree received:
+   *
+   * on submission failed:
+   * on submission finished: check if empty;
+   *
+   * @param asset
+   * @return
+   */
   private TreeItem<RuntimeAsset> defineTree(RuntimeAsset asset) {
     var root = new TreeItem<>(asset);
     for (var child : children(asset)) {
@@ -155,6 +163,31 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> {
 
   public RuntimeAsset getRootAsset() {
     return this.context;
+  }
+
+  @Override
+  public void submission(Observation observation) {
+
+  }
+
+  @Override
+  public void submissionAborted(Observation observation) {
+
+  }
+
+  @Override
+  public void submissionFinished(Observation observation) {
+
+  }
+
+  @Override
+  public void setContext(Observation observation) {
+
+  }
+
+  @Override
+  public void setObserver(Observation observation) {
+
   }
 
   private static final class AssetTreeCell extends TreeCell<RuntimeAsset> {

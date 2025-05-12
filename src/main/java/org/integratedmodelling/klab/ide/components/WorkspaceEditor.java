@@ -67,7 +67,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   @Override
-  protected void defineDigitalTwinTarget(BorderPane digitalTwinMinified) {
+  protected void configureDigitalTwinWidget(DigitalTwinWidget digitalTwinMinified) {
     // TODO contents
     digitalTwinMinified.setOnDragOver(
         event -> {
@@ -83,9 +83,6 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
             event.consume();
           }
         });
-
-    digitalTwinMinified.setCenter(
-        new IconLabel(Material2AL.ARROW_CIRCLE_DOWN, 220, Color.DARKGREEN));
   }
 
   @Override

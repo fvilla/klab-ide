@@ -7,6 +7,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.controlsfx.control.Notifications;
 import org.integratedmodelling.common.logging.Logging;
@@ -14,6 +15,8 @@ import org.eclipse.xtext.ide.server.ServerLauncher;
 import org.integratedmodelling.klab.api.services.runtime.Notification;
 
 public class KlabIDEApplication extends Application {
+
+
 
   public static final int MIN_WIDTH = 1200;
   public static final int SIDEBAR_WIDTH = 270;
@@ -28,6 +31,14 @@ public class KlabIDEApplication extends Application {
   public void start(Stage stage) throws IOException {
 
     instance = this;
+
+    // Add icons to the stage
+//    stage
+//        .getIcons()
+//        .addAll(
+//            new Image(getClass().getResourceAsStream("/icons/app_16.png")),
+//            new Image(getClass().getResourceAsStream("/icons/app_32.png")),
+//            new Image(getClass().getResourceAsStream("/icons/app_64.png")));
 
     /*
      * TODO choose theme from settings and expose it to components

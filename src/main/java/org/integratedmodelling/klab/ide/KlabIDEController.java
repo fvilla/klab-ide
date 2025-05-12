@@ -32,20 +32,16 @@ import org.integratedmodelling.klab.api.services.runtime.Notification;
 import org.integratedmodelling.klab.api.utils.Utils;
 import org.integratedmodelling.klab.api.view.UIView;
 import org.integratedmodelling.klab.api.view.modeler.Modeler;
-import org.integratedmodelling.klab.api.view.modeler.views.AuthenticationView;
-import org.integratedmodelling.klab.api.view.modeler.views.DistributionView;
 import org.integratedmodelling.klab.api.view.modeler.views.RuntimeView;
 import org.integratedmodelling.klab.api.view.modeler.views.ServicesView;
-import org.integratedmodelling.klab.api.view.modeler.views.controllers.AuthenticationViewController;
-import org.integratedmodelling.klab.api.view.modeler.views.controllers.DistributionViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.RuntimeViewController;
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
+import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.integratedmodelling.klab.ide.components.*;
 import org.integratedmodelling.klab.ide.pages.BrowsablePage;
 import org.integratedmodelling.klab.ide.settings.IDESettings;
 import org.integratedmodelling.klab.ide.utils.NodeUtils;
 import org.integratedmodelling.klab.modeler.ModelerImpl;
-import org.integratedmodelling.klab.modeler.views.controllers.RuntimeControllerImpl;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.bootstrapicons.BootstrapIcons;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
@@ -543,11 +539,74 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   @Override
   public void notifyNewDigitalTwin(ContextScope scope, RuntimeService service) {
     this.digitalTwinView.raiseDigitalTwin(scope, service);
+    for (var viewer : getDigitalTwinViewers(scope, service)) {
+
+    }
+
   }
 
   @Override
   public void notifyDigitalTwinModified(DigitalTwin digitalTwin, Message change) {
     Logging.INSTANCE.info("Digital twin changed: " + change);
+  }
+
+  @Override
+  public void notifyObservationSubmission(
+      Observation observation, ContextScope contextScope, RuntimeService service) {
+    Logging.INSTANCE.info("Observation submitted: " + observation);
+    for (var viewer : getDigitalTwinViewers(contextScope, service)) {
+      viewer.submission(observation);
+    }
+  }
+
+  /**
+   * Retrieve any viewers for the passed DT, also managing the DT widget, if any is open.
+   *
+   * @param contextScope
+   * @param service
+   * @return
+   */
+  private List<DigitalTwinViewer> getDigitalTwinViewers(
+      ContextScope contextScope, RuntimeService service) {
+    // TODO
+    return List.of();
+  }
+
+  @Override
+  public void notifyObservationSubmissionAborted(
+      Observation observation, ContextScope contextScope, RuntimeService service) {
+    Logging.INSTANCE.info("Observation submission aborted: " + observation);
+    for (var viewer : getDigitalTwinViewers(contextScope, service)) {
+      viewer.submissionAborted(observation);
+    }
+
+  }
+
+  @Override
+  public void notifyObservationSubmissionFinished(
+      Observation observation, ContextScope contextScope, RuntimeService service) {
+    Logging.INSTANCE.info("Observation submission finished: " + observation);
+    for (var viewer : getDigitalTwinViewers(contextScope, service)) {
+      viewer.submissionFinished(observation);
+    }
+  }
+
+  @Override
+  public void notifyContextObservationResolved(
+      Observation observation, ContextScope contextScope, RuntimeService service) {
+    Logging.INSTANCE.info("Context observation resolved: " + observation);
+    for (var viewer : getDigitalTwinViewers(contextScope, service)) {
+      viewer.setContext(observation);
+    }
+  }
+
+  @Override
+  public void notifyObserverResolved(
+      Observation observation, ContextScope contextScope, RuntimeService service) {
+    Logging.INSTANCE.info("Observer resolved: " + observation);
+    for (var viewer : getDigitalTwinViewers(contextScope, service)) {
+      viewer.setObserver(observation);
+    }
   }
 
   //  @Override
