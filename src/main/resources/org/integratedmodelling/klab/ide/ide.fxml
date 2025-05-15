@@ -61,14 +61,14 @@
                 <VBox alignment="BOTTOM_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="2.0"
                       BorderPane.alignment="CENTER">
                     <children>
-                        <Button fx:id="startButton" styleClass="flat, button-circle">
-                            <tooltip>
-                                <Tooltip text="Start local k.LAB services" showDelay="200ms"/>
-                            </tooltip>
-                        </Button>
                         <VBox alignment="CENTER" prefHeight="80.0" maxWidth="38.0" spacing="1.0"
                               BorderPane.alignment="CENTER"
                               style="-fx-border-color: -color-base-3; -fx-border-radius: 8 8 8 8; -fx-border-width: 1;">
+                            <Button fx:id="startButton" styleClass="flat, button-circle">
+                                <tooltip>
+                                    <Tooltip text="Start local k.LAB services" showDelay="200ms"/>
+                                </tooltip>
+                            </Button>
                             <Button fx:id="reasonerButton" styleClass="flat, button-circle">
                                 <tooltip>
                                     <Tooltip text="Select or manage a Reasoner" showDelay="200ms"/>
@@ -89,13 +89,13 @@
                                     <Tooltip text="Select or manage a Runtime" showDelay="200ms"/>
                                 </tooltip>
                             </Button>
+                            <Button fx:id="downloadButton" styleClass="flat, button-circle">
+                                <tooltip>
+                                    <Tooltip text="Manage the local k.LAB distribution" showDelay="200ms"/>
+                                </tooltip>
+                            </Button>
                         </VBox>
-                        <Button fx:id="downloadButton" styleClass="flat, button-circle">
-                            <tooltip>
-                                <Tooltip text="Manage the local k.LAB distribution" showDelay="200ms"/>
-                            </tooltip>
-                        </Button>
-                        <Pane minHeight="36.0" />
+                        <Pane minHeight="36.0"/>
                         <Button fx:id="settingsButton" styleClass="flat, button-circle">
                             <tooltip>
                                 <Tooltip text="Change local settings" showDelay="200ms"/>

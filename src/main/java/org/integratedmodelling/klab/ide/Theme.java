@@ -35,7 +35,7 @@ public enum Theme {
     return dark;
   }
 
-  public static Theme CURRENT_THEME = DARK_COOL;
+  public static Theme CURRENT_THEME = LIGHT_DEFAULT;
 
   // color coding for services. TODO may be non-static, styled according to the current theme
   public static final Color REASONER_COLOR_MUTED = Color.web("#b3d1ff");
