@@ -25,7 +25,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   private final ContextScope contextScope;
   private final RuntimeService runtimeService;
   private HBox menuArea;
-  private TreeView<RuntimeAsset> treeView;
+  private KnowledgeGraphTree treeView;
   private RuntimeAsset context;
   private KnowledgeGraphView knowledgeGraphView;
 
@@ -34,7 +34,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     this.contextScope = contextScope;
     this.runtimeService = runtimeService;
     if (contextScope.getDigitalTwin() instanceof ClientDigitalTwin clientDigitalTwin) {
-      clientDigitalTwin.addEventConsumer(this::processEvent);
+      clientDigitalTwin.addEventConsumer( this::processEvent);
     }
     
     this.context =
@@ -75,7 +75,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   @Override
   protected TreeView<RuntimeAsset> createContentTree() {
 
-    treeView = new TreeView<>(defineTree(this.context));
+    treeView = new KnowledgeGraphTree(defineTree(this.context));
     treeView.setCellFactory(p -> new AssetTreeCell());
     treeView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE);
     treeView.setShowRoot(false);
@@ -117,6 +117,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
             contextMenu.show(treeView, event.getScreenX(), event.getScreenY());
           }
         });
+
     return treeView;
   }
 

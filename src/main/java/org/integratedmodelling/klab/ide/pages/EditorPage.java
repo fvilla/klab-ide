@@ -89,7 +89,7 @@ public abstract class EditorPage<T> extends BorderPane {
           VBox.setVgrow(tree, Priority.ALWAYS);
           container.setMaxWidth(Double.MAX_VALUE);
           tree.setMaxWidth(Double.MAX_VALUE);
-          digitalTwinMinified = new DigitalTwinWidget(tree.widthProperty().intValue());
+          digitalTwinMinified = new DigitalTwinWidget(tree.widthProperty().intValue(), this);
           digitalTwinMinified.prefWidthProperty().bind(tree.widthProperty());
           digitalTwinMinified.prefHeightProperty().bind(digitalTwinMinified.widthProperty());
           configureDigitalTwinWidget(digitalTwinMinified);

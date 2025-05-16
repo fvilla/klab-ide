@@ -4,6 +4,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
+import org.integratedmodelling.klab.ide.pages.EditorPage;
 import org.kordamp.ikonli.material2.Material2AL;
 
 /**
@@ -22,11 +23,12 @@ import org.kordamp.ikonli.material2.Material2AL;
  */
 public class DigitalTwinWidget extends BorderPane implements DigitalTwinViewer {
 
-  public DigitalTwinWidget(int size) {
+  public DigitalTwinWidget(int size, EditorPage<?> editorPage) {
     super();
     setMinHeight(size);
     setMinWidth(size);
     setCenter(new IconLabel(Material2AL.ARROW_CIRCLE_DOWN, 220, Color.DARKGREEN));
+
   }
 
   @Override
