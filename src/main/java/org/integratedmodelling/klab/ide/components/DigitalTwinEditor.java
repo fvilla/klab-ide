@@ -37,19 +37,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
       clientDigitalTwin.addEventConsumer( this::processEvent);
     }
     
-    this.context =
-        new RuntimeAsset() {
-
-          @Override
-          public long getId() {
-            return 0;
-          }
-
-          @Override
-          public Type classify() {
-            return Type.ARTIFACT;
-          }
-        };
+    this.context = RuntimeAsset.CONTEXT_ASSET;
   }
 
   private void processEvent(Message message) {
