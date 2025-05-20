@@ -2,6 +2,8 @@ package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
+
+import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
@@ -16,6 +18,7 @@ import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.RuntimeService;
 import org.integratedmodelling.klab.api.services.runtime.Message;
+import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
 import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
@@ -34,14 +37,15 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     this.contextScope = contextScope;
     this.runtimeService = runtimeService;
     if (contextScope.getDigitalTwin() instanceof ClientDigitalTwin clientDigitalTwin) {
-      clientDigitalTwin.addEventConsumer( this::processEvent);
+      clientDigitalTwin.addEventConsumer(this::processEvent);
     }
-    
+
     this.context = RuntimeAsset.CONTEXT_ASSET;
   }
 
   private void processEvent(Message message) {
-    if (message.is(Message.MessageType.KnowledgeGraphCommitted) && this.knowledgeGraphView != null) {
+    if (message.is(Message.MessageType.KnowledgeGraphCommitted)
+        && this.knowledgeGraphView != null) {
       this.knowledgeGraphView.addGraph(message.getPayload(RuntimeAssetGraph.class));
       // TODO add observations to tree
     } else if (message.is(Message.MessageType.ContextualizationAborted)) {
@@ -119,11 +123,10 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   /**
    * Tree behavior:
    *
-   * on explicit observation submission received: add it in ctx with clock icon
-   * on resolved tree received:
+   * <p>on explicit observation submission received: add it in ctx with clock icon on resolved tree
+   * received:
    *
-   * on submission failed:
-   * on submission finished: check if empty;
+   * <p>on submission failed: on submission finished: check if empty;
    *
    * @param asset
    * @return
@@ -150,34 +153,68 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     return null;
   }
 
+//  private TreeItem<RuntimeAsset> defineTree(RuntimeAsset asset) {
+//    var root = new TreeItem<RuntimeAsset>(asset);
+//    for (var child : children(asset)) {
+//      root.getChildren().add(defineTree(child));
+//    }
+//    return root;
+//  }
+
+
+  private void updateTree(TreeItem<RuntimeAsset> root, RuntimeAsset changed) {
+
+    if (root.getValue() != null) {
+
+      root.setValue(changed);
+
+      var existingChildren = new ArrayList<>(root.getChildren());
+      var newChildren = new ArrayList<>(children(changed));
+      var updatedChildren = new ArrayList<TreeItem<RuntimeAsset>>();
+
+      // Process children in order of new asset's children
+      for (var newChild : newChildren) {
+        // Find existing child if present
+        var existingChild =
+            existingChildren.stream()
+                .filter(child -> child.getValue().equals(newChild))
+                .findFirst();
+
+        if (existingChild.isPresent()) {
+          // Update existing child
+          var child = existingChild.get();
+          updateTree(child, newChild);
+          updatedChildren.add(child);
+        } else {
+          // Add new child
+          updatedChildren.add(defineTree(newChild));
+        }
+      }
+
+      // Replace all children with ordered list
+      root.getChildren().clear();
+      root.getChildren().addAll(updatedChildren);
+    }
+  }
+
   public RuntimeAsset getRootAsset() {
     return this.context;
   }
 
   @Override
-  public void submission(Observation observation) {
-
-  }
+  public void submission(Observation observation) {}
 
   @Override
-  public void submissionAborted(Observation observation) {
-
-  }
+  public void submissionAborted(Observation observation) {}
 
   @Override
-  public void submissionFinished(Observation observation) {
-
-  }
+  public void submissionFinished(Observation observation) {}
 
   @Override
-  public void setContext(Observation observation) {
-
-  }
+  public void setContext(Observation observation) {}
 
   @Override
-  public void setObserver(Observation observation) {
-
-  }
+  public void setObserver(Observation observation) {}
 
   private static final class AssetTreeCell extends TreeCell<RuntimeAsset> {
     @Override
