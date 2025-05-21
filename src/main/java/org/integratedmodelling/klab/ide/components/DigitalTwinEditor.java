@@ -31,6 +31,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   private KnowledgeGraphTree treeView;
   private RuntimeAsset context;
   private KnowledgeGraphView knowledgeGraphView;
+  private TreeItem<RuntimeAsset> root;
 
   public DigitalTwinEditor(
       ContextScope contextScope, RuntimeService runtimeService, DigitalTwinView digitalTwinView) {
@@ -41,21 +42,19 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     }
 
     this.context = RuntimeAsset.CONTEXT_ASSET;
+    defineTree(this.context);
   }
 
   private void processEvent(Message message) {
-    if (message.is(Message.MessageType.KnowledgeGraphCommitted)
-        && this.knowledgeGraphView != null) {
-      this.knowledgeGraphView.addGraph(message.getPayload(RuntimeAssetGraph.class));
-      // TODO add observations to tree
-    } else if (message.is(Message.MessageType.ContextualizationAborted)) {
-      // TODO revise observation graphics (error icon)
-    } else if (message.is(Message.MessageType.ContextualizationSuccessful)) {
-      // TODO revise observation graphics (solid or check)
-    } else if (message.is(Message.MessageType.ContextualizationStarted)) {
-      // TODO revise observation graphics (clock)
+
+    switch (message.getMessageType()) {
+      case KnowledgeGraphCommitted,
+          ContextualizationAborted,
+          ContextualizationSuccessful,
+          ContextualizationStarted -> {
+        updateTree(root, this.context);
+      }
     }
-    Logging.INSTANCE.info("Received event: " + message);
   }
 
   @Override
@@ -114,10 +113,16 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   }
 
   private List<RuntimeAsset> children(RuntimeAsset asset) {
-    if (asset == this.context) {
-      // root observations
-    } // etc
-    return List.of();
+    // TODO switch to local graph directly
+    return
+        contextScope
+            .getDigitalTwin()
+            .getKnowledgeGraph()
+            .query(RuntimeAsset.class, contextScope)
+            // TODO condition to relationships
+            .source(RuntimeAsset.CONTEXT_ASSET)
+            .depth(2)
+            .run(contextScope);
   }
 
   /**
@@ -132,11 +137,11 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
    * @return
    */
   private TreeItem<RuntimeAsset> defineTree(RuntimeAsset asset) {
-    var root = new TreeItem<>(asset);
+    var ret = new TreeItem<>(asset);
     for (var child : children(asset)) {
-      root.getChildren().add(defineTree(child));
+      ret.getChildren().add(defineTree(child));
     }
-    return root;
+    return ret;
   }
 
   @Override
@@ -152,15 +157,6 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     }
     return null;
   }
-
-//  private TreeItem<RuntimeAsset> defineTree(RuntimeAsset asset) {
-//    var root = new TreeItem<RuntimeAsset>(asset);
-//    for (var child : children(asset)) {
-//      root.getChildren().add(defineTree(child));
-//    }
-//    return root;
-//  }
-
 
   private void updateTree(TreeItem<RuntimeAsset> root, RuntimeAsset changed) {
 
