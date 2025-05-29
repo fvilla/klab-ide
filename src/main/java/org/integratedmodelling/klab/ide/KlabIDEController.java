@@ -475,19 +475,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   }
 
   @Override
-  public void servicesConfigurationChanged(KlabService.ServiceCapabilities service) {
-    this.capabilities.put(service.getType(), service);
-  }
-
-  @Override
-  public void notifyServiceStatus(KlabService.ServiceStatus status) {
-    /* won't happen automatically - should be deprecated */
-
-  }
-
-  @Override
-  public void serviceFocusChanged(KlabService.ServiceCapabilities serviceCapabilities) {
-    Logging.INSTANCE.info("PUTO SERVIZIO CHANGED " + serviceCapabilities);
+  public void notifyServiceStatus(KlabService service, KlabService.ServiceStatus status) {
   }
 
   @Override
@@ -497,10 +485,6 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
     if (status.isAvailable()) {
       setButton(startButton, Material2MZ.STOP, 20, Color.DARKRED, "Click to stop the services");
       this.engineStarted.set(true);
-    }
-
-    for (var s : status.getServicesStatus().values()) {
-      notifyServiceStatus(s);
     }
 
     /**
@@ -538,10 +522,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   @Override
   public void notifyNewDigitalTwin(ContextScope scope, RuntimeService service) {
     this.digitalTwinView.raiseDigitalTwin(scope, service);
-    for (var viewer : getDigitalTwinViewers(scope, service)) {
-
-    }
-
+    for (var viewer : getDigitalTwinViewers(scope, service)) {}
   }
 
   @Override
@@ -578,7 +559,6 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
     for (var viewer : getDigitalTwinViewers(contextScope, service)) {
       viewer.submissionAborted(observation);
     }
-
   }
 
   @Override

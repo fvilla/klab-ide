@@ -55,7 +55,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     this.workspace =
         new NavigableWorkspace(
             service.retrieveWorkspace(resourceInfo.getUrn(), KlabIDEController.modeler().user()));
-    if (service.isExclusive() && service instanceof ResourcesService.Admin admin) {
+    if (service instanceof ResourcesService.Admin admin) {
       // lock all projects that let us
       for (var project : workspace.getProjects()) {
         if (admin.lockProject(project.getUrn(), KlabIDEController.modeler().user())

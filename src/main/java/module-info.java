@@ -23,6 +23,9 @@ module org.integratedmodelling.klab.ide {
     requires com.google.common;
     requires org.jline;
     requires eu.mihosoft.monacofx;
+    requires smartgraph;
+    requires spring.boot.autoconfigure;
+    requires org.jgrapht.core;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;

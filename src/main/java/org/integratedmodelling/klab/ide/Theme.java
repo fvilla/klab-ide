@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import org.integratedmodelling.klab.api.data.RepositoryState;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
+import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableFolder;
 import org.integratedmodelling.klab.ide.components.IconLabel;
@@ -35,7 +36,7 @@ public enum Theme {
     return dark;
   }
 
-  public static Theme CURRENT_THEME = DARK_COOL;
+  public static Theme CURRENT_THEME = LIGHT_DEFAULT;
 
   // color coding for services. TODO may be non-static, styled according to the current theme
   public static final Color REASONER_COLOR_MUTED = Color.web("#b3d1ff");
@@ -135,6 +136,11 @@ public enum Theme {
       return repositoryStatusPrefix(repositoryStatus) + navigableAsset.getUrn();
     } else if (asset instanceof RuntimeAsset) {
       // TODO all real chances first
+      if (asset instanceof Observation observation) {
+        return observation.getName() == null
+            ? observation.getObservable().getName()
+            : observation.getName();
+      }
       return "Knowledge Graph";
     }
 

@@ -12,8 +12,11 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.common.services.client.digitaltwin.ClientDigitalTwin;
+import org.integratedmodelling.common.services.client.digitaltwin.ClientKnowledgeGraph;
+import org.integratedmodelling.klab.api.data.KnowledgeGraph;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
 import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
+import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.RuntimeService;
@@ -27,8 +30,9 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
 
   private final ContextScope contextScope;
   private final RuntimeService runtimeService;
+  private ClientKnowledgeGraph knowledgeGraph;
   private HBox menuArea;
-  private KnowledgeGraphTree treeView;
+  private TreeView<RuntimeAsset> treeView;
   private RuntimeAsset context;
   private KnowledgeGraphView knowledgeGraphView;
   private TreeItem<RuntimeAsset> root;
@@ -39,20 +43,25 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     this.runtimeService = runtimeService;
     if (contextScope.getDigitalTwin() instanceof ClientDigitalTwin clientDigitalTwin) {
       clientDigitalTwin.addEventConsumer(this::processEvent);
+      this.knowledgeGraph = (ClientKnowledgeGraph) clientDigitalTwin.getKnowledgeGraph();
     }
 
     this.context = RuntimeAsset.CONTEXT_ASSET;
-    defineTree(this.context);
+    this.root = defineTree(this.context);
   }
 
   private void processEvent(Message message) {
 
     switch (message.getMessageType()) {
-      case KnowledgeGraphCommitted,
-          ContextualizationAborted,
-          ContextualizationSuccessful,
-          ContextualizationStarted -> {
-        updateTree(root, this.context);
+      case KnowledgeGraphCommitted -> {
+        // TODO this only for the first case
+        updateTree(this.context);
+      }
+      case ContextualizationAborted, ContextualizationSuccessful, ContextualizationStarted -> {
+        // TODO insert object, define aspect
+        if (message.getMessageType() == Message.MessageType.ContextualizationStarted) {
+          knowledgeGraphView.setFocalAsset(message.getPayload(Observation.class));
+        }
       }
     }
   }
@@ -66,7 +75,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   @Override
   protected TreeView<RuntimeAsset> createContentTree() {
 
-    treeView = new KnowledgeGraphTree(defineTree(this.context));
+    treeView = new KnowledgeGraphTree(this.root);
     treeView.setCellFactory(p -> new AssetTreeCell());
     treeView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE);
     treeView.setShowRoot(false);
@@ -113,16 +122,11 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   }
 
   private List<RuntimeAsset> children(RuntimeAsset asset) {
-    // TODO switch to local graph directly
-    return
-        contextScope
-            .getDigitalTwin()
-            .getKnowledgeGraph()
-            .query(RuntimeAsset.class, contextScope)
-            // TODO condition to relationships
-            .source(RuntimeAsset.CONTEXT_ASSET)
-            .depth(2)
-            .run(contextScope);
+    if (contextScope.getDigitalTwin().getKnowledgeGraph()
+        instanceof ClientKnowledgeGraph clientKnowledgeGraph) {
+      return clientKnowledgeGraph.outgoing(asset, GraphModel.Relationship.HAS_CHILD);
+    }
+    return List.of();
   }
 
   /**
@@ -153,44 +157,63 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   @Override
   protected Node createEditor(RuntimeAsset asset) {
     if (asset == context) {
-      return this.knowledgeGraphView = new KnowledgeGraphView(this.contextScope, this);
+      return this.knowledgeGraphView = new KnowledgeGraphView(this.contextScope, this.knowledgeGraph);
     }
     return null;
   }
 
-  private void updateTree(TreeItem<RuntimeAsset> root, RuntimeAsset changed) {
-
-    if (root.getValue() != null) {
-
-      root.setValue(changed);
-
-      var existingChildren = new ArrayList<>(root.getChildren());
-      var newChildren = new ArrayList<>(children(changed));
-      var updatedChildren = new ArrayList<TreeItem<RuntimeAsset>>();
-
-      // Process children in order of new asset's children
-      for (var newChild : newChildren) {
-        // Find existing child if present
-        var existingChild =
-            existingChildren.stream()
-                .filter(child -> child.getValue().equals(newChild))
-                .findFirst();
-
-        if (existingChild.isPresent()) {
-          // Update existing child
-          var child = existingChild.get();
-          updateTree(child, newChild);
-          updatedChildren.add(child);
-        } else {
-          // Add new child
-          updatedChildren.add(defineTree(newChild));
-        }
-      }
-
-      // Replace all children with ordered list
-      root.getChildren().clear();
-      root.getChildren().addAll(updatedChildren);
+  private TreeItem<RuntimeAsset> findTreeItemById(TreeItem<RuntimeAsset> current, long id) {
+    if (current.getValue().getId() == id) {
+      return current;
     }
+    for (TreeItem<RuntimeAsset> child : current.getChildren()) {
+      TreeItem<RuntimeAsset> result = findTreeItemById(child, id);
+      if (result != null) {
+        return result;
+      }
+    }
+    return null;
+  }
+
+  private void updateTree(RuntimeAsset changed) {
+
+    if (true) {
+      treeView.getRoot().getChildren().clear();
+      treeView.setRoot(defineTree(RuntimeAsset.CONTEXT_ASSET));
+      return;
+    }
+
+
+    var insertionPoint = this.root;
+    var parents = knowledgeGraph.incoming(changed, GraphModel.Relationship.HAS_CHILD);
+    if (!parents.isEmpty()) {
+      insertionPoint = findTreeItemById(root, parents.getFirst().getId());
+    }
+
+    var existingChildren = new ArrayList<>(insertionPoint.getChildren());
+    var newChildren = new ArrayList<>(children(changed));
+    var updatedChildren = new ArrayList<TreeItem<RuntimeAsset>>();
+
+    // Process children in order of new asset's children
+    for (var newChild : newChildren) {
+      // Find existing child if present
+      var existingChild =
+          existingChildren.stream().filter(child -> child.getValue().equals(newChild)).findFirst();
+
+      if (existingChild.isPresent()) {
+        // Update existing child
+        var child = existingChild.get();
+        updateTree(newChild);
+        updatedChildren.add(child);
+      } else {
+        // Add new child
+        updatedChildren.add(defineTree(newChild));
+      }
+    }
+
+    // Replace all children with ordered list
+    insertionPoint.getChildren().clear();
+    insertionPoint.getChildren().addAll(updatedChildren);
   }
 
   public RuntimeAsset getRootAsset() {
@@ -224,9 +247,8 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
             setStyle(null);
           }
         }
-
       } else {
-        setText(null);
+        setText(asset == null ? "null" : asset.toString());
         setGraphic(null);
       }
     }
