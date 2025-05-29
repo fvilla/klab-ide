@@ -61,9 +61,15 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
       }
       case ContextualizationAborted, ContextualizationSuccessful, ContextualizationStarted -> {
         // TODO insert object, define aspect
-        if (message.getMessageType() == Message.MessageType.ContextualizationStarted) {
-          knowledgeGraphView.setFocalAsset(message.getPayload(Observation.class));
-        }
+        //        if (message.getMessageType() == Message.MessageType.ContextualizationStarted) {
+        //          knowledgeGraphView.setFocalAsset(message.getPayload(Observation.class));
+        //        }
+      }
+      // FIXME sketchy logics
+      case ObservationSubmissionAborted -> {}
+      case ObservationSubmissionStarted -> {}
+      case ObservationSubmissionFinished -> {
+        submissionFinished(message.getPayload(Observation.class));
       }
     }
   }
@@ -159,7 +165,8 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   @Override
   protected Node createEditor(RuntimeAsset asset) {
     if (asset == context) {
-      return this.knowledgeGraphView = new KnowledgeGraphView(this.contextScope, this.knowledgeGraph);
+      return this.knowledgeGraphView =
+          new KnowledgeGraphView(this.contextScope, this.knowledgeGraph);
     }
     return null;
   }
@@ -184,7 +191,6 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
       treeView.setRoot(defineTree(RuntimeAsset.CONTEXT_ASSET));
       return;
     }
-
 
     var insertionPoint = this.root;
     var parents = knowledgeGraph.incoming(changed, GraphModel.Relationship.HAS_CHILD);
@@ -229,7 +235,9 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   public void submissionAborted(Observation observation) {}
 
   @Override
-  public void submissionFinished(Observation observation) {}
+  public void submissionFinished(Observation observation) {
+    this.knowledgeGraphView.setFocalAsset(observation);
+  }
 
   @Override
   public void setContext(Observation observation) {}
