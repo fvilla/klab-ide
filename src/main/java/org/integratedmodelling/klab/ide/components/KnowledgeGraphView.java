@@ -86,20 +86,16 @@ public class KnowledgeGraphView extends BorderPane {
 
   private void fillGraph(
       Graph<RuntimeAsset, ClientKnowledgeGraph.Relationship> graph, RuntimeAsset asset, int depth) {
-    if (depth < 0) {
-      return;
-    }
-
-    RuntimeAsset vertex = knowledgeGraph.getAsset(asset.getId());
-    graph.insertVertex(vertex);
 
     for (GraphModel.Relationship relationship : relationships) {
-      for (var targetEdge : knowledgeGraph.getGraph().outgoingEdgesOf(vertex)) {
+      for (var targetEdge : knowledgeGraph.getGraph().outgoingEdgesOf(asset)) {
         if (this.relationships.contains(targetEdge.relationship)) {
           var target = knowledgeGraph.getGraph().getEdgeTarget(targetEdge);
           graph.insertVertex(target);
-          graph.insertEdge(vertex, target, targetEdge);
-          fillGraph(graph, target, depth - 1);
+          graph.insertEdge(asset, target, targetEdge);
+          if (depth > 1) {
+            fillGraph(graph, target, depth - 1);
+          }
         }
       }
     }
@@ -108,7 +104,8 @@ public class KnowledgeGraphView extends BorderPane {
   public void updateGraph(
       Graph<RuntimeAsset, ClientKnowledgeGraph.Relationship> graph, RuntimeAsset asset) {
     var focus = knowledgeGraph.getAsset(asset.getId());
-    fillGraph(this.graphView.getModel(), asset, depth);
+    graph.insertVertex(focus);
+    fillGraph(this.graphView.getModel(), focus, depth);
     this.graphView.update();
   }
 }
