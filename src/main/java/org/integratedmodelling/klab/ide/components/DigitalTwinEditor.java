@@ -52,6 +52,8 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
 
   private void processEvent(Message message) {
 
+    Logging.INSTANCE.info("COZZA: " + message.getMessageType());
+
     switch (message.getMessageType()) {
       case KnowledgeGraphCommitted -> {
         // TODO this only for the first case
