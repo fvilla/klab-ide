@@ -24,6 +24,7 @@ import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
+import org.kordamp.ikonli.material2.Material2MZ;
 
 public class KnowledgeGraphView extends BorderPane {
 
@@ -48,13 +49,6 @@ public class KnowledgeGraphView extends BorderPane {
     switchesBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
     switchesBox.getStyleClass().add(Styles.SMALL);
 
-    Spinner<Integer> depthSpinner = new Spinner<>();
-    depthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 7, 2));
-    depthSpinner
-        .getStyleClass()
-        .addAll(Spinner.STYLE_CLASS_SPLIT_ARROWS_HORIZONTAL, Styles.SMALL);
-    depthSpinner.setPrefWidth(100);
-
     ToggleSwitch switch1 = new ToggleSwitch("Children");
     ToggleSwitch switch2 = new ToggleSwitch("Affected");
     ToggleSwitch switch3 = new ToggleSwitch("Data");
@@ -70,17 +64,14 @@ public class KnowledgeGraphView extends BorderPane {
 
     Button homeButton = new Button();
     homeButton.setGraphic(new FontIcon(Material2AL.HOME));
-    homeButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.SMALL);
+    homeButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT, Styles.SMALL);
+    Button minusButton = new Button();
+    minusButton.setGraphic(new FontIcon(Material2MZ.REMOVE_CIRCLE_OUTLINE));
+    minusButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT, Styles.SMALL);
+    Button plusButton = new Button();
+    plusButton.setGraphic(new FontIcon(Material2AL.ADD_CIRCLE_OUTLINE));
+    plusButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT, Styles.SMALL);
 
-    depthSpinner
-        .valueProperty()
-        .addListener(
-            (obs, old, val) -> {
-              depth = val;
-              if (initialized && focalAsset != null) {
-                updateGraph(graphView.getModel(), focalAsset);
-              }
-            });
     homeButton.setOnAction(
         event -> {
           focalAsset = RuntimeAsset.CONTEXT_ASSET;
@@ -88,14 +79,32 @@ public class KnowledgeGraphView extends BorderPane {
             updateGraph(graphView.getModel(), focalAsset);
           }
         });
+    minusButton.setOnAction(
+        event -> {
+          if (depth > 1) {
+            depth--;
+            if (initialized && focalAsset != null) {
+              updateGraph(graphView.getModel(), focalAsset);
+            }
+          }
+        });
+    plusButton.setOnAction(
+        event -> {
+          if (depth < 5) {
+            depth++;
+            if (initialized && focalAsset != null) {
+              updateGraph(graphView.getModel(), focalAsset);
+            }
+          }
+        });
     switch1.selectedProperty().addListener((obs, old, val) -> {});
     switch2.selectedProperty().addListener((obs, old, val) -> {});
     switch3.selectedProperty().addListener((obs, old, val) -> {});
     switch4.selectedProperty().addListener((obs, old, val) -> {});
     switch5.selectedProperty().addListener((obs, old, val) -> {});
-    
-    switchesBox.getChildren().addAll(switch1, switch2, switch3, switch4, switch5, homeButton);
-    HBox spinnerBox = new HBox(depthSpinner);
+
+    switchesBox.getChildren().addAll(switch1, switch2, switch3, switch4, switch5);
+    HBox spinnerBox = new HBox(homeButton, minusButton, plusButton);
     HBox.setHgrow(spinnerBox, javafx.scene.layout.Priority.ALWAYS);
     controls.getChildren().addAll(spinnerBox, switchesBox);
     this.setTop(controls);
