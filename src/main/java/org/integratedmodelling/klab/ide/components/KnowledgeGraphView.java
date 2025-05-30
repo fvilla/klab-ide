@@ -1,5 +1,6 @@
 package org.integratedmodelling.klab.ide.components;
 
+import com.brunomnsilva.smartgraph.graph.DigraphEdgeList;
 import com.brunomnsilva.smartgraph.graph.Graph;
 import com.brunomnsilva.smartgraph.graph.GraphEdgeList;
 import com.brunomnsilva.smartgraph.graphview.SmartCircularSortedPlacementStrategy;
@@ -43,9 +44,10 @@ public class KnowledgeGraphView extends BorderPane {
     if (getWidth() > 0 && getHeight() > 0 && !initialized) {
       Logging.INSTANCE.info("Initializing Knowledge Graph View");
       var initialPlacement = new SmartCircularSortedPlacementStrategy();
-      var graph = new GraphEdgeList<RuntimeAsset, ClientKnowledgeGraph.Relationship>();
+      var graph = new DigraphEdgeList<RuntimeAsset, ClientKnowledgeGraph.Relationship>();
       this.graphView = new SmartGraphPanel<>(graph, initialPlacement);
       this.setCenter(this.graphView);
+      this.graphView.setAutomaticLayout(true);
 
       // Initialize the graph view after it's been added to the scene
       Platform.runLater(
