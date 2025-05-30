@@ -156,18 +156,19 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   private void handleAssetDrop(NavigableAsset value) {
+    digitalTwinMinified.setStatus(DigitalTwinWidget.Status.COMPUTING);
     KlabIDEController.modeler()
         .observe(value, /* TODO check drop params */ false)
         .exceptionally(
             throwable -> {
-              hideDigitalTwinMinified();
+              digitalTwinMinified.setStatus(DigitalTwinWidget.Status.ERROR);
               KlabIDEApplication.instance()
                   .handleNotifications(List.of(Notification.error(throwable)));
               return Observation.EMPTY_OBSERVATION;
             })
         .thenApply(
             observation -> {
-              hideDigitalTwinMinified();
+              digitalTwinMinified.setStatus(DigitalTwinWidget.Status.IDLE);
               return observation;
             });
   }

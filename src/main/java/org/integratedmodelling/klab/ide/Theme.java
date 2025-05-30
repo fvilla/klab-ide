@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import org.integratedmodelling.klab.api.data.RepositoryState;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
+import org.integratedmodelling.klab.api.knowledge.KlabAsset;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableFolder;
@@ -86,6 +87,29 @@ public enum Theme {
   public static final Ikon LOCAL_SERVICE_ICON = Material2AL.DONUT_SMALL;
   public static final Ikon REMOTE_SERVICE_ICON_ONE = BootstrapIcons.CLOUDS_FILL;
   public static final Ikon REMOTE_SERVICE_ICON_MANY = BootstrapIcons.CLOUDS;
+
+  public static Ikon getIcon(KlabAsset.KnowledgeClass knowledgeClass) {
+    return switch (knowledgeClass) {
+        case CONCEPT -> CONCEPT_DEFINITION_ICON;
+        case OBSERVABLE -> CONCEPT_DEFINITION_ICON;
+        case MODEL -> MODEL_ICON;
+        case DEFINITION -> CONCEPT_DEFINITION_ICON;
+        case RESOURCE -> RESOURCES_ICON;
+        case NAMESPACE -> NAMESPACE_ICON;
+        case BEHAVIOR -> BEHAVIOR_ICON;
+        case SCRIPT -> BEHAVIOR_ICON;
+        case TESTCASE -> TESTCASE_ICON;
+        case APPLICATION -> APPLICATION_VIEW_ICON;
+        case ONTOLOGY -> ONTOLOGY_ICON;
+        case OBSERVATION_STRATEGY -> ONTOLOGY_ICON;
+        case OBSERVATION_STRATEGY_DOCUMENT -> ONTOLOGY_ICON;
+        case COMPONENT -> ONTOLOGY_ICON;
+        case PROJECT -> PROJECT_ICON;
+        case WORLDVIEW -> WORLDVIEW_ICON;
+        case WORKSPACE -> WORKSPACE_ICON;
+        case CONCEPT_STATEMENT -> CONCEPT_DEFINITION_ICON;
+    };
+  }
 
   public static Node getGraphics(Object asset) {
 

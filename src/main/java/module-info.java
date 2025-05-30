@@ -23,7 +23,7 @@ module org.integratedmodelling.klab.ide {
     requires com.google.common;
     requires org.jline;
     requires eu.mihosoft.monacofx;
-    requires smartgraph;
+    requires com.brunomnsilva.smartgraph;
     requires spring.boot.autoconfigure;
     requires org.jgrapht.core;
 

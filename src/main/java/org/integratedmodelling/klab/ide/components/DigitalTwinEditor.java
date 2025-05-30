@@ -2,6 +2,7 @@ package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
+import javafx.application.Platform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -185,43 +186,31 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   }
 
   private void updateTree(RuntimeAsset changed) {
+    Platform.runLater(
+        () -> {
+          // Store selection to restore it later
+          TreeItem<RuntimeAsset> selectedItem = treeView.getSelectionModel().getSelectedItem();
 
-    if (true) {
-      treeView.getRoot().getChildren().clear();
-      treeView.setRoot(defineTree(RuntimeAsset.CONTEXT_ASSET));
-      return;
-    }
+          // Temporarily disable cell updates to prevent flickering
+          treeView.setDisable(true);
 
-    var insertionPoint = this.root;
-    var parents = knowledgeGraph.incoming(changed, GraphModel.Relationship.HAS_CHILD);
-    if (!parents.isEmpty()) {
-      insertionPoint = findTreeItemById(root, parents.getFirst().getId());
-    }
+          try {
+            treeView.getRoot().getChildren().clear();
+            TreeItem<RuntimeAsset> newRoot = defineTree(RuntimeAsset.CONTEXT_ASSET);
+            treeView.setRoot(newRoot);
 
-    var existingChildren = new ArrayList<>(insertionPoint.getChildren());
-    var newChildren = new ArrayList<>(children(changed));
-    var updatedChildren = new ArrayList<TreeItem<RuntimeAsset>>();
-
-    // Process children in order of new asset's children
-    for (var newChild : newChildren) {
-      // Find existing child if present
-      var existingChild =
-          existingChildren.stream().filter(child -> child.getValue().equals(newChild)).findFirst();
-
-      if (existingChild.isPresent()) {
-        // Update existing child
-        var child = existingChild.get();
-        updateTree(newChild);
-        updatedChildren.add(child);
-      } else {
-        // Add new child
-        updatedChildren.add(defineTree(newChild));
-      }
-    }
-
-    // Replace all children with ordered list
-    insertionPoint.getChildren().clear();
-    insertionPoint.getChildren().addAll(updatedChildren);
+            // Restore selection if possible
+            if (selectedItem != null) {
+              TreeItem<RuntimeAsset> newSelectedItem =
+                  findTreeItemById(newRoot, selectedItem.getValue().getId());
+              if (newSelectedItem != null) {
+                treeView.getSelectionModel().select(newSelectedItem);
+              }
+            }
+          } finally {
+            treeView.setDisable(false);
+          }
+        });
   }
 
   public RuntimeAsset getRootAsset() {
@@ -249,7 +238,14 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     @Override
     protected void updateItem(RuntimeAsset asset, boolean empty) {
       super.updateItem(asset, empty);
-      if (asset != null && !empty) {
+
+      if (empty || asset == null) {
+        // Cell is empty or asset is null - clear everything
+        setText(null);
+        setGraphic(null);
+        setStyle(null);
+      } else {
+        // Cell has valid content
         setText(Theme.getLabel(asset));
         setGraphic(Theme.getGraphics(asset));
         switch (asset) {
@@ -257,9 +253,6 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
             setStyle(null);
           }
         }
-      } else {
-        setText(asset == null ? "null" : asset.toString());
-        setGraphic(null);
       }
     }
   }

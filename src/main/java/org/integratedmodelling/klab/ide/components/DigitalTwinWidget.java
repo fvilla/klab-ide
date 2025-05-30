@@ -1,5 +1,7 @@
 package org.integratedmodelling.klab.ide.components;
 
+import atlantafx.base.controls.RingProgressIndicator;
+import javafx.application.Platform;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
@@ -23,12 +25,39 @@ import org.kordamp.ikonli.material2.Material2AL;
  */
 public class DigitalTwinWidget extends BorderPane implements DigitalTwinViewer {
 
+  public enum Status {
+    IDLE,
+    COMPUTING,
+    ERROR,
+    INFO
+  }
+
+  private final IconLabel iconLabel;
+  private Status status = Status.IDLE;
+
   public DigitalTwinWidget(int size, EditorPage<?> editorPage) {
     super();
     setMinHeight(size);
     setMinWidth(size);
-    setCenter(new IconLabel(Material2AL.ARROW_CIRCLE_DOWN, 220, Color.DARKGREEN));
+    this.iconLabel = new IconLabel(Material2AL.ARROW_CIRCLE_DOWN, 220, Color.DARKGREEN);
+    setCenter(iconLabel);
+  }
 
+  public void setStatus(Status status) {
+    this.status = status;
+    Platform.runLater(
+        () -> {
+          switch (status) {
+            case IDLE -> {
+              setCenter(iconLabel);
+            }
+            case COMPUTING -> {
+              var progressIndicator = new RingProgressIndicator(-1);
+              progressIndicator.setPrefSize(180, 180);
+              setCenter(progressIndicator);
+            }
+          }
+        });
   }
 
   @Override

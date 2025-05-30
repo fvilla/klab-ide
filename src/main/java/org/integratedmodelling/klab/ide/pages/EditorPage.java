@@ -34,7 +34,7 @@ public abstract class EditorPage<T> extends BorderPane {
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
   boolean isClickTimelinePlaying = false;
   private Map<T, Tab> assetEditors = new HashMap<>();
-  private DigitalTwinWidget digitalTwinMinified;
+  protected DigitalTwinWidget digitalTwinMinified;
   private TreeView<T> tree;
 
   public EditorPage() {

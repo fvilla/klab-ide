@@ -8,6 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
+import org.integratedmodelling.klab.ide.Theme;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
@@ -313,23 +314,33 @@ public class Components {
 
     protected void createContent() {
       var card = new Card();
-      VBox body = new VBox();
-      var icon =
-          switch (this.descriptor.getKnowledgeClass()) {
-            case WORKSPACE -> new FontIcon(Material2AL.APPS);
-            default -> throw new KlabInternalErrorException("DIO COP");
-          };
-      HBox header =
-          new HBox(icon, new Label(this.descriptor.getMetadata().get("name", "Unnamed workspace")));
-      HBox footer = new HBox();
+      VBox body = new VBox(10);
+
+      var icon = new FontIcon(Theme.getIcon(descriptor.getKnowledgeClass()));
+
+      Label title = new Label(this.descriptor.getUrn());
+      title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+      HBox header = new HBox(10, icon, title);
+      header.setAlignment(Pos.CENTER_LEFT);
+
+      TextArea description = new TextArea("Resource description placeholder text");
+      description.setWrapText(true);
+      description.setEditable(false);
+      description.setPrefRowCount(3);
+      body.getChildren().add(description);
+
+      Label status = new Label("Status: Active | Last modified: 2025-05-30");
+      status.setStyle("-fx-font-size: 10px;");
+      HBox footer = new HBox(status);
       footer.setAlignment(Pos.CENTER_RIGHT);
+
       card.setOnMouseClicked(
           event -> {
             clickHandler.accept(this.descriptor);
           });
+
       card.setBody(body);
       card.setHeader(header);
-      // footer has delete icon if info allow it
       card.setFooter(footer);
       this.getChildren().add(card);
     }
