@@ -9,6 +9,7 @@ import org.integratedmodelling.klab.api.knowledge.KlabAsset;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableFolder;
+import org.integratedmodelling.klab.ide.components.Asset;
 import org.integratedmodelling.klab.ide.components.IconLabel;
 import org.integratedmodelling.klab.modeler.model.NavigableKimNamespace;
 import org.integratedmodelling.klab.modeler.model.NavigableKimOntology;
@@ -90,24 +91,24 @@ public enum Theme {
 
   public static Ikon getIcon(KlabAsset.KnowledgeClass knowledgeClass) {
     return switch (knowledgeClass) {
-        case CONCEPT -> CONCEPT_DEFINITION_ICON;
-        case OBSERVABLE -> CONCEPT_DEFINITION_ICON;
-        case MODEL -> MODEL_ICON;
-        case DEFINITION -> CONCEPT_DEFINITION_ICON;
-        case RESOURCE -> RESOURCES_ICON;
-        case NAMESPACE -> NAMESPACE_ICON;
-        case BEHAVIOR -> BEHAVIOR_ICON;
-        case SCRIPT -> BEHAVIOR_ICON;
-        case TESTCASE -> TESTCASE_ICON;
-        case APPLICATION -> APPLICATION_VIEW_ICON;
-        case ONTOLOGY -> ONTOLOGY_ICON;
-        case OBSERVATION_STRATEGY -> ONTOLOGY_ICON;
-        case OBSERVATION_STRATEGY_DOCUMENT -> ONTOLOGY_ICON;
-        case COMPONENT -> ONTOLOGY_ICON;
-        case PROJECT -> PROJECT_ICON;
-        case WORLDVIEW -> WORLDVIEW_ICON;
-        case WORKSPACE -> WORKSPACE_ICON;
-        case CONCEPT_STATEMENT -> CONCEPT_DEFINITION_ICON;
+      case CONCEPT -> CONCEPT_DEFINITION_ICON;
+      case OBSERVABLE -> CONCEPT_DEFINITION_ICON;
+      case MODEL -> MODEL_ICON;
+      case DEFINITION -> CONCEPT_DEFINITION_ICON;
+      case RESOURCE -> RESOURCES_ICON;
+      case NAMESPACE -> NAMESPACE_ICON;
+      case BEHAVIOR -> BEHAVIOR_ICON;
+      case SCRIPT -> BEHAVIOR_ICON;
+      case TESTCASE -> TESTCASE_ICON;
+      case APPLICATION -> APPLICATION_VIEW_ICON;
+      case ONTOLOGY -> ONTOLOGY_ICON;
+      case OBSERVATION_STRATEGY -> ONTOLOGY_ICON;
+      case OBSERVATION_STRATEGY_DOCUMENT -> ONTOLOGY_ICON;
+      case COMPONENT -> ONTOLOGY_ICON;
+      case PROJECT -> PROJECT_ICON;
+      case WORLDVIEW -> WORLDVIEW_ICON;
+      case WORKSPACE -> WORKSPACE_ICON;
+      case CONCEPT_STATEMENT -> CONCEPT_DEFINITION_ICON;
     };
   }
 
@@ -117,6 +118,10 @@ public enum Theme {
     int warningCount = 0;
     int infoCount = 0;
     RepositoryState.Status repositoryStatus = null;
+
+    if (asset instanceof Asset runtimeAsset) {
+      asset = runtimeAsset.getDelegate();
+    }
 
     if (asset instanceof NavigableAsset navigableAsset) {
       errorCount =

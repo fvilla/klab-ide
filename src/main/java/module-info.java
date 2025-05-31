@@ -26,6 +26,7 @@ module org.integratedmodelling.klab.ide {
     requires com.brunomnsilva.smartgraph;
     requires spring.boot.autoconfigure;
     requires org.jgrapht.core;
+    requires org.checkerframework.checker.qual;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;

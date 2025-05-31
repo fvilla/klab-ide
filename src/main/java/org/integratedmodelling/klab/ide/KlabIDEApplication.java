@@ -13,10 +13,9 @@ import org.controlsfx.control.Notifications;
 import org.integratedmodelling.common.logging.Logging;
 import org.eclipse.xtext.ide.server.ServerLauncher;
 import org.integratedmodelling.klab.api.services.runtime.Notification;
+import org.integratedmodelling.klab.ide.notifications.NotificationManager;
 
 public class KlabIDEApplication extends Application {
-
-
 
   public static final int MIN_WIDTH = 1200;
   public static final int SIDEBAR_WIDTH = 270;
@@ -74,6 +73,9 @@ public class KlabIDEApplication extends Application {
         });
     stage.setScene(scene);
     stage.show();
+
+    // Initialize the notification manager
+    NotificationManager.getInstance().initialize(scene);
   }
 
   /**
@@ -87,12 +89,6 @@ public class KlabIDEApplication extends Application {
 
     int errorCount = 0;
     for (var notification : notifications) {
-      var popup =
-          Notifications.create()
-              .owner(scene().getRoot())
-              .title(notification.getLevel().name())
-              .text(notification.getMessage());
-
       if (notification.getLevel().severity > 2) {
         errorCount++;
       }
@@ -100,10 +96,13 @@ public class KlabIDEApplication extends Application {
       Platform.runLater(
           () -> {
             switch (notification.getLevel()) {
-              case Debug, Info -> popup.showInformation();
-              case Warning -> popup.showWarning();
+              case Debug, Info -> NotificationManager.getInstance().showInformation(
+                  notification.getLevel().name(), notification.getMessage());
+              case Warning -> NotificationManager.getInstance().showWarning(
+                  notification.getLevel().name(), notification.getMessage());
               case Error, SystemError -> {
-                popup.showError();
+                NotificationManager.getInstance().showError(
+                    notification.getLevel().name(), notification.getMessage());
               }
             }
           });

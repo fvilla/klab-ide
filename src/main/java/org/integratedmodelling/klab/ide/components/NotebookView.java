@@ -7,10 +7,10 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
+import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.cli.DashboardLineReader;
 import org.integratedmodelling.klab.ide.cli.DashboardTerminal;
 import org.integratedmodelling.klab.ide.contrib.AutoCompleteTextField;
@@ -49,8 +49,11 @@ public class NotebookView extends BorderPane implements Page {
             });
 
     addComponent(new Components.About());
+      addComponent(new Components.AutoScrollDemo());
   }
 
+  
+  
   public static class InputBox extends AutoCompleteTextField {
     InputBox(AutoCompleteTextField.EntryProvider entryProvider) {
       super(entryProvider);
@@ -84,11 +87,13 @@ public class NotebookView extends BorderPane implements Page {
       componentMap.put(
           componentType,
           switch (componentType) {
-            case Distribution -> new Components.Distribution();
-            case UserInfo -> new Components.User();
+            case Distribution ->
+                new Components.DistributionComponent(KlabIDEController.modeler().getDistribution());
+            case UserInfo -> new Components.User(KlabIDEController.modeler().user());
             case ServiceInfo -> new Components.Services();
             case About -> new Components.About();
             case Settings -> new Components.Settings();
+            case AutoScroll -> new Components.AutoScrollDemo();
             default ->
                 throw new KlabInternalErrorException("unexpected component " + componentType);
           });

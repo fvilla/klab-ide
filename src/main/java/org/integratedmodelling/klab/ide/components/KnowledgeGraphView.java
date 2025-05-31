@@ -17,6 +17,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import org.checkerframework.checker.units.qual.A;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.common.services.client.digitaltwin.ClientKnowledgeGraph;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
@@ -174,21 +175,22 @@ public class KnowledgeGraphView extends BorderPane {
 
   private void fillGraph(
       Graph<RuntimeAsset, ClientKnowledgeGraph.Relationship> graph,
-      RuntimeAsset asset,
+      Asset asset,
       int depth,
       Set<RuntimeAsset> cache) {
 
     for (GraphModel.Relationship relationship : relationships) {
-      for (var targetEdge : knowledgeGraph.getGraph().outgoingEdgesOf(asset)) {
+      for (var targetEdge : knowledgeGraph.getGraph().outgoingEdgesOf(asset.getDelegate())) {
         if (this.relationships.contains(targetEdge.relationship)) {
           var target = knowledgeGraph.getGraph().getEdgeTarget(targetEdge);
+          var targetAsset = new Asset(target);
           if (!cache.contains(target)) {
-            graph.insertVertex(target);
+            graph.insertVertex(targetAsset);
             cache.add(target);
           }
-          graph.insertEdge(asset, target, targetEdge);
+          graph.insertEdge(asset, targetAsset, targetEdge);
           if (depth > 1) {
-            fillGraph(graph, target, depth - 1, cache);
+            fillGraph(graph, targetAsset, depth - 1, cache);
           }
         }
       }
@@ -199,8 +201,9 @@ public class KnowledgeGraphView extends BorderPane {
       Graph<RuntimeAsset, ClientKnowledgeGraph.Relationship> graph, RuntimeAsset asset) {
     var focus = knowledgeGraph.getAsset(asset.getId());
     clear();
-    graph.insertVertex(focus);
-    fillGraph(this.graphView.getModel(), focus, depth, new HashSet<>());
+    var focusAsset = new Asset(focus);
+    graph.insertVertex(focusAsset);
+    fillGraph(this.graphView.getModel(), focusAsset, depth, new HashSet<>());
     this.graphView.update();
   }
 }

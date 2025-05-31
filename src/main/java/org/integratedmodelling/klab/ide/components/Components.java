@@ -1,19 +1,38 @@
 package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.controls.Card;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
+import javafx.scene.input.TransferMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
+import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
+import org.integratedmodelling.klab.api.data.Version;
+import org.integratedmodelling.klab.api.engine.distribution.Distribution;
+import org.integratedmodelling.klab.api.scope.ContextScope;
+import org.integratedmodelling.klab.api.scope.UserScope;
+import org.integratedmodelling.klab.api.services.RuntimeService;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
+import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.Theme;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -31,6 +50,7 @@ public class Components {
     Help,
     About,
     Settings,
+    AutoScroll, // Auto-scrolling component
     Object // these are not indexed and may be used outside the notebook
   }
 
@@ -75,40 +95,174 @@ public class Components {
     }
 
     protected void createContent() {
+
       var card = new Card();
+      VBox content = new VBox(20);
+      content.setPadding(new Insets(20));
+
       try (var lg =
           this.getClass()
               .getResourceAsStream("/org/integratedmodelling/klab/ide/icons/klab-im.png")) {
         var logo = new Image(lg, 420, 180, true, true);
-        HBox hBox = new HBox(new ImageView(logo));
-        card.setBody(hBox);
-        this.getChildren().add(card);
+        HBox logoBox = new HBox(new ImageView(logo));
+        logoBox.setAlignment(Pos.CENTER);
+
+        TextArea description = new TextArea();
+        description.setText(
+            "k.LAB is a distributed semantic modeling platform enabling integration of diverse knowledge.");
+        description.setWrapText(true);
+        description.setEditable(false);
+        description.setPrefRowCount(3);
+
+        HBox links = new HBox(5);
+        links
+            .getChildren()
+            .addAll(
+                createLink("Documentation", "https://docs.integratedmodelling.org"),
+                createLink("Source Code", "https://github.com/integratedmodelling/klab-services"),
+                createLink("Website", "https://www.integratedmodelling.org"));
+
+        VBox rightContent = new VBox(10);
+        rightContent.getChildren().addAll(description, links);
+
+        HBox contentBox = new HBox(20, logoBox, rightContent);
+        content.getChildren().add(contentBox);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
+
+      ScrollPane devScroll = new ScrollPane();
+      devScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+      devScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+      HBox developers = new HBox(10);
+      developers.setPadding(new Insets(10));
+      developers
+          .getChildren()
+          .addAll(
+              createDeveloperLabel("John Smith"),
+              createDeveloperLabel("Jane Doe"),
+              createDeveloperLabel("Bob Wilson"));
+      devScroll.setContent(developers);
+      devScroll.setPrefHeight(50);
+
+      Label copyright =
+          new Label(
+              "Version "
+                  + Version.CURRENT
+                  + " :: © 2025 Integrated Modelling Partnership. All rights reserved.");
+      copyright.setStyle("-fx-font-size: 12px;");
+
+      content.getChildren().addAll(new Label("Core Developers:"), devScroll, copyright);
+
+      card.setBody(content);
+      this.getChildren().add(card);
+    }
+
+    private Node createLink(String text, String url) {
+      Hyperlink link = new Hyperlink(text);
+      FontIcon icon = new FontIcon(Material2AL.LINK);
+      HBox linkBox = new HBox(5, icon, link);
+
+      link.setOnAction(e -> KlabIDEApplication.instance().getHostServices().showDocument(url));
+      return linkBox;
+    }
+
+    private Label createDeveloperLabel(String name) {
+      Label label = new Label(name);
+      label.setStyle(
+          "-fx-padding: 5 10; -fx-background-color: #f0f0f0; -fx-background-radius: 15;");
+      return label;
     }
   }
 
   public static class User extends BaseComponent {
 
-    public User() {
-      super(Type.UserInfo, "User information", true);
+    private UserScope user;
+    private Label usernameLabel;
+    private Label emailLabel;
+    private Label statusLabel;
+    private GridPane groupIcons;
+    private VBox groupArea;
+
+    public User(UserScope userScope) {
+      super(Type.UserInfo, "User information", false);
+      this.user = userScope;
+      createContent();
     }
 
     protected void createContent() {
 
-      Label certContentLabel = new Label("k.LAB user:");
-      Label certUsername = new Label("No certificate");
-      Label certDescription = new Label("Drop a certificate file");
-      Hyperlink hubLink = new Hyperlink("k.LAB user hub");
+      var icon = new IconLabel(Material2MZ.PERSON, 32, Color.BLACK);
 
-      VBox certificateArea = new VBox(certContentLabel, certUsername, certDescription, hubLink);
+      usernameLabel = new Label(user.getUser().getUsername());
+      usernameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
-      GridPane groupIcons = new GridPane();
+      emailLabel = new Label(user.getUser().getEmailAddress());
+      emailLabel.setStyle("-fx-font-size: 14px;");
+
+      statusLabel = new Label(user.getUser().isOnline() ? "Online" : "Offline");
+      statusLabel.setStyle(
+          user.getUser().isOnline()
+              ? "-fx-text-fill: green; -fx-font-weight: bold;"
+              : "-fx-text-fill: red; -fx-font-weight: bold;");
+
+      VBox userInfoArea = new VBox(5);
+      userInfoArea.setAlignment(Pos.TOP_LEFT);
+      userInfoArea.getChildren().addAll(new HBox(10, icon, usernameLabel), emailLabel, statusLabel);
+      HBox.setHgrow(userInfoArea, Priority.ALWAYS);
+
+      groupIcons = new GridPane();
+      groupIcons.setHgap(5);
+      groupIcons.setVgap(5);
+
       Label groupsLabel = new Label("Groups");
-      VBox groupArea = new VBox(groupIcons, groupsLabel);
+      groupsLabel.setStyle("-fx-font-weight: bold;");
 
-      HBox main = new HBox(certificateArea, groupArea);
+      groupArea = new VBox(5);
+      groupArea.getChildren().addAll(groupsLabel, groupIcons);
+
+      int row = 0, col = 0;
+      for (var group : user.getUser().getGroups()) {
+        Label groupIcon =
+            new Label(
+                group.getName().substring(0, Math.min(2, group.getName().length())).toUpperCase());
+        groupIcon.setStyle(
+            "-fx-background-color: #e0e0e0; -fx-padding: 5 10; -fx-background-radius: 3;");
+        Tooltip.install(groupIcon, new Tooltip(group.getName()));
+        groupIcons.add(groupIcon, col, row);
+        col++;
+        if (col > 2) {
+          col = 0;
+          row++;
+        }
+      }
+
+      VBox dropZone = new VBox();
+      dropZone.setAlignment(Pos.CENTER);
+      dropZone.setPrefWidth(200);
+      dropZone.setPrefHeight(150);
+      dropZone.setStyle(
+          "-fx-border-color: #808080; -fx-border-width: 3; -fx-border-style: dashed; "
+              + "-fx-border-radius: 10; -fx-background-color: #f8f8f8; -fx-background-radius: 10;");
+
+      Label dropLabel = new Label("Drop a new certificate");
+      dropLabel.setStyle("-fx-text-fill: #808080;");
+      dropZone.getChildren().add(dropLabel);
+
+      dropZone.setOnDragOver(
+          event -> {
+            event.acceptTransferModes(TransferMode.COPY);
+            event.consume();
+          });
+
+      dropZone.setOnDragDropped(
+          event -> {
+            event.setDropCompleted(true);
+            event.consume();
+          });
+
+      HBox main = new HBox(20, userInfoArea, groupArea, dropZone);
+      main.setPadding(new Insets(10));
       var card = new Card();
       card.setBody(main);
 
@@ -276,9 +430,9 @@ public class Components {
     //    }
   }
 
-  public static class Distribution extends BaseComponent {
+  public static class DistributionComponent extends BaseComponent {
 
-    public Distribution() {
+    public DistributionComponent(Distribution distribution) {
       super(Type.Distribution, "Distribution status", true);
     }
 
@@ -366,6 +520,139 @@ public class Components {
       tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
       card.setBody(tabs);
       this.getChildren().add(card);
+    }
+  }
+
+  public static class DigitalTwin extends Node {
+    public DigitalTwin(ContextScope workspace, BiConsumer<ContextScope, RuntimeService> action) {}
+  }
+
+  /** A component that demonstrates the AutoScrollPane with a list of sample components. */
+  public static class AutoScrollDemo extends BaseComponent {
+
+    public AutoScrollDemo() {
+      super(Type.Object, "Auto Scroll Demo", true);
+    }
+
+    @Override
+    protected void createContent() {
+      var card = new Card();
+      VBox content = new VBox(20);
+      content.setPadding(new Insets(20));
+
+      // Create some sample components to scroll
+      List<Node> horizontalComponents = new ArrayList<>();
+      for (int i = 1; i <= 5; i++) {
+        Label label = new Label("Horizontal Component " + i);
+        label.setPrefWidth(200);
+        label.setPrefHeight(100);
+        label.setAlignment(Pos.CENTER);
+        label.setStyle(
+            "-fx-background-color: "
+                + getRandomColor()
+                + "; -fx-text-fill: white; -fx-font-weight: bold;");
+        horizontalComponents.add(label);
+      }
+
+      // Create a horizontal auto-scroll pane
+      AutoScrollPane horizontalScroller = new AutoScrollPane(Orientation.HORIZONTAL, 50);
+      horizontalScroller.setPrefHeight(120);
+      horizontalScroller.setPrefWidth(400);
+      horizontalScroller.setComponents(horizontalComponents);
+
+      // Create some sample components to scroll vertically
+      List<Node> verticalComponents = new ArrayList<>();
+      for (int i = 1; i <= 5; i++) {
+        Label label = new Label("Vertical Component " + i);
+        label.setPrefWidth(200);
+        label.setPrefHeight(100);
+        label.setAlignment(Pos.CENTER);
+        label.setStyle(
+            "-fx-background-color: "
+                + getRandomColor()
+                + "; -fx-text-fill: white; -fx-font-weight: bold;");
+        verticalComponents.add(label);
+      }
+      // Create a vertical auto-scroll pane
+      AutoScrollPane verticalScroller = new AutoScrollPane(Orientation.VERTICAL, 50);
+      verticalScroller.setPrefHeight(300);
+      verticalScroller.setPrefWidth(220);
+      verticalScroller.setComponents(verticalComponents);
+
+      // Create controls for the horizontal scroller
+      Label horizontalLabel = new Label("Horizontal Scroller");
+      horizontalLabel.setStyle("-fx-font-weight: bold;");
+      Slider horizontalSpeedSlider = new Slider(10, 200, 50);
+      horizontalSpeedSlider.setShowTickLabels(true);
+      horizontalSpeedSlider.setShowTickMarks(true);
+      horizontalSpeedSlider
+          .valueProperty()
+          .addListener(
+              (obs, oldVal, newVal) -> {
+                horizontalScroller.setScrollSpeed(newVal.doubleValue());
+              });
+      Button horizontalToggleButton = new Button("Pause");
+      horizontalToggleButton.setOnAction(
+          e -> {
+            if (horizontalToggleButton.getText().equals("Pause")) {
+              horizontalScroller.stopScrolling();
+              horizontalToggleButton.setText("Resume");
+            } else {
+              horizontalScroller.startScrolling();
+              horizontalToggleButton.setText("Pause");
+            }
+          });
+      HBox horizontalControls =
+          new HBox(10, new Label("Speed:"), horizontalSpeedSlider, horizontalToggleButton);
+      horizontalControls.setAlignment(Pos.CENTER_LEFT);
+
+      // Create controls for the vertical scroller
+      Label verticalLabel = new Label("Vertical Scroller");
+      verticalLabel.setStyle("-fx-font-weight: bold;");
+      Slider verticalSpeedSlider = new Slider(10, 200, 50);
+      verticalSpeedSlider.setShowTickLabels(true);
+      verticalSpeedSlider.setShowTickMarks(true);
+      verticalSpeedSlider
+          .valueProperty()
+          .addListener(
+              (obs, oldVal, newVal) -> {
+                verticalScroller.setScrollSpeed(newVal.doubleValue());
+              });
+      Button verticalToggleButton = new Button("Pause");
+      verticalToggleButton.setOnAction(
+          e -> {
+            if (verticalToggleButton.getText().equals("Pause")) {
+              verticalScroller.stopScrolling();
+              verticalToggleButton.setText("Resume");
+            } else {
+              verticalScroller.startScrolling();
+              verticalToggleButton.setText("Pause");
+            }
+          });
+      HBox verticalControls =
+          new HBox(10, new Label("Speed:"), verticalSpeedSlider, verticalToggleButton);
+      verticalControls.setAlignment(Pos.CENTER_LEFT);
+
+      // Add everything to the content
+      VBox horizontalSection =
+          new VBox(10, horizontalLabel, horizontalScroller, horizontalControls);
+      VBox verticalSection = new VBox(10, verticalLabel, verticalScroller, verticalControls);
+      HBox scrollers = new HBox(20, horizontalSection, verticalSection);
+      content.getChildren().add(scrollers);
+
+      card.setBody(content);
+      this.getChildren().add(card);
+    }
+
+    private String getRandomColor() {
+      String[] colors = {
+        "#3498db", // Blue
+        "#e74c3c", // Red
+        "#2ecc71", // Green
+        "#f39c12", // Orange
+        "#9b59b6" // Purple
+      };
+      return colors[(int) (Math.random() * colors.length)];
     }
   }
 }

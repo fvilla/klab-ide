@@ -64,6 +64,8 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
     this.tabPane.getTabs().add(menuTab);
     getChildren().addAll(tabPane, modalPane);
   }
+  
+  
 
   protected Node makeHeader(String title, Runnable addAction) {
 
@@ -112,6 +114,8 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
         });
   }
 
+  
+  
   public void showBrowser() {
 
     if (modalPane.contentProperty().isBound()) {
