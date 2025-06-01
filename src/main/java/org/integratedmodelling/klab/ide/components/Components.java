@@ -16,6 +16,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import org.integratedmodelling.klab.api.data.Version;
 import org.integratedmodelling.klab.api.engine.distribution.Distribution;
@@ -50,7 +51,7 @@ public class Components {
     Help,
     About,
     Settings,
-    AutoScroll, // Auto-scrolling component
+//    AutoScroll, // Auto-scrolling component
     Object // these are not indexed and may be used outside the notebook
   }
 
@@ -109,10 +110,13 @@ public class Components {
 
         TextArea description = new TextArea();
         description.setText(
-            "k.LAB is a distributed semantic modeling platform enabling integration of diverse knowledge.");
+            "k.LAB is a distributed semantic modeling platform enabling integration of diverse knowledge. "
+                + "k.LAB aims to address integrated modeling, which reconciles strong "
+                + "semantics with modeling practice, helping achieve advantages such as modularity, "
+                + "interoperability, reusability, and integration of multiple paradigms and scales. ");
         description.setWrapText(true);
         description.setEditable(false);
-        description.setPrefRowCount(3);
+        description.setPrefRowCount(5);
 
         HBox links = new HBox(5);
         links
@@ -131,28 +135,44 @@ public class Components {
         throw new RuntimeException(e);
       }
 
-      ScrollPane devScroll = new ScrollPane();
-      devScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-      devScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-      HBox developers = new HBox(10);
-      developers.setPadding(new Insets(10));
-      developers
-          .getChildren()
-          .addAll(
-              createDeveloperLabel("John Smith"),
-              createDeveloperLabel("Jane Doe"),
-              createDeveloperLabel("Bob Wilson"));
-      devScroll.setContent(developers);
-      devScroll.setPrefHeight(50);
+      List<Node> developers = new ArrayList<>();
+      for (var developer :
+          List.of(
+              "Ferdinando Villa, always",
+              "Enrico Girotto, hopefully",
+              "Andrea Antonello, maybe",
+              "Iñigo Cobian, eventually",
+              "Arnab Moitra, faithfully")) {
+        Label label = new Label(developer);
+        label.setAlignment(Pos.CENTER);
+        label.setPadding(new Insets(10));
+        label.setStyle("-fx-font-size: 10px;");
+        developers.add(label);
+      }
+
+      // Create a horizontal auto-scroll pane
+      AutoScrollPane devScroll = new AutoScrollPane(Orientation.HORIZONTAL, 50);
+      devScroll.setPrefHeight(40);
+      devScroll.setMaxWidth(Double.MAX_VALUE);
+      HBox.setHgrow(devScroll, Priority.ALWAYS);
+      devScroll.setComponents(developers);
 
       Label copyright =
           new Label(
               "Version "
                   + Version.CURRENT
-                  + " :: © 2025 Integrated Modelling Partnership. All rights reserved.");
-      copyright.setStyle("-fx-font-size: 12px;");
+                  + " :: © 2025 Integrated Modelling Partnership. All rights reserved. Main developers:");
+      copyright.setStyle("-fx-font-size: 10px; -fx-padding: 10 0 0 0;");
+      copyright.setAlignment(Pos.CENTER);
+      copyright.setPrefWidth(480);
 
-      content.getChildren().addAll(new Label("Core Developers:"), devScroll, copyright);
+      var credits = new HBox(copyright, devScroll);
+      credits.setSpacing(4);
+
+      credits.setMaxWidth(Double.MAX_VALUE);
+      HBox.setHgrow(credits, Priority.ALWAYS);
+
+      content.getChildren().addAll(credits);
 
       card.setBody(content);
       this.getChildren().add(card);

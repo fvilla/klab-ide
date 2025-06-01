@@ -49,7 +49,7 @@ public class NotebookView extends BorderPane implements Page {
             });
 
     addComponent(new Components.About());
-      addComponent(new Components.AutoScrollDemo());
+//      addComponent(new Components.AutoScrollDemo());
   }
 
   
@@ -93,7 +93,7 @@ public class NotebookView extends BorderPane implements Page {
             case ServiceInfo -> new Components.Services();
             case About -> new Components.About();
             case Settings -> new Components.Settings();
-            case AutoScroll -> new Components.AutoScrollDemo();
+//            case AutoScroll -> new Components.AutoScrollDemo();
             default ->
                 throw new KlabInternalErrorException("unexpected component " + componentType);
           });
