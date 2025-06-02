@@ -221,8 +221,8 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
     digitalTwinsButton.setGraphic(new IconLabel(Theme.DIGITAL_TWINS_ICON, 24, Color.GREY));
     sessionsButton.setGraphic(new IconLabel(Theme.APPLICATION_VIEW_ICON, 24, Color.GREY));
     worldviewButton.setGraphic(new IconLabel(Theme.WORLDVIEW_ICON, 24, Color.GREY));
-    downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 20, Color.GREY));
-    startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 20, Color.GREY));
+    downloadButton.setGraphic(new IconLabel(Material2AL.GET_APP, 16, Color.GREY));
+    startButton.setGraphic(new IconLabel(Material2MZ.POWER_SETTINGS_NEW, 16, Color.GREY));
     reasonerButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 16, Color.GREY));
     resourcesButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 16, Color.GREY));
     resolverButton.setGraphic(new IconLabel(Theme.LOCAL_SERVICE_ICON, 16, Color.GREY));
@@ -261,21 +261,21 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
                       setButton(
                           startButton,
                           Material2AL.ACCESS_TIME,
-                          20,
+                          16,
                           Color.DARKGOLDENROD,
                           "Wait while the services are stopping");
                       KlabIDEController.modeler().engine().stopLocalServices();
                       setButton(
                           startButton,
                           Material2MZ.POWER_SETTINGS_NEW,
-                          20,
+                          16,
                           Color.GREEN,
                           "Click to start the local k.LAB services");
                     } else {
                       setButton(
                           startButton,
                           Material2AL.ACCESS_TIME,
-                          20,
+                          16,
                           Color.DARKGOLDENROD,
                           "Wait while the services are starting");
                       engineStarted.set(true);
@@ -659,8 +659,8 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
         }
       }
     }
-    setButton(startButton, Material2MZ.POWER_SETTINGS_NEW, 20, startColor, startTooltip);
-    setButton(downloadButton, icon, 20, color, tooltip);
+    setButton(startButton, Material2MZ.POWER_SETTINGS_NEW, 16, startColor, startTooltip);
+    setButton(downloadButton, icon, 16, color, tooltip);
   }
 
   public static void setButton(Button button, Ikon icon, int size, Color color, String tooltip) {
