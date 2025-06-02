@@ -49,7 +49,7 @@ public class NotebookView extends BorderPane implements Page {
             });
 
     addComponent(new Components.About());
-//      addComponent(new Components.AutoScrollDemo());
+    addComponent(new Components.TimelineComponent());
   }
 
   

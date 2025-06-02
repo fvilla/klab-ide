@@ -682,4 +682,18 @@ public class Components {
       return colors[(int) (Math.random() * colors.length)];
     }
   }
+  /**
+   * A component that demonstrates the Timeline with configurable time intervals.
+   */
+  public static class TimelineComponent extends BaseComponent {
+
+    public TimelineComponent() {
+      super(Type.Object, "Timeline Demo", true);
+    }
+
+    @Override
+    protected void createContent() {
+      this.getChildren().add(TimelineDemo.createDemo());
+    }
+  }
 }
