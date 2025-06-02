@@ -51,7 +51,7 @@ public class Components {
     Help,
     About,
     Settings,
-//    AutoScroll, // Auto-scrolling component
+    //    AutoScroll, // Auto-scrolling component
     Object // these are not indexed and may be used outside the notebook
   }
 
@@ -124,7 +124,8 @@ public class Components {
             .addAll(
                 createLink("Documentation", "https://docs.integratedmodelling.org"),
                 createLink("Source Code", "https://github.com/integratedmodelling/klab-services"),
-                createLink("Website", "https://www.integratedmodelling.org"));
+                createLink("Website", "https://www.integratedmodelling.org"),
+                createLink("License", "https://www.gnu.org/licenses/agpl-3.0.en.html"));
 
         VBox rightContent = new VBox(10);
         rightContent.getChildren().addAll(description, links);
@@ -200,6 +201,7 @@ public class Components {
     private UserScope user;
     private Label usernameLabel;
     private Label emailLabel;
+    private Label licenseLabel;
     private Label statusLabel;
     private GridPane groupIcons;
     private VBox groupArea;
@@ -220,6 +222,9 @@ public class Components {
       emailLabel = new Label(user.getUser().getEmailAddress());
       emailLabel.setStyle("-fx-font-size: 14px;");
 
+      licenseLabel = new Label("Licensed exclusively for not-for-profit use");
+      licenseLabel.setStyle("-fx-font-size: 14px;");
+
       statusLabel = new Label(user.getUser().isOnline() ? "Online" : "Offline");
       statusLabel.setStyle(
           user.getUser().isOnline()
@@ -228,7 +233,9 @@ public class Components {
 
       VBox userInfoArea = new VBox(5);
       userInfoArea.setAlignment(Pos.TOP_LEFT);
-      userInfoArea.getChildren().addAll(new HBox(10, icon, usernameLabel), emailLabel, statusLabel);
+      userInfoArea
+          .getChildren()
+          .addAll(new HBox(10, icon, usernameLabel), emailLabel, licenseLabel, statusLabel);
       HBox.setHgrow(userInfoArea, Priority.ALWAYS);
 
       groupIcons = new GridPane();

@@ -483,7 +483,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
     // This only gets called when the status has changed.
     Logging.INSTANCE.info("" + status);
     if (status.isAvailable()) {
-      setButton(startButton, Material2MZ.STOP, 20, Color.DARKRED, "Click to stop the services");
+      setButton(startButton, Material2MZ.STOP, 16, Color.DARKRED, "Click to stop the services");
       this.engineStarted.set(true);
     }
 
