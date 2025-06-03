@@ -4,8 +4,10 @@ import atlantafx.base.theme.Styles;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
@@ -48,8 +50,13 @@ public abstract class EditorPage<T> extends BorderPane {
     this.editorTabs.getStyleClass().add(Styles.TABS_CLASSIC);
     this.editorTabs.setSide(Side.BOTTOM);
     browsingArea.setBottom(menuArea);
-    this.setCenter(editorTabs);
-    this.setRight(browsingArea);
+
+    SplitPane splitPane = new SplitPane();
+    splitPane.setOrientation(Orientation.HORIZONTAL);
+    splitPane.getItems().addAll(editorTabs, browsingArea);
+    splitPane.setDividerPositions(0.7);
+    this.setCenter(splitPane);
+
     clickTimeline.getKeyFrames().add(clickKeyFrame);
   }
 
