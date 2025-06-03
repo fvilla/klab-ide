@@ -7,14 +7,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -72,7 +70,7 @@ public class TimelineDemo extends Components.BaseComponent {
             alert.showAndWait();
         };
 
-        Timeline.Event sampleEvent = new Timeline.Event(middleTime, Timeline.EventType.INFO, clickHandler);
+        Timeline.Event sampleEvent = new Timeline.Event(middleTime, Timeline.EventType.EVENT_EXTERNAL, clickHandler);
         timeline.insertEvents(sampleEvent);
 
         // Create controls for configuring the timeline
@@ -115,7 +113,7 @@ public class TimelineDemo extends Components.BaseComponent {
         Label eventTypeLabel = new Label("Event Type:");
         eventTypeComboBox = new ComboBox<>();
         eventTypeComboBox.getItems().addAll(Timeline.EventType.values());
-        eventTypeComboBox.setValue(Timeline.EventType.DEFAULT);
+        eventTypeComboBox.setValue(Timeline.EventType.TIME);
 
         addEventButton = new Button("Add Event");
         addEventButton.setOnAction(e -> addEventToTimeline());

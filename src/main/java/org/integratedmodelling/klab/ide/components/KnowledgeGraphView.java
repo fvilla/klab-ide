@@ -9,6 +9,8 @@ import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.brunomnsilva.smartgraph.graphview.SmartRandomPlacementStrategy;
 import javafx.application.Platform;
@@ -31,22 +33,27 @@ public class KnowledgeGraphView extends BorderPane {
 
   private final ClientKnowledgeGraph knowledgeGraph;
   private final ContextScope scope;
+  private final DigitalTwinEditor editor;
+  private boolean autoLayout = true;
   private SmartGraphPanel<RuntimeAsset, ClientKnowledgeGraph.Relationship> graphView;
   private int depth = 3;
   private Set<GraphModel.Relationship> relationships =
       EnumSet.of(GraphModel.Relationship.HAS_CHILD);
   private RuntimeAsset focalAsset = null;
   private boolean initialized;
+  private Timeline timeline;
 
-  public KnowledgeGraphView(ContextScope scope, ClientKnowledgeGraph editor) {
+  public KnowledgeGraphView(ContextScope scope, ClientKnowledgeGraph knowledgeGraph, DigitalTwinEditor editor) {
+
     this.scope = scope;
-    this.knowledgeGraph = editor;
+    this.knowledgeGraph = knowledgeGraph;
+    this.editor = editor;
 
-    HBox controls = new HBox(8);
+    HBox controls = new HBox(2);
     controls.getStyleClass().add(Styles.SMALL);
     controls.setStyle("-fx-padding: 5px;");
 
-    HBox switchesBox = new HBox(8);
+    HBox switchesBox = new HBox(2);
     switchesBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
     switchesBox.getStyleClass().add(Styles.SMALL);
 
@@ -72,6 +79,9 @@ public class KnowledgeGraphView extends BorderPane {
     Button plusButton = new Button();
     plusButton.setGraphic(new FontIcon(Material2AL.ADD_CIRCLE_OUTLINE));
     plusButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT, Styles.SMALL);
+    Button redrawButton = new Button();
+    redrawButton.setGraphic(new FontIcon(Material2AL.AUTORENEW));
+    redrawButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT, Styles.SMALL);
 
     homeButton.setOnAction(
         event -> {
@@ -98,6 +108,16 @@ public class KnowledgeGraphView extends BorderPane {
             }
           }
         });
+    redrawButton.setOnAction(
+        event -> {
+          if (depth < 5) {
+            depth++;
+            if (initialized && focalAsset != null) {
+              autoLayout = !autoLayout;
+              graphView.setAutomaticLayout(autoLayout);
+            }
+          }
+        });
     switch1.selectedProperty().addListener((obs, old, val) -> {});
     switch2.selectedProperty().addListener((obs, old, val) -> {});
     switch3.selectedProperty().addListener((obs, old, val) -> {});
@@ -105,7 +125,7 @@ public class KnowledgeGraphView extends BorderPane {
     switch5.selectedProperty().addListener((obs, old, val) -> {});
 
     switchesBox.getChildren().addAll(switch1, switch2, switch3, switch4, switch5);
-    HBox spinnerBox = new HBox(homeButton, minusButton, plusButton);
+    HBox spinnerBox = new HBox(homeButton, minusButton, plusButton, redrawButton);
     HBox.setHgrow(spinnerBox, javafx.scene.layout.Priority.ALWAYS);
     controls.getChildren().addAll(spinnerBox, switchesBox);
     this.setTop(controls);
@@ -129,6 +149,44 @@ public class KnowledgeGraphView extends BorderPane {
       this.graphView = new SmartGraphPanel<>(graph, initialPlacement);
       this.setCenter(this.graphView);
       this.graphView.setAutomaticLayout(true);
+
+      graphView.setVertexDoubleClickAction(graphVertex -> {
+        var asset = graphVertex.getUnderlyingVertex().element();
+        if (asset instanceof Asset wrapper) {
+          asset = wrapper.getDelegate();
+        }
+        this.editor.focusOnAsset(asset);
+      });
+
+      graphView.setEdgeDoubleClickAction(graphEdge -> {
+        Logging.INSTANCE.info("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
+        //dynamically change the style, can also be done for a vertex
+        graphEdge.setStyleInline("-fx-stroke: black; -fx-stroke-width: 2;");
+      });
+
+      // Create default start and end times (current time and 1 hour later)
+      long currentTimeMs = System.currentTimeMillis();
+      long oneHourLaterMs = currentTimeMs + (3600000 * 2); // 2 hour in milliseconds
+      // Create the timeline component
+      timeline = new Timeline(currentTimeMs, oneHourLaterMs, TimeUnit.MINUTES, 1);
+      this.setBottom(timeline);
+
+      //      timeline.setVisible(false);
+      Executors.newSingleThreadScheduledExecutor()
+          .scheduleAtFixedRate(
+              () -> {
+                Logging.INSTANCE.info("Updating timeline");
+
+                Platform.runLater(
+                    () -> {
+                      timeline.insertEvents(
+                          new Timeline.Event(
+                              System.currentTimeMillis(), Timeline.EventType.TIME, null));
+                    });
+              },
+              1,
+              1,
+              TimeUnit.MINUTES);
 
       // Initialize the graph view after it's been added to the scene
       Platform.runLater(
@@ -204,11 +262,13 @@ public class KnowledgeGraphView extends BorderPane {
     var cache = new HashSet<Asset>();
     var focusAsset = new Asset(focus);
     cache.add(focusAsset);
+    this.autoLayout = true;
     graph.insertVertex(focusAsset);
     fillGraph(this.graphView.getModel(), focusAsset, depth, cache);
     this.graphView.update();
     Platform.runLater(
         () -> {
+          timeline.drawTimeline();
           for (var graphAsset : cache) {
             graphAsset.setStyle(this.graphView);
           }

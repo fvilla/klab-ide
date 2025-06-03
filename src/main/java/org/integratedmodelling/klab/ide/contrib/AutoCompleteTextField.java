@@ -1,24 +1,20 @@
 package org.integratedmodelling.klab.ide.contrib;
 
+import java.util.LinkedList;
+import java.util.List;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.TextField;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.integratedmodelling.common.logging.Logging;
 
 /**
  * This class is a TextField which implements an "autocomplete" functionality, based on a supplied
@@ -126,7 +122,20 @@ public class AutoCompleteTextField extends TextField {
                     if (!isPopupHidden()) {
                       populatePopup(searchResult, text);
                       if (!entriesPopup.isShowing()) {
-                        entriesPopup.show(AutoCompleteTextField.this, Side.BOTTOM, 0, 0);
+                        double x = localToScreen(getBoundsInLocal()).getMinX();
+                        double y = localToScreen(getBoundsInLocal()).getMinY();
+
+                        // Get screen bounds
+                        double screenHeight = getScene().getWindow().getHeight();
+                        double popupHeight = entriesPopup.getHeight();
+                        double fieldBottom = y + getHeight();
+
+                        // Show above if displaying below would exceed screen bounds
+                        if (fieldBottom + popupHeight > screenHeight) {
+                          entriesPopup.show(AutoCompleteTextField.this, Side.TOP, 0, -fieldBottom);
+                        } else {
+                          entriesPopup.show(AutoCompleteTextField.this, Side.BOTTOM, 0, y);
+                        }
                       }
                     }
                   } else {
@@ -149,15 +158,6 @@ public class AutoCompleteTextField extends TextField {
             });
   }
 
-  //    /**
-  //     * Get the existing set of autocomplete entries.
-  //     *
-  //     * @return The existing autocomplete entries.
-  //     */
-  //    public SortedSet<String> getEntries() {
-  //        return entries;
-  //    }
-
   /**
    * Populate the entry set with the given search results. Display is limited to 10 entries, for
    * performance.
@@ -178,7 +178,7 @@ public class AutoCompleteTextField extends TextField {
       }
 
       if (occurence < 0) {
-        return;
+        continue;
       }
 
       // Part before occurence (might be empty)

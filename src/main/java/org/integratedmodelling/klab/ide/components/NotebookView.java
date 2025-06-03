@@ -29,7 +29,9 @@ public class NotebookView extends BorderPane implements Page {
 
     this.notebook = new Notebook();
     this.setCenter(this.notebook);
-    this.inputBox = new InputBox(text -> List.of("Dio", "Can"));
+    this.inputBox =
+        new InputBox(
+            text -> List.of("Dio", "Dingo", "Discromia", "Dicomarca", "Di Bue e di Vacca"));
     this.setBottom(inputBox);
     this.setCenter(this.notebook);
 
@@ -52,8 +54,6 @@ public class NotebookView extends BorderPane implements Page {
     addComponent(new Components.TimelineComponent());
   }
 
-  
-  
   public static class InputBox extends AutoCompleteTextField {
     InputBox(AutoCompleteTextField.EntryProvider entryProvider) {
       super(entryProvider);
@@ -93,7 +93,7 @@ public class NotebookView extends BorderPane implements Page {
             case ServiceInfo -> new Components.Services();
             case About -> new Components.About();
             case Settings -> new Components.Settings();
-//            case AutoScroll -> new Components.AutoScrollDemo();
+            //            case AutoScroll -> new Components.AutoScrollDemo();
             default ->
                 throw new KlabInternalErrorException("unexpected component " + componentType);
           });
