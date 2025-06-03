@@ -152,7 +152,7 @@ public class Timeline extends Components.BaseComponent {
 
         // Create the timeline pane
         timelinePane = new Pane();
-        timelinePane.setPrefHeight(100);
+        timelinePane.setPrefHeight(65);
         timelinePane.setMinHeight(100);
         timelinePane.setMaxHeight(100);
         HBox.setHgrow(timelinePane, Priority.ALWAYS);
@@ -186,13 +186,14 @@ public class Timeline extends Components.BaseComponent {
             updateEndTime(newVal.longValue());
         });
 
+        
         // Add components to container
         container.getChildren().addAll(timelinePane, labelsBox, endTimeSlider);
 
+        this.getChildren().add(container);
+
         // Draw the initial timeline
         drawTimeline();
-
-        this.getChildren().add(container);
     }
 
     /**
@@ -240,7 +241,7 @@ public class Timeline extends Components.BaseComponent {
      * @return The icon node
      */
     private Node createEventIcon(Event event) {
-        Circle circle = new Circle(5);
+        Circle circle = new Circle(3);
 
         // Set the color based on the event type
         switch (event.getType()) {
@@ -259,9 +260,10 @@ public class Timeline extends Components.BaseComponent {
             case DEFAULT:
             default:
                 circle.setFill(DEFAULT_EVENT_COLOR);
+                // Position DEFAULT events 10px above bottom edge
+                circle.setLayoutY(timelinePane.getHeight() - 10);
                 break;
         }
-
         // Add a tooltip showing the event timestamp
         Tooltip tooltip = new Tooltip(formatTime(event.getTimestamp()));
         Tooltip.install(circle, tooltip);
@@ -275,7 +277,7 @@ public class Timeline extends Components.BaseComponent {
 
         // Make the circle slightly larger when hovered
         circle.setOnMouseEntered(e -> circle.setRadius(7));
-        circle.setOnMouseExited(e -> circle.setRadius(5));
+        circle.setOnMouseExited(e -> circle.setRadius(3));
 
         return circle;
     }
@@ -284,7 +286,7 @@ public class Timeline extends Components.BaseComponent {
      * Draws the timeline with alternating vertical sections of contrasting grey colors.
      * Also draws any events that have been added to the timeline.
      */
-    private void drawTimeline() {
+    public void drawTimeline() {
         timelinePane.getChildren().clear();
 
         double width = timelinePane.getWidth();
@@ -319,8 +321,18 @@ public class Timeline extends Components.BaseComponent {
                 height
             );
 
-            // Alternate between light and dark grey
-            section.setFill(i % 2 == 0 ? LIGHT_GREY : DARK_GREY);
+      // Calculate interval start and end times
+      long intervalStart = startTimeMs + (long) ((double) i * multiplier * timeUnit.toMillis(1));
+      long intervalEnd =
+          startTimeMs + (long) ((double) (i + 1) * multiplier * timeUnit.toMillis(1));
+
+      // Create tooltip with interval information
+      String tooltipText =
+          String.format("From: %s%nTo: %s", formatTime(intervalStart), formatTime(intervalEnd));
+      Tooltip.install(section, new Tooltip(tooltipText));
+
+      // Alternate between light and dark grey
+      section.setFill(i % 2 == 0 ? LIGHT_GREY : DARK_GREY);
 
             timelinePane.getChildren().add(section);
         }
@@ -337,9 +349,28 @@ public class Timeline extends Components.BaseComponent {
 
             Node icon = event.getIcon();
 
-            // Position the icon
-            icon.setLayoutX(position);
-            icon.setLayoutY(height / 2);
+      // Find events at the same timestamp
+      int eventsAtSameTime = 0;
+      int currentEventIndex = 0;
+      for (int i = 0; i < events.size(); i++) {
+        if (events.get(i).getTimestamp() == event.getTimestamp()) {
+          if (events.get(i) == event) {
+            currentEventIndex = eventsAtSameTime;
+          }
+          eventsAtSameTime++;
+        }
+      }
+
+      // Position the icon with vertical offset if needed
+      icon.setLayoutX(position);
+      if (event.getType() != EventType.DEFAULT) {
+          if (eventsAtSameTime > 1) {
+              double verticalSpacing = height / (eventsAtSameTime + 1);
+              icon.setLayoutY(verticalSpacing * (currentEventIndex + 1));
+          } else {
+              icon.setLayoutY(height / 2);
+          }
+      }
 
             // Add the icon to the timeline
             timelinePane.getChildren().add(icon);

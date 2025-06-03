@@ -32,6 +32,7 @@ public class TimelineDemo extends Components.BaseComponent {
     private TextField eventTimestampField;
     private ComboBox<Timeline.EventType> eventTypeComboBox;
     private Button addEventButton;
+    private Button redrawButton;
     private Button addFutureEventButton;
 
     public TimelineDemo() {
@@ -58,7 +59,7 @@ public class TimelineDemo extends Components.BaseComponent {
         long oneHourLaterMs = currentTimeMs + 3600000; // 1 hour in milliseconds
 
         // Create the timeline component
-        timeline = new Timeline(currentTimeMs, oneHourLaterMs, TimeUnit.MINUTES, 5);
+        timeline = new Timeline(currentTimeMs, oneHourLaterMs, TimeUnit.MINUTES, 1);
 
         // Add a sample event in the middle of the timeline
         long middleTime = currentTimeMs + (oneHourLaterMs - currentTimeMs) / 2;
@@ -107,6 +108,10 @@ public class TimelineDemo extends Components.BaseComponent {
         eventTimestampField = new TextField(String.valueOf(currentTimeMs + 1800000)); // Default to 30 minutes from now
         eventTimestampField.setPrefWidth(150);
 
+        redrawButton = new Button("Redraw");
+        redrawButton.setOnAction(e -> timeline.drawTimeline());
+
+
         Label eventTypeLabel = new Label("Event Type:");
         eventTypeComboBox = new ComboBox<>();
         eventTypeComboBox.getItems().addAll(Timeline.EventType.values());
@@ -129,7 +134,7 @@ public class TimelineDemo extends Components.BaseComponent {
         eventControlsGrid.add(eventTypeLabel, 0, 1);
         eventControlsGrid.add(eventTypeComboBox, 1, 1);
 
-        HBox eventButtonsBox = new HBox(10, addEventButton, addFutureEventButton);
+        HBox eventButtonsBox = new HBox(10, addEventButton, addFutureEventButton, redrawButton);
         eventControlsGrid.add(eventButtonsBox, 1, 2);
 
         // Add components to content
