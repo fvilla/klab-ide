@@ -51,7 +51,7 @@ public class NotebookView extends BorderPane implements Page {
             });
 
     addComponent(new Components.About());
-    addComponent(new Components.TimelineComponent());
+//    addComponent(new Components.TimelineComponent());
   }
 
   public static class InputBox extends AutoCompleteTextField {

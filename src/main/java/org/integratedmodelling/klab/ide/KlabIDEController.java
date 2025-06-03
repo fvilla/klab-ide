@@ -521,7 +521,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
 
   @Override
   public void notifyNewDigitalTwin(ContextScope scope, RuntimeService service) {
-    var ret = this.digitalTwinView.raiseDigitalTwin(scope, service);
+    var ret = this.digitalTwinView.showDigitalTwin(scope, service);
     for (var viewer : getDigitalTwinViewers(scope, service)) {}
   }
 

@@ -18,13 +18,10 @@ import org.integratedmodelling.klab.api.authentication.CRUDOperation;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.RuntimeService;
-import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.pages.BrowsablePage;
 import org.kordamp.ikonli.javafx.FontIcon;
-
-import javax.crypto.spec.PSource;
 
 public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
 
@@ -71,7 +68,7 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
                   //                                                  :
                   // (localServiceId.equals(w2.getServiceId()) ? 1 : 0))
                   .toList()) {
-            components.add(new Components.DigitalTwin(workspace, this::raiseDigitalTwin));
+            components.add(new Components.DigitalTwin(workspace, this::showDigitalTwin));
           }
           browserComponents.getChildren().addAll(components);
 
@@ -169,7 +166,8 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
     Logging.INSTANCE.info("DIO PETO");
   }
 
-  public DigitalTwinEditor raiseDigitalTwin(ContextScope scope, RuntimeService service) {
+
+  public DigitalTwinEditor showDigitalTwin(ContextScope scope, RuntimeService service) {
     DigitalTwinEditor ret = null;
     hideBrowser();
     if (openEditors.containsKey(scope.getId())) {

@@ -29,7 +29,12 @@ public class Asset implements RuntimeAsset {
     return delegate.getId();
   }
 
-  public RuntimeAsset.Type classify() {
+    @Override
+    public long getTransientId() {
+        return delegate.getTransientId();
+    }
+
+    public RuntimeAsset.Type classify() {
     return delegate.classify();
   }
 
