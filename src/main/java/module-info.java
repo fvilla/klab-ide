@@ -27,6 +27,7 @@ module org.integratedmodelling.klab.ide {
     requires spring.boot.autoconfigure;
     requires org.jgrapht.core;
     requires org.checkerframework.checker.qual;
+    requires klab.cli;
 
     opens org.integratedmodelling.klab.ide to javafx.fxml;
     opens org.integratedmodelling.klab.ide.components to javafx.fxml;

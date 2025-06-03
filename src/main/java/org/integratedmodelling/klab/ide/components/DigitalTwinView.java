@@ -60,15 +60,17 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
             components.add(workspaceDialog);
           }
           for (var workspace :
-                  digitalTwins.values().stream()
-//                          .sorted(
-//                                  (w1, w2) ->
-//                                          localServiceId == null
-//                                                  ? 0
-//                                                  : (localServiceId.equals(w1.getServiceId()))
-//                                                  ? -1
-//                                                  : (localServiceId.equals(w2.getServiceId()) ? 1 : 0))
-                          .toList()) {
+              digitalTwins.values().stream()
+                  //                          .sorted(
+                  //                                  (w1, w2) ->
+                  //                                          localServiceId == null
+                  //                                                  ? 0
+                  //                                                  :
+                  // (localServiceId.equals(w1.getServiceId()))
+                  //                                                  ? -1
+                  //                                                  :
+                  // (localServiceId.equals(w2.getServiceId()) ? 1 : 0))
+                  .toList()) {
             components.add(new Components.DigitalTwin(workspace, this::raiseDigitalTwin));
           }
           browserComponents.getChildren().addAll(components);
@@ -90,14 +92,13 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
   private Node createDigitalTwinDialog() {
 
     var availableServices =
-            KlabIDEController.modeler().user().getServices(RuntimeService.class).stream()
-                    .filter(
-                            s ->
-                                    s.capabilities(KlabIDEController.modeler().user())
-                                            .getPermissions()
-                                            .contains(CRUDOperation.CREATE))
-                    .toList();
-
+        KlabIDEController.modeler().user().getServices(RuntimeService.class).stream()
+            .filter(
+                s ->
+                    s.capabilities(KlabIDEController.modeler().user())
+                        .getPermissions()
+                        .contains(CRUDOperation.CREATE))
+            .toList();
 
     GridPane grid = new GridPane();
     grid.setHgap(10);
@@ -112,27 +113,27 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
     description.setPrefRowCount(3);
     final ComboBox<String> serviceSelector = new ComboBox<>();
     serviceSelector
-            .getItems()
-            .addAll(availableServices.stream().map(RuntimeService::getServiceName).toList());
+        .getItems()
+        .addAll(availableServices.stream().map(RuntimeService::getServiceName).toList());
     serviceSelector.setMaxWidth(Double.MAX_VALUE);
     var ok = new Button("Create");
     var cancel = new Button("Cancel");
     var service = (ResourcesService) null;
     ok.setOnAction(
-            event -> {
-              createDigitalTwin(
-                      workspaceTitle.getText(),
-                      description.getText(),
-                      availableServices.get(serviceSelector.getSelectionModel().getSelectedIndex()));
-              workspaceDialog = null;
-              updateBrowser();
-            });
+        event -> {
+          createDigitalTwin(
+              workspaceTitle.getText(),
+              description.getText(),
+              availableServices.get(serviceSelector.getSelectionModel().getSelectedIndex()));
+          workspaceDialog = null;
+          updateBrowser();
+        });
     ok.getStyleClass().addAll(Styles.BUTTON_OUTLINED, Styles.SUCCESS, Styles.SMALL);
     cancel.setOnAction(
-            event -> {
-              workspaceDialog = null;
-              updateBrowser();
-            });
+        event -> {
+          workspaceDialog = null;
+          updateBrowser();
+        });
     var buttons = new HBox(ok, cancel);
     buttons.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
     buttons.setSpacing(4);
@@ -144,17 +145,17 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
     GridPane.setFillWidth(serviceSelector, true);
     grid.getColumnConstraints().add(new ColumnConstraints());
     grid.getColumnConstraints()
-            .add(new ColumnConstraints(200, 200, Double.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));
+        .add(new ColumnConstraints(200, 200, Double.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));
 
     grid.add(new FontIcon(Theme.LOCAL_SERVICE_ICON), 0, 2);
     grid.add(serviceSelector, 1, 2);
     grid.add(buttons, 0, 3, 2, 1);
 
-//    CheckBox persistenceCheck = new CheckBox("Enable Persistence");
-//    CheckBox publicAccessCheck = new CheckBox("Public Access");
-//
-//    grid.add(persistenceCheck, 0, 1, 2, 1);
-//    grid.add(publicAccessCheck, 0, 2, 2, 1);
+    CheckBox persistenceCheck = new CheckBox("Enable Persistence");
+    CheckBox publicAccessCheck = new CheckBox("Public Access");
+
+    grid.add(persistenceCheck, 0, 4, 2, 1);
+    grid.add(publicAccessCheck, 0, 5, 2, 1);
 
     if (availableServices.isEmpty()) {
       grid.setDisable(true);
@@ -168,18 +169,18 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
     Logging.INSTANCE.info("DIO PETO");
   }
 
-  public void raiseDigitalTwin(ContextScope scope, RuntimeService service) {
-
+  public DigitalTwinEditor raiseDigitalTwin(ContextScope scope, RuntimeService service) {
+    DigitalTwinEditor ret = null;
     hideBrowser();
     if (openEditors.containsKey(scope.getId())) {
-      openEditors
-          .get(scope.getId())
-          .requestFocus(); // FIXME must remember the tabs and select(tab) - in both cases
+      ret = openEditors.get(scope.getId());
+      ret.requestFocus(); // FIXME must remember the tabs and select(tab) - in both cases
     } else {
-      var newEditor = new DigitalTwinEditor(scope, service, this);
-      openEditors.put(scope.getId(), newEditor);
-      addEditor(newEditor, scope.getName(), new FontIcon(Theme.DIGITAL_TWINS_ICON));
-      newEditor.edit(newEditor.getRootAsset());
+      ret = new DigitalTwinEditor(scope, service, this);
+      openEditors.put(scope.getId(), ret);
+      addEditor(ret, scope.getName(), new FontIcon(Theme.DIGITAL_TWINS_ICON));
+      ret.edit(ret.getRootAsset());
     }
+    return ret;
   }
 }

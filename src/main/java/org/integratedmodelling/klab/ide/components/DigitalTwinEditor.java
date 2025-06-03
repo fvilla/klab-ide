@@ -4,8 +4,8 @@ import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
 import javafx.application.Platform;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 import javafx.scene.Node;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -19,6 +19,7 @@ import org.integratedmodelling.klab.api.data.RuntimeAsset;
 import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
 import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
+import org.integratedmodelling.klab.api.provenance.Activity;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.RuntimeService;
 import org.integratedmodelling.klab.api.services.runtime.Message;
@@ -37,6 +38,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   private RuntimeAsset context;
   private KnowledgeGraphView knowledgeGraphView;
   private TreeItem<RuntimeAsset> root;
+  private Map<Long, Activity> activities = new TreeMap<>();
 
   public DigitalTwinEditor(
       ContextScope contextScope, RuntimeService runtimeService, DigitalTwinView digitalTwinView) {
@@ -52,8 +54,6 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   }
 
   private void processEvent(Message message) {
-
-    Logging.INSTANCE.info("COZZA: " + message.getMessageType());
 
     switch (message.getMessageType()) {
       case KnowledgeGraphCommitted -> {
@@ -72,7 +72,23 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
       case ObservationSubmissionFinished -> {
         submissionFinished(message.getPayload(Observation.class));
       }
+      case ActivityFinished -> {
+        activityFinished(message.getPayload(Activity.class));
+      }
+      case ActivityStarted -> {
+        activityStarted(message.getPayload(Activity.class));
+      }
     }
+
+    // TODO send to all sub-editors, widgets and the like
+  }
+
+  private void activityFinished(Activity payload) {
+    activities.computeIfAbsent(payload.getTransientId(), id -> payload);
+  }
+
+  private void activityStarted(Activity payload) {
+    activities.computeIfAbsent(payload.getTransientId(), id -> payload);
   }
 
   @Override
@@ -167,7 +183,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   protected Node createEditor(RuntimeAsset asset) {
     if (asset == context) {
       return this.knowledgeGraphView =
-          new KnowledgeGraphView(this.contextScope, this.knowledgeGraph);
+          new KnowledgeGraphView(this.contextScope, this.knowledgeGraph, this);
     }
     return null;
   }
@@ -197,7 +213,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
           try {
             treeView.getRoot().getChildren().clear();
             TreeItem<RuntimeAsset> newRoot = defineTree(RuntimeAsset.CONTEXT_ASSET);
-            treeView.setRoot(newRoot);
+            treeView.setRoot(root = newRoot);
 
             // Restore selection if possible
             if (selectedItem != null) {
@@ -233,6 +249,15 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
 
   @Override
   public void setObserver(Observation observation) {}
+
+  public void focusOnAsset(RuntimeAsset asset) {
+    // TODO we can link the action to the selection and stop here.
+    var item = findTreeItemById(root, asset.getId());
+    Platform.runLater(
+        () -> {
+          treeView.getSelectionModel().select(item);
+        });
+  }
 
   private static final class AssetTreeCell extends TreeCell<RuntimeAsset> {
     @Override

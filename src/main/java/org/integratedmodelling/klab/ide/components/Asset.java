@@ -1,6 +1,7 @@
 package org.integratedmodelling.klab.ide.components;
 
 import com.brunomnsilva.smartgraph.graphview.SmartGraphPanel;
+import org.integratedmodelling.cli.Test;
 import org.integratedmodelling.common.services.client.digitaltwin.ClientKnowledgeGraph;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
 import org.integratedmodelling.klab.api.knowledge.SemanticType;
