@@ -4,8 +4,12 @@ import atlantafx.base.controls.RingProgressIndicator;
 import javafx.application.Platform;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
+import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedule;
+import org.integratedmodelling.klab.api.provenance.Activity;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
+import org.integratedmodelling.klab.ide.model.DigitalTwinPeer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
 import org.kordamp.ikonli.material2.Material2AL;
 
@@ -34,6 +38,9 @@ public class DigitalTwinWidget extends BorderPane implements DigitalTwinViewer {
 
   private final IconLabel iconLabel;
   private Status status = Status.IDLE;
+  private DigitalTwinPeer
+      controller; // assigned later - OR create after the first drop, have an empty mockup
+                  // otherwise?
 
   public DigitalTwinWidget(int size, EditorPage<?> editorPage) {
     super();
@@ -61,7 +68,7 @@ public class DigitalTwinWidget extends BorderPane implements DigitalTwinViewer {
   }
 
   @Override
-  public void submission(Observation observation) {}
+  public void submissionStarted(Observation observation) {}
 
   @Override
   public void submissionAborted(Observation observation) {}
@@ -74,4 +81,22 @@ public class DigitalTwinWidget extends BorderPane implements DigitalTwinViewer {
 
   @Override
   public void setObserver(Observation observation) {}
+
+  @Override
+  public void activityFinished(Activity activity) {}
+
+  @Override
+  public void activityStarted(Activity activity) {}
+
+  @Override
+  public void knowledgeGraphCommitted(RuntimeAssetGraph graph) {}
+
+  @Override
+  public void scheduleModified(Schedule schedule) {
+  }
+
+  @Override
+  public void cleanup() {
+
+  }
 }

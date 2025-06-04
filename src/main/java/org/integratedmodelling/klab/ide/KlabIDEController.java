@@ -38,6 +38,7 @@ import org.integratedmodelling.klab.api.view.modeler.views.controllers.RuntimeVi
 import org.integratedmodelling.klab.api.view.modeler.views.controllers.ServicesViewController;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.integratedmodelling.klab.ide.components.*;
+import org.integratedmodelling.klab.ide.model.DigitalTwinPeer;
 import org.integratedmodelling.klab.ide.pages.BrowsablePage;
 import org.integratedmodelling.klab.ide.settings.IDESettings;
 import org.integratedmodelling.klab.ide.utils.NodeUtils;
@@ -57,6 +58,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   private boolean inspectorIsOn;
   private Set<View> neverSeen = EnumSet.of(View.RESOURCES, View.WORKSPACES, View.DIGITAL_TWINS);
   private static KlabIDEController _this;
+  private Map<String, DigitalTwinPeer> digitalTwinPeerMap = new HashMap<>();
 
   /** The "circled" (current) view in the main area. */
   public enum View {
@@ -106,6 +108,18 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   public KlabIDEController() {
     _this = this;
     createModeler();
+  }
+
+  public DigitalTwinPeer getDigitalTwinPeer(ContextScope scope) {
+    return digitalTwinPeerMap.computeIfAbsent(scope.getId(), id -> new DigitalTwinPeer(scope));
+  }
+
+  public void setDigitalTwinPeer(String id, DigitalTwinPeer peer) {
+    digitalTwinPeerMap.put(id, peer);
+  }
+
+  public void removeDigitalTwinPeer(String id) {
+    digitalTwinPeerMap.remove(id);
   }
 
   public static KlabIDEController instance() {
@@ -522,7 +536,6 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   @Override
   public void notifyNewDigitalTwin(ContextScope scope, RuntimeService service) {
     var ret = this.digitalTwinView.showDigitalTwin(scope, service);
-    for (var viewer : getDigitalTwinViewers(scope, service)) {}
   }
 
   @Override
@@ -535,7 +548,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
       Observation observation, ContextScope contextScope, RuntimeService service) {
     Logging.INSTANCE.info("Observation submitted: " + observation);
     for (var viewer : getDigitalTwinViewers(contextScope, service)) {
-      viewer.submission(observation);
+      viewer.submissionStarted(observation);
     }
   }
 

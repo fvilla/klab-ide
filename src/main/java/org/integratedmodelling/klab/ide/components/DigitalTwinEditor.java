@@ -19,22 +19,26 @@ import org.integratedmodelling.klab.api.data.RuntimeAsset;
 import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
 import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
+import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedule;
 import org.integratedmodelling.klab.api.provenance.Activity;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.RuntimeService;
 import org.integratedmodelling.klab.api.services.runtime.Message;
 import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableAsset;
+import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
+import org.integratedmodelling.klab.ide.model.DigitalTwinPeer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
 
 public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements DigitalTwinViewer {
 
-  private final ContextScope contextScope;
+  //  private final ContextScope contextScope;
+  private final DigitalTwinPeer controller;
   private final RuntimeService runtimeService;
   private ClientKnowledgeGraph knowledgeGraph;
   private HBox menuArea;
-  private TreeView<RuntimeAsset> treeView;
+  private KnowledgeGraphTree treeView;
   private RuntimeAsset context;
   private KnowledgeGraphView knowledgeGraphView;
   private TreeItem<RuntimeAsset> root;
@@ -42,52 +46,34 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
 
   public DigitalTwinEditor(
       ContextScope contextScope, RuntimeService runtimeService, DigitalTwinView digitalTwinView) {
-    this.contextScope = contextScope;
+    this.controller = KlabIDEController.instance().getDigitalTwinPeer(contextScope);
+    this.controller.register(this);
     this.runtimeService = runtimeService;
     if (contextScope.getDigitalTwin() instanceof ClientDigitalTwin clientDigitalTwin) {
-      clientDigitalTwin.addEventConsumer(this::processEvent);
       this.knowledgeGraph = (ClientKnowledgeGraph) clientDigitalTwin.getKnowledgeGraph();
     }
-
     this.context = RuntimeAsset.CONTEXT_ASSET;
     this.root = defineTree(this.context);
   }
 
-  private void processEvent(Message message) {
-
-    switch (message.getMessageType()) {
-      case KnowledgeGraphCommitted -> {
-        // TODO this only for the first case
-        updateTree(this.context);
-      }
-      case ContextualizationAborted, ContextualizationSuccessful, ContextualizationStarted -> {
-        // TODO insert object, define aspect
-        //        if (message.getMessageType() == Message.MessageType.ContextualizationStarted) {
-        //          knowledgeGraphView.setFocalAsset(message.getPayload(Observation.class));
-        //        }
-      }
-      // FIXME sketchy logics
-      case ObservationSubmissionAborted -> {}
-      case ObservationSubmissionStarted -> {}
-      case ObservationSubmissionFinished -> {
-        submissionFinished(message.getPayload(Observation.class));
-      }
-      case ActivityFinished -> {
-        activityFinished(message.getPayload(Activity.class));
-      }
-      case ActivityStarted -> {
-        activityStarted(message.getPayload(Activity.class));
-      }
-    }
-
-    // TODO send to all sub-editors, widgets and the like
+  @Override
+  public void knowledgeGraphCommitted(RuntimeAssetGraph graph) {
+    updateTree(this.context);
   }
 
-  private void activityFinished(Activity payload) {
+  @Override
+  public void scheduleModified(Schedule schedule) {}
+
+  @Override
+  public void cleanup() {}
+
+  @Override
+  public void activityFinished(Activity payload) {
     activities.computeIfAbsent(payload.getTransientId(), id -> payload);
   }
 
-  private void activityStarted(Activity payload) {
+  @Override
+  public void activityStarted(Activity payload) {
     activities.computeIfAbsent(payload.getTransientId(), id -> payload);
   }
 
@@ -101,6 +87,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   protected TreeView<RuntimeAsset> createContentTree() {
 
     treeView = new KnowledgeGraphTree(this.root);
+    controller.register(treeView);
     treeView.setCellFactory(p -> new AssetTreeCell());
     treeView.getStyleClass().addAll(Tweaks.EDGE_TO_EDGE, Styles.DENSE);
     treeView.setShowRoot(false);
@@ -147,7 +134,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   }
 
   private List<RuntimeAsset> children(RuntimeAsset asset) {
-    if (contextScope.getDigitalTwin().getKnowledgeGraph()
+    if (controller.scope().getDigitalTwin().getKnowledgeGraph()
         instanceof ClientKnowledgeGraph clientKnowledgeGraph) {
       return clientKnowledgeGraph.outgoing(asset, GraphModel.Relationship.HAS_CHILD);
     }
@@ -183,7 +170,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   protected Node createEditor(RuntimeAsset asset) {
     if (asset == context) {
       return this.knowledgeGraphView =
-          new KnowledgeGraphView(this.contextScope, this.knowledgeGraph, this);
+          new KnowledgeGraphView(this.controller.scope(), this.knowledgeGraph, this);
     }
     return null;
   }
@@ -234,7 +221,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   }
 
   @Override
-  public void submission(Observation observation) {}
+  public void submissionStarted(Observation observation) {}
 
   @Override
   public void submissionAborted(Observation observation) {}
