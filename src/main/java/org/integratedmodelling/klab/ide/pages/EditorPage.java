@@ -15,7 +15,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
 import org.integratedmodelling.klab.ide.Theme;
-import org.integratedmodelling.klab.ide.components.DigitalTwinWidget;
+import org.integratedmodelling.klab.ide.components.DigitalTwinControlPanel;
 import org.integratedmodelling.klab.ide.utils.NodeUtils;
 
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public abstract class EditorPage<T> extends BorderPane {
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
   boolean isClickTimelinePlaying = false;
   private Map<T, Tab> assetEditors = new HashMap<>();
-  protected DigitalTwinWidget digitalTwinMinified;
+  protected DigitalTwinControlPanel digitalTwinMinified;
   private TreeView<T> tree;
 
   public EditorPage() {
@@ -60,7 +60,7 @@ public abstract class EditorPage<T> extends BorderPane {
     clickTimeline.getKeyFrames().add(clickKeyFrame);
   }
 
-  protected void configureDigitalTwinWidget(DigitalTwinWidget digitalTwinMinified) {}
+  protected void configureDigitalTwinWidget(DigitalTwinControlPanel digitalTwinMinified) {}
 
   protected void showContent() {
     Platform.runLater(
@@ -96,7 +96,7 @@ public abstract class EditorPage<T> extends BorderPane {
           VBox.setVgrow(tree, Priority.ALWAYS);
           container.setMaxWidth(Double.MAX_VALUE);
           tree.setMaxWidth(Double.MAX_VALUE);
-          digitalTwinMinified = new DigitalTwinWidget(tree.widthProperty().intValue(), this);
+          digitalTwinMinified = new DigitalTwinControlPanel(tree.widthProperty().intValue(), this);
           digitalTwinMinified.prefWidthProperty().bind(tree.widthProperty());
           digitalTwinMinified.prefHeightProperty().bind(digitalTwinMinified.widthProperty());
           configureDigitalTwinWidget(digitalTwinMinified);
@@ -114,6 +114,7 @@ public abstract class EditorPage<T> extends BorderPane {
       Platform.runLater(
           () -> {
             NodeUtils.toggleVisibility(digitalTwinMinified, true);
+            digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.RECEIVING);
           });
     }
   }

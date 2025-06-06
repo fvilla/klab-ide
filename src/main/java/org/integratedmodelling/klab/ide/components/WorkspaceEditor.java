@@ -3,21 +3,16 @@ package org.integratedmodelling.klab.ide.components;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
 
-import java.security.cert.PolicyNode;
 import java.util.*;
 
 import eu.mihosoft.monacofx.MonacoFX;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.data.RepositoryState;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.knowledge.organization.ProjectStorage;
@@ -32,13 +27,11 @@ import org.integratedmodelling.klab.api.view.modeler.navigation.NavigableDocumen
 import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
-import org.integratedmodelling.klab.ide.contrib.monaco.MonacoEditor;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
 import org.integratedmodelling.klab.modeler.model.NavigableKimConceptStatement;
 import org.integratedmodelling.klab.modeler.model.NavigableKimModel;
 import org.integratedmodelling.klab.modeler.model.NavigableProject;
 import org.integratedmodelling.klab.modeler.model.NavigableWorkspace;
-import org.kordamp.ikonli.material2.Material2AL;
 
 public class WorkspaceEditor extends EditorPage<NavigableAsset> {
 
@@ -67,7 +60,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   @Override
-  protected void configureDigitalTwinWidget(DigitalTwinWidget digitalTwinMinified) {
+  protected void configureDigitalTwinWidget(DigitalTwinControlPanel digitalTwinMinified) {
     // TODO contents
     digitalTwinMinified.setOnDragOver(
         event -> {
@@ -156,19 +149,22 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   private void handleAssetDrop(NavigableAsset value) {
-    digitalTwinMinified.setStatus(DigitalTwinWidget.Status.COMPUTING);
+    digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.COMPUTING);
+    if (digitalTwinMinified.getScope() == null) {
+      digitalTwinMinified.setScope(KlabIDEController.modeler().requireContext());
+    }
     KlabIDEController.modeler()
         .observe(value, /* TODO check drop params */ false)
         .exceptionally(
             throwable -> {
-              digitalTwinMinified.setStatus(DigitalTwinWidget.Status.ERROR);
+              digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.ERROR);
               KlabIDEApplication.instance()
                   .handleNotifications(List.of(Notification.error(throwable)));
               return Observation.EMPTY_OBSERVATION;
             })
         .thenApply(
             observation -> {
-              digitalTwinMinified.setStatus(DigitalTwinWidget.Status.IDLE);
+              digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.IDLE);
               return observation;
             });
   }
