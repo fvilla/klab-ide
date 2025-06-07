@@ -23,13 +23,19 @@ import org.checkerframework.checker.units.qual.A;
 import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.common.services.client.digitaltwin.ClientKnowledgeGraph;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
+import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
 import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
+import org.integratedmodelling.klab.api.knowledge.observation.Observation;
+import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedule;
+import org.integratedmodelling.klab.api.provenance.Activity;
 import org.integratedmodelling.klab.api.scope.ContextScope;
+import org.integratedmodelling.klab.ide.KlabIDEController;
+import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 
-public class KnowledgeGraphView extends BorderPane {
+public class KnowledgeGraphView extends BorderPane implements DigitalTwinViewer {
 
   private final ClientKnowledgeGraph knowledgeGraph;
   private final ContextScope scope;
@@ -43,7 +49,8 @@ public class KnowledgeGraphView extends BorderPane {
   private boolean initialized;
   private Timeline timeline;
 
-  public KnowledgeGraphView(ContextScope scope, ClientKnowledgeGraph knowledgeGraph, DigitalTwinEditor editor) {
+  public KnowledgeGraphView(
+      ContextScope scope, ClientKnowledgeGraph knowledgeGraph, DigitalTwinEditor editor) {
 
     this.scope = scope;
     this.knowledgeGraph = knowledgeGraph;
@@ -138,6 +145,8 @@ public class KnowledgeGraphView extends BorderPane {
                 Platform.runLater(() -> initializeGraphView());
               }
             });
+
+    KlabIDEController.instance().getDigitalTwinPeer(scope).register(this);
   }
 
   private void initializeGraphView() {
@@ -150,19 +159,22 @@ public class KnowledgeGraphView extends BorderPane {
       this.setCenter(this.graphView);
       this.graphView.setAutomaticLayout(true);
 
-      graphView.setVertexDoubleClickAction(graphVertex -> {
-        var asset = graphVertex.getUnderlyingVertex().element();
-        if (asset instanceof Asset wrapper) {
-          asset = wrapper.getDelegate();
-        }
-        this.editor.focusOnAsset(asset);
-      });
+      graphView.setVertexDoubleClickAction(
+          graphVertex -> {
+            var asset = graphVertex.getUnderlyingVertex().element();
+            if (asset instanceof Asset wrapper) {
+              asset = wrapper.getDelegate();
+            }
+            this.editor.focusOnAsset(asset);
+          });
 
-      graphView.setEdgeDoubleClickAction(graphEdge -> {
-        Logging.INSTANCE.info("Edge contains element: " + graphEdge.getUnderlyingEdge().element());
-        //dynamically change the style, can also be done for a vertex
-        graphEdge.setStyleInline("-fx-stroke: black; -fx-stroke-width: 2;");
-      });
+      graphView.setEdgeDoubleClickAction(
+          graphEdge -> {
+            Logging.INSTANCE.info(
+                "Edge contains element: " + graphEdge.getUnderlyingEdge().element());
+            // dynamically change the style, can also be done for a vertex
+            graphEdge.setStyleInline("-fx-stroke: black; -fx-stroke-width: 2;");
+          });
 
       // Create default start and end times (current time and 1 hour later)
       long currentTimeMs = System.currentTimeMillis();
@@ -170,23 +182,7 @@ public class KnowledgeGraphView extends BorderPane {
       // Create the timeline component
       timeline = new Timeline(currentTimeMs, oneHourLaterMs, TimeUnit.MINUTES, 1);
       this.setBottom(timeline);
-
-      //      timeline.setVisible(false);
-      Executors.newSingleThreadScheduledExecutor()
-          .scheduleAtFixedRate(
-              () -> {
-                Logging.INSTANCE.info("Updating timeline");
-
-                Platform.runLater(
-                    () -> {
-                      timeline.insertEvents(
-                          new Timeline.Event(
-                              System.currentTimeMillis(), Timeline.EventType.TIME, null));
-                    });
-              },
-              1,
-              1,
-              TimeUnit.MINUTES);
+      timeline.setVisible(false);
 
       // Initialize the graph view after it's been added to the scene
       Platform.runLater(
@@ -274,4 +270,41 @@ public class KnowledgeGraphView extends BorderPane {
           }
         });
   }
+
+  @Override
+  public void submissionStarted(Observation observation) {}
+
+  @Override
+  public void submissionAborted(Observation observation) {}
+
+  @Override
+  public void submissionFinished(Observation observation) {
+    setFocalAsset(observation);
+  }
+
+  @Override
+  public void setContext(Observation observation) {}
+
+  @Override
+  public void setObserver(Observation observation) {}
+
+  @Override
+  public void activityFinished(Activity activity) {}
+
+  @Override
+  public void activityStarted(Activity activity) {}
+
+  @Override
+  public void knowledgeGraphCommitted(RuntimeAssetGraph graph) {}
+
+  @Override
+  public void scheduleModified(Schedule schedule) {
+    if (!timeline.isVisible()) {
+      timeline.setVisible(true);
+    }
+    timeline.updateEndTime(schedule.getEnd());
+  }
+
+  @Override
+  public void cleanup() {}
 }

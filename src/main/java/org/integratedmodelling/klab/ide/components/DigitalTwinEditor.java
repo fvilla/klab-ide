@@ -228,7 +228,6 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
 
   @Override
   public void submissionFinished(Observation observation) {
-    this.knowledgeGraphView.setFocalAsset(observation);
   }
 
   @Override

@@ -12,7 +12,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2AL;
 import javafx.util.Duration;
 import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.components.DigitalTwinControlPanel;
@@ -38,6 +42,7 @@ public abstract class EditorPage<T> extends BorderPane {
   private Map<T, Tab> assetEditors = new HashMap<>();
   protected DigitalTwinControlPanel digitalTwinMinified;
   private TreeView<T> tree;
+  private HBox toggleBar;
 
   public EditorPage() {
     this.browsingArea = new BorderPane();
@@ -101,29 +106,52 @@ public abstract class EditorPage<T> extends BorderPane {
           digitalTwinMinified.prefHeightProperty().bind(digitalTwinMinified.widthProperty());
           configureDigitalTwinWidget(digitalTwinMinified);
 
-          NodeUtils.toggleVisibility(digitalTwinMinified, false);
+          this.toggleBar = new HBox();
+          toggleBar.setStyle("-fx-background-color: -color-neutral-subtle; -fx-padding: 4;");
+          toggleBar.setAlignment(Pos.CENTER_LEFT);
+          toggleBar.setPrefHeight(24);
 
-          container.getChildren().addAll(tree, digitalTwinMinified);
+          var arrowIcon = new FontIcon(Material2AL.ARROW_UPWARD);
+          var toggleLabel = new Label("Digital Twin Control");
+          toggleLabel.setStyle("-fx-font-size: 11;");
+          toggleBar.getChildren().addAll(arrowIcon, toggleLabel);
+
+          toggleBar.setOnMouseClicked(
+              e -> {
+                showDigitalTwinControlPanel();
+                NodeUtils.toggleVisibility(toggleBar, false);
+              });
+
+          NodeUtils.toggleVisibility(digitalTwinMinified, false);
+          NodeUtils.toggleVisibility(toggleBar, true);
+
+          var dtContainer = new StackPane();
+          dtContainer.getChildren().addAll(digitalTwinMinified, toggleBar);
+
+          container.getChildren().addAll(tree, dtContainer);
 
           browsingArea.setCenter(container);
         });
   }
 
-  protected void showDigitalTwinMinified() {
+  public void showDigitalTwinControlPanel() {
     if (!digitalTwinMinified.isVisible()) {
       Platform.runLater(
           () -> {
             NodeUtils.toggleVisibility(digitalTwinMinified, true);
-            digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.RECEIVING);
+//            digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.RECEIVING);
+            NodeUtils.toggleVisibility(
+                digitalTwinMinified.getParent().getChildrenUnmodifiable().get(1), false);
           });
     }
   }
 
-  protected void hideDigitalTwinMinified() {
+  public void hideDigitalTwinControlPanel() {
     if (digitalTwinMinified.isVisible()) {
       Platform.runLater(
           () -> {
             NodeUtils.toggleVisibility(digitalTwinMinified, false);
+            NodeUtils.toggleVisibility(toggleBar, true);
           });
     }
   }

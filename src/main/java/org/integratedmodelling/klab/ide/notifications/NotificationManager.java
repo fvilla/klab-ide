@@ -18,6 +18,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.Theme;
+import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
@@ -41,15 +42,15 @@ public class NotificationManager {
         WARNING(Material2AL.DEVELOPER_BOARD, "notification-warning"),
         ERROR(Material2AL.BUILD_CIRCLE, "notification-error");
 
-        private final Object icon;
+        private final Ikon icon;
         private final String styleClass;
 
-        NotificationType(Object icon, String styleClass) {
+        NotificationType(Ikon icon, String styleClass) {
             this.icon = icon;
             this.styleClass = styleClass;
         }
 
-        public Object getIcon() {
+        public Ikon getIcon() {
             return icon;
         }
 
@@ -85,7 +86,7 @@ public class NotificationManager {
             getStyleClass().add(type.getStyleClass());
 
             // Create icon
-            FontIcon icon = new FontIcon(type.getIcon().toString());
+            FontIcon icon = new FontIcon(type.getIcon());
             icon.getStyleClass().add("notification-icon");
 
             // Create content

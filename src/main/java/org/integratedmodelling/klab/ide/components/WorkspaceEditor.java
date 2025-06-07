@@ -125,7 +125,8 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
           TreeItem<NavigableAsset> item = treeView.getSelectionModel().getSelectedItem();
           if (item != null) {
             // TODO check if this is draggable in the current conditions
-            showDigitalTwinMinified();
+            digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.RECEIVING);
+            showDigitalTwinControlPanel();
             var dragboard = treeView.startDragAndDrop(TransferMode.ANY);
             var content = new ClipboardContent();
             content.putString(item.getValue().getUrn());
