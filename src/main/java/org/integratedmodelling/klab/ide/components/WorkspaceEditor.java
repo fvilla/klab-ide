@@ -7,12 +7,10 @@ import java.util.*;
 
 import eu.mihosoft.monacofx.MonacoFX;
 import javafx.application.Platform;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.*;
 import org.integratedmodelling.klab.api.data.RepositoryState;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.knowledge.organization.ProjectStorage;
@@ -125,7 +123,7 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
           TreeItem<NavigableAsset> item = treeView.getSelectionModel().getSelectedItem();
           if (item != null) {
             // TODO check if this is draggable in the current conditions
-            digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.RECEIVING);
+            digitalTwinControlPanel.setStatus(DigitalTwinControlPanel.Status.RECEIVING);
             showDigitalTwinControlPanel();
             var dragboard = treeView.startDragAndDrop(TransferMode.ANY);
             var content = new ClipboardContent();
@@ -150,22 +148,22 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
   }
 
   private void handleAssetDrop(NavigableAsset value) {
-    digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.COMPUTING);
-    if (digitalTwinMinified.getScope() == null) {
-      digitalTwinMinified.setScope(KlabIDEController.modeler().requireContext());
+    digitalTwinControlPanel.setStatus(DigitalTwinControlPanel.Status.COMPUTING);
+    if (digitalTwinControlPanel.getScope() == null) {
+      digitalTwinControlPanel.setScope(KlabIDEController.modeler().requireContext());
     }
     KlabIDEController.modeler()
         .observe(value, /* TODO check drop params */ false)
         .exceptionally(
             throwable -> {
-              digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.ERROR);
+              digitalTwinControlPanel.setStatus(DigitalTwinControlPanel.Status.ERROR);
               KlabIDEApplication.instance()
                   .handleNotifications(List.of(Notification.error(throwable)));
               return Observation.EMPTY_OBSERVATION;
             })
         .thenApply(
             observation -> {
-              digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.IDLE);
+              digitalTwinControlPanel.setStatus(DigitalTwinControlPanel.Status.IDLE);
               return observation;
             });
   }
@@ -217,55 +215,55 @@ public class WorkspaceEditor extends EditorPage<NavigableAsset> {
     return root;
   }
 
-  @Override
-  protected Region createMenuArea() {
-    var separator = new Separator();
-    separator.setPrefHeight(3);
-    separator.setPadding(new javafx.geometry.Insets(0, 0, 0, 0));
-    var left = new HBox();
-    left.setAlignment(Pos.CENTER_LEFT);
-    left.setSpacing(2);
-    var addButton =
-        new Button(
-            "",
-            new IconLabel(Theme.ADD_PROJECT_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
-    var importButton =
-        new Button(
-            "",
-            new IconLabel(Theme.IMPORT_ASSET_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
-    left.getChildren().addAll(addButton, importButton);
-    addButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
-    importButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
-
-    var right = new HBox();
-    right.setAlignment(Pos.CENTER_RIGHT);
-    right.setSpacing(2);
-
-    var collapseButton =
-        new Button(
-            "", new IconLabel(Theme.COLLAPSE_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
-    var expandButton =
-        new Button(
-            "", new IconLabel(Theme.EXPAND_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
-    collapseButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
-    expandButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
-    collapseButton.setOnAction(actionEvent -> root.setExpanded(false));
-    expandButton.setOnAction(actionEvent -> root.setExpanded(true));
-
-    right.getChildren().addAll(collapseButton, expandButton);
-
-    progressBar = new ProgressBar(0);
-    progressBar.setPrefWidth(160);
-    progressBar.setPrefHeight(3);
-
-    var ret = new HBox(4);
-    ret.setAlignment(Pos.CENTER);
-    ret.setPadding(new javafx.geometry.Insets(5));
-    progressBar.setMaxWidth(Double.MAX_VALUE);
-    HBox.setHgrow(progressBar, javafx.scene.layout.Priority.ALWAYS);
-    ret.getChildren().addAll(left, progressBar, right);
-    return new VBox(separator, ret);
-  }
+//  @Override
+//  protected Region createMenuArea() {
+//    var separator = new Separator();
+//    separator.setPrefHeight(3);
+//    separator.setPadding(new javafx.geometry.Insets(0, 0, 0, 0));
+//    var left = new HBox();
+//    left.setAlignment(Pos.CENTER_LEFT);
+//    left.setSpacing(2);
+//    var addButton =
+//        new Button(
+//            "",
+//            new IconLabel(Theme.ADD_PROJECT_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
+//    var importButton =
+//        new Button(
+//            "",
+//            new IconLabel(Theme.IMPORT_ASSET_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
+//    left.getChildren().addAll(addButton, importButton);
+//    addButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+//    importButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+//
+//    var right = new HBox();
+//    right.setAlignment(Pos.CENTER_RIGHT);
+//    right.setSpacing(2);
+//
+//    var collapseButton =
+//        new Button(
+//            "", new IconLabel(Theme.COLLAPSE_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
+//    var expandButton =
+//        new Button(
+//            "", new IconLabel(Theme.EXPAND_ICON, 18, Theme.CURRENT_THEME.getDefaultTextColor()));
+//    collapseButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+//    expandButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+//    collapseButton.setOnAction(actionEvent -> root.setExpanded(false));
+//    expandButton.setOnAction(actionEvent -> root.setExpanded(true));
+//
+//    right.getChildren().addAll(collapseButton, expandButton);
+//
+//    progressBar = new ProgressBar(0);
+//    progressBar.setPrefWidth(160);
+//    progressBar.setPrefHeight(3);
+//
+//    var ret = new HBox(4);
+//    ret.setAlignment(Pos.CENTER);
+//    ret.setPadding(new javafx.geometry.Insets(5));
+//    progressBar.setMaxWidth(Double.MAX_VALUE);
+//    HBox.setHgrow(progressBar, javafx.scene.layout.Priority.ALWAYS);
+//    ret.getChildren().addAll(left, progressBar, right);
+//    return new VBox(separator, ret);
+//  }
 
   @Override
   protected Node createEditor(NavigableAsset asset) {

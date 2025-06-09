@@ -12,9 +12,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javax.swing.*;
+
+import javafx.scene.paint.Color;
 import org.integratedmodelling.common.utils.Utils;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.material2.Material2AL;
 import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
 import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
@@ -25,11 +26,13 @@ import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.integratedmodelling.klab.ide.model.DigitalTwinPeer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
-
-import javax.swing.*;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2AL;
+import org.kordamp.ikonli.material2.Material2MZ;
 
 /**
- * TODO this must be paired to the DT tab in the DT editor and receive any events directed to it.
+ * Controlled by the DT peer installed in the main IDE controller.
  *
  * <p>IDEA: top menu has DT choice (MenuButton) + DT switch to main view button (->) + Observer
  * label + Observer choice (MenuButton)
@@ -44,7 +47,7 @@ import javax.swing.*;
  */
 public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinViewer {
 
-  private final RingProgressIndicator progressIndicator;
+  private final ProgressIndicator progressIndicator;
   private ContextScope scope;
 
   public enum Status {
@@ -69,24 +72,24 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     setMinWidth(size);
 
     // Create top control bar
-    HBox controlBar = new HBox(10);
-    controlBar.setPrefHeight(32);
+    HBox controlBar = new HBox(0);
+    controlBar.setPrefHeight(24);
     controlBar.setAlignment(Pos.CENTER_LEFT);
-    controlBar.setPadding(new Insets(5));
+    controlBar.setPadding(new Insets(1));
     controlBar.setStyle("-fx-background-color: #E0E0E0;");
 
-    // Target selection menu
-    MenuButton targetMenu = new MenuButton();
-    targetMenu.setGraphic(new FontIcon(Material2AL.BARCODE));
-    targetMenu.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
-    // Function buttons
-    Button collapseButton = new Button();
-    collapseButton.setGraphic(new FontIcon(Material2AL.BARCODE));
-    collapseButton.setOnAction(e -> editorPage.hideDigitalTwinControlPanel());
-    collapseButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
+    //    // Target selection menu
+    //    MenuButton targetMenu = new MenuButton();
+    //    targetMenu.setGraphic(new FontIcon(Material2AL.CENTER_FOCUS_STRONG));
+    //    //    targetMenu.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
+    Button swapButton = new Button();
+    swapButton.setGraphic(new FontIcon(Material2MZ.SWAP_HORIZONTAL_CIRCLE));
+    swapButton.setOnAction(
+        e -> KlabIDEController.instance().selectView(KlabIDEController.View.DIGITAL_TWINS));
+    swapButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
 
     Button resetButton = new Button();
-    resetButton.setGraphic(new FontIcon(Material2AL.FORMAT_COLOR_RESET));
+    resetButton.setGraphic(new FontIcon(Material2AL.DELETE_FOREVER));
     resetButton.setOnAction(e -> setScope(null));
     resetButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
 
@@ -95,16 +98,20 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     HBox.setHgrow(statusLabel, Priority.ALWAYS);
     statusLabel.setMaxWidth(Double.MAX_VALUE);
 
+    Button observerMenu = new Button();
+    observerMenu.setGraphic(new FontIcon(Material2MZ.REMOVE_RED_EYE));
+    observerMenu.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
+
     // Progress indicator
-    this.progressIndicator = new RingProgressIndicator(0, false);
+    this.progressIndicator = new ProgressIndicator(0d);
     progressIndicator.setPrefSize(24, 24);
     progressIndicator.setMaxSize(24, 24);
     progressIndicator.setMinSize(24, 24);
-    progressIndicator.setProgress(1);
+    //    progressIndicator.setProgress(1);
 
     controlBar
         .getChildren()
-        .addAll(targetMenu, collapseButton, resetButton, statusLabel, progressIndicator);
+        .addAll(swapButton, resetButton, statusLabel, observerMenu, progressIndicator);
     setTop(controlBar);
 
     treeTableView = new TreeTableView<>();
@@ -113,11 +120,11 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     treeTableView.getStyleClass().addAll(Styles.DENSE, Tweaks.EDGE_TO_EDGE, Tweaks.NO_HEADER);
     treeTableView.setShowRoot(false);
 
-    TreeTableColumn<Activity, FontIcon> typeColumn = new TreeTableColumn<>("Type");
+    TreeTableColumn<Activity, IconLabel> typeColumn = new TreeTableColumn<>("Type");
     typeColumn.setPrefWidth(32);
     typeColumn.setCellValueFactory(
         param -> {
-          FontIcon icon = new FontIcon(Material2AL.ACCOUNT_TREE);
+          var icon = new IconLabel(FontAwesomeSolid.CIRCLE, 16, Color.GREEN);
           return new SimpleObjectProperty<>(icon);
         });
 
@@ -127,11 +134,11 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     descriptionColumn.setCellValueFactory(
         param -> new SimpleObjectProperty<>(activityDescription(param.getValue().getValue())));
 
-    TreeTableColumn<Activity, FontIcon> statusColumn = new TreeTableColumn<>("Status");
+    TreeTableColumn<Activity, IconLabel> statusColumn = new TreeTableColumn<>("Status");
     statusColumn.setPrefWidth(32);
     statusColumn.setCellValueFactory(
         param -> {
-          FontIcon icon = new FontIcon(Material2AL.CHECK_CIRCLE);
+          var icon = new IconLabel(Material2AL.CHECK_CIRCLE, 16, Color.GREEN);
           return new SimpleObjectProperty<>(icon);
         });
 
@@ -156,21 +163,27 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     scenarioBar.setPadding(new Insets(5));
     scenarioBar.setStyle("-fx-background-color: #E0E0E0;");
 
-    // Scenario selection menu
-    MenuButton scenarioMenu = new MenuButton();
-    scenarioMenu.setGraphic(new FontIcon(Material2AL.LIBRARY_BOOKS));
+    //    // Scenario selection menu
+    //    MenuButton scenarioMenu = new MenuButton();
+    //    scenarioMenu.setGraphic(new FontIcon(Material2AL.LIBRARY_BOOKS));
 
     // Scenario selection combobox
     ComboBox<String> scenarioComboBox = new ComboBox<>();
     scenarioComboBox.setPromptText("Select scenario");
     HBox.setHgrow(scenarioComboBox, Priority.ALWAYS);
+    //
+    //    // Current scenario label
+    //    Label currentScenarioLabel = new Label("No scenario selected");
+    HBox.setHgrow(scenarioComboBox, Priority.ALWAYS);
+    scenarioComboBox.setMaxWidth(Double.MAX_VALUE);
 
-    // Current scenario label
-    Label currentScenarioLabel = new Label("No scenario selected");
-    HBox.setHgrow(currentScenarioLabel, Priority.ALWAYS);
-    currentScenarioLabel.setMaxWidth(Double.MAX_VALUE);
+    // Function buttons
+    Button collapseButton = new Button();
+    collapseButton.setGraphic(new FontIcon(Material2AL.ARROW_DOWNWARD));
+    collapseButton.setOnAction(e -> editorPage.hideDigitalTwinControlPanel());
+    collapseButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
 
-    scenarioBar.getChildren().addAll(scenarioMenu, scenarioComboBox, currentScenarioLabel);
+    scenarioBar.getChildren().addAll(scenarioComboBox, collapseButton);
     setBottom(scenarioBar);
   }
 
@@ -186,7 +199,7 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
         () -> {
           switch (status) {
             case IDLE -> {
-              progressIndicator.setProgress(0);
+              progressIndicator.setProgress(0d);
               setCenter(treeTableView);
             }
             case RECEIVING -> {
@@ -194,7 +207,7 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
             }
             case COMPUTING -> {
               setCenter(treeTableView);
-              progressIndicator.setProgress(-1);
+              progressIndicator.setProgress(-1d);
             }
           }
         });

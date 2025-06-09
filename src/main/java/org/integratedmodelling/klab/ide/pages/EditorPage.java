@@ -7,13 +7,8 @@ import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
@@ -34,27 +29,27 @@ public abstract class EditorPage<T> extends BorderPane {
 
   private final BorderPane browsingArea;
   private final TabPane editorTabs;
-  private final Node menuArea;
+  //  private final Node menuArea;
   final Timeline clickTimeline = new Timeline();
   Duration clickDuration = Duration.millis(350);
   KeyFrame clickKeyFrame = new KeyFrame(clickDuration);
   boolean isClickTimelinePlaying = false;
   private Map<T, Tab> assetEditors = new HashMap<>();
-  protected DigitalTwinControlPanel digitalTwinMinified;
+  protected DigitalTwinControlPanel digitalTwinControlPanel;
   private TreeView<T> tree;
   private HBox toggleBar;
 
   public EditorPage() {
     this.browsingArea = new BorderPane();
-    this.menuArea = createMenuArea();
-    menuArea.setStyle("-fx-background-color: -color-neutral-subtle;");
-    if (menuArea instanceof Region region) {
-      region.setPrefHeight(44);
-    }
+    //    this.menuArea = createMenuArea();
+    //    menuArea.setStyle("-fx-background-color: -color-neutral-subtle;");
+    //    if (menuArea instanceof Region region) {
+    //      region.setPrefHeight(44);
+    //    }
     this.editorTabs = new TabPane();
     this.editorTabs.getStyleClass().add(Styles.TABS_CLASSIC);
     this.editorTabs.setSide(Side.BOTTOM);
-    browsingArea.setBottom(menuArea);
+    //    browsingArea.setBottom(menuArea);
 
     SplitPane splitPane = new SplitPane();
     splitPane.setOrientation(Orientation.HORIZONTAL);
@@ -101,32 +96,49 @@ public abstract class EditorPage<T> extends BorderPane {
           VBox.setVgrow(tree, Priority.ALWAYS);
           container.setMaxWidth(Double.MAX_VALUE);
           tree.setMaxWidth(Double.MAX_VALUE);
-          digitalTwinMinified = new DigitalTwinControlPanel(tree.widthProperty().intValue(), this);
-          digitalTwinMinified.prefWidthProperty().bind(tree.widthProperty());
-          digitalTwinMinified.prefHeightProperty().bind(digitalTwinMinified.widthProperty());
-          configureDigitalTwinWidget(digitalTwinMinified);
+          digitalTwinControlPanel =
+              new DigitalTwinControlPanel(tree.widthProperty().intValue(), this);
+          digitalTwinControlPanel.prefWidthProperty().bind(tree.widthProperty());
+          digitalTwinControlPanel
+              .prefHeightProperty()
+              .bind(digitalTwinControlPanel.widthProperty());
+          configureDigitalTwinWidget(digitalTwinControlPanel);
 
           this.toggleBar = new HBox();
           toggleBar.setStyle("-fx-background-color: -color-neutral-subtle; -fx-padding: 4;");
           toggleBar.setAlignment(Pos.CENTER_LEFT);
-          toggleBar.setPrefHeight(24);
+          toggleBar.setPrefHeight(44);
 
-          var arrowIcon = new FontIcon(Material2AL.ARROW_UPWARD);
+          var arrowIcon = new Button();
+          arrowIcon.setGraphic(new FontIcon(Material2AL.ARROW_UPWARD));
+          arrowIcon
+              .onActionProperty()
+              .set(
+                  e -> {
+                    showDigitalTwinControlPanel();
+                    NodeUtils.toggleVisibility(toggleBar, false);
+                  });
+          arrowIcon.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
           var toggleLabel = new Label("Digital Twin Control");
-          toggleLabel.setStyle("-fx-font-size: 11;");
-          toggleBar.getChildren().addAll(arrowIcon, toggleLabel);
-
+          toggleLabel.setAlignment(Pos.CENTER_LEFT);
+          toggleLabel.setStyle("-fx-font-size: 14;");
+          toggleLabel.setMaxWidth(Double.MAX_VALUE);
+          HBox.setHgrow(toggleLabel, Priority.ALWAYS);
+          toggleBar.getChildren().addAll(toggleLabel, arrowIcon);
+          toggleBar.setMaxWidth(Double.MAX_VALUE);
           toggleBar.setOnMouseClicked(
               e -> {
                 showDigitalTwinControlPanel();
                 NodeUtils.toggleVisibility(toggleBar, false);
               });
+          HBox.setHgrow(toggleBar, Priority.ALWAYS);
 
-          NodeUtils.toggleVisibility(digitalTwinMinified, false);
+          showDigitalTwinControlPanel();
+          NodeUtils.toggleVisibility(digitalTwinControlPanel, false);
           NodeUtils.toggleVisibility(toggleBar, true);
 
           var dtContainer = new StackPane();
-          dtContainer.getChildren().addAll(digitalTwinMinified, toggleBar);
+          dtContainer.getChildren().addAll(digitalTwinControlPanel, toggleBar);
 
           container.getChildren().addAll(tree, dtContainer);
 
@@ -135,22 +147,22 @@ public abstract class EditorPage<T> extends BorderPane {
   }
 
   public void showDigitalTwinControlPanel() {
-    if (!digitalTwinMinified.isVisible()) {
+    if (!digitalTwinControlPanel.isVisible()) {
       Platform.runLater(
           () -> {
-            NodeUtils.toggleVisibility(digitalTwinMinified, true);
-//            digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.RECEIVING);
+            NodeUtils.toggleVisibility(digitalTwinControlPanel, true);
+            //            digitalTwinMinified.setStatus(DigitalTwinControlPanel.Status.RECEIVING);
             NodeUtils.toggleVisibility(
-                digitalTwinMinified.getParent().getChildrenUnmodifiable().get(1), false);
+                digitalTwinControlPanel.getParent().getChildrenUnmodifiable().get(1), false);
           });
     }
   }
 
   public void hideDigitalTwinControlPanel() {
-    if (digitalTwinMinified.isVisible()) {
+    if (digitalTwinControlPanel.isVisible()) {
       Platform.runLater(
           () -> {
-            NodeUtils.toggleVisibility(digitalTwinMinified, false);
+            NodeUtils.toggleVisibility(digitalTwinControlPanel, false);
             NodeUtils.toggleVisibility(toggleBar, true);
           });
     }
@@ -190,5 +202,5 @@ public abstract class EditorPage<T> extends BorderPane {
 
   protected abstract TreeView<T> createContentTree();
 
-  protected abstract Node createMenuArea();
+  //  protected abstract Node createMenuArea();
 }

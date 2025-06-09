@@ -15,11 +15,11 @@ public class ResourceEditor extends EditorPage<Resource> {
         return ret;
     }
 
-    @Override
-    protected HBox createMenuArea() {
-        var ret = new HBox();
-        return ret;
-    }
+//    @Override
+//    protected HBox createMenuArea() {
+//        var ret = new HBox();
+//        return ret;
+//    }
 
     @Override
     protected void onSingleClickItemSelection(Resource value) {

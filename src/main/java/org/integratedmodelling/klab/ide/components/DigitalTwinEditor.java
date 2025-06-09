@@ -160,11 +160,11 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     return ret;
   }
 
-  @Override
-  protected HBox createMenuArea() {
-    this.menuArea = new HBox();
-    return this.menuArea;
-  }
+//  @Override
+//  protected HBox createMenuArea() {
+//    this.menuArea = new HBox();
+//    return this.menuArea;
+//  }
 
   @Override
   protected Node createEditor(RuntimeAsset asset) {
