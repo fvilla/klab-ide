@@ -1,6 +1,5 @@
 package org.integratedmodelling.klab.ide.components;
 
-import atlantafx.base.controls.RingProgressIndicator;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.theme.Tweaks;
 import javafx.application.Platform;
@@ -12,11 +11,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javax.swing.*;
-
 import javafx.scene.paint.Color;
+import javax.swing.*;
 import org.integratedmodelling.common.utils.Utils;
-import org.integratedmodelling.klab.api.data.RuntimeAssetGraph;
+import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
 import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedule;
@@ -220,9 +218,9 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     }
     Platform.runLater(
         () -> {
-          ComboBox<String> scenarioBox =
-              (ComboBox<String>) ((HBox) getBottom()).getChildren().get(1);
-          scenarioBox.getItems().clear();
+//          ComboBox<String> scenarioBox =
+//              (ComboBox<String>) ((HBox) getBottom()).getChildren().get(1);
+//          scenarioBox.getItems().clear();
         });
     this.scope = scope;
     this.controller = KlabIDEController.instance().getDigitalTwinPeer(scope);
@@ -280,7 +278,7 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
   }
 
   @Override
-  public void knowledgeGraphCommitted(RuntimeAssetGraph graph) {}
+  public void knowledgeGraphCommitted(GraphModel.KnowledgeGraph graph) {}
 
   @Override
   public void scheduleModified(Schedule schedule) {}
