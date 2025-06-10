@@ -6,7 +6,6 @@ import java.util.Set;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.integratedmodelling.common.services.client.digitaltwin.ClientDigitalTwin;
-import org.integratedmodelling.klab.api.data.RuntimeAsset;
 import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedule;
@@ -14,7 +13,6 @@ import org.integratedmodelling.klab.api.provenance.Activity;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.runtime.Message;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
-import org.integratedmodelling.klab.ide.components.KnowledgeGraphView;
 
 /**
  * We register context scopes with the IDE and use this class to manage all {@link
@@ -24,9 +22,6 @@ public class DigitalTwinPeer {
 
   private final ContextScope scope;
   private final Set<DigitalTwinViewer> viewers = Collections.synchronizedSet(new HashSet<>());
-
-  private RuntimeAsset context = RuntimeAsset.CONTEXT_ASSET;
-  private KnowledgeGraphView knowledgeGraphView;
 
   public DigitalTwinPeer(ContextScope scope) {
     this.scope = scope;

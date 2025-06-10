@@ -36,17 +36,20 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   private KnowledgeGraphView knowledgeGraphView;
   private TreeItem<RuntimeAsset> root;
   private Map<Long, Activity> activities = new TreeMap<>();
+  private final ContextScope contextScope;
 
   public DigitalTwinEditor(
       ContextScope contextScope, RuntimeService runtimeService, DigitalTwinView digitalTwinView) {
     this.controller = KlabIDEController.instance().getDigitalTwinPeer(contextScope);
     this.controller.register(this);
+    this.contextScope = contextScope;
     this.runtimeService = runtimeService;
     if (contextScope.getDigitalTwin() instanceof ClientDigitalTwin clientDigitalTwin) {
       this.knowledgeGraph = (ClientKnowledgeGraph) clientDigitalTwin.getKnowledgeGraph();
     }
     this.context = RuntimeAsset.CONTEXT_ASSET;
     this.root = defineTree(this.context);
+    showDigitalTwinControlPanel();
   }
 
   @Override
@@ -153,11 +156,11 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     return ret;
   }
 
-//  @Override
-//  protected HBox createMenuArea() {
-//    this.menuArea = new HBox();
-//    return this.menuArea;
-//  }
+  @Override
+  protected void configureDigitalTwinWidget(DigitalTwinControlPanel digitalTwinMinified) {
+    super.configureDigitalTwinWidget(digitalTwinMinified);
+    KlabIDEController.instance().getDigitalTwinPeer(contextScope).register(digitalTwinMinified);
+  }
 
   @Override
   protected Node createEditor(RuntimeAsset asset) {
@@ -220,8 +223,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   public void submissionAborted(Observation observation) {}
 
   @Override
-  public void submissionFinished(Observation observation) {
-  }
+  public void submissionFinished(Observation observation) {}
 
   @Override
   public void setContext(Observation observation) {}
