@@ -150,6 +150,19 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
     ontologyView = new OntologyView();
   }
 
+  public <T extends BrowsablePage> T getView(View view, Class<T> cls) {
+    return (T)
+        switch (view) {
+          //      case NOTEBOOK -> notebook;
+          case RESOURCES -> resourcesView;
+          case DIGITAL_TWINS -> digitalTwinView;
+          case WORKSPACES -> workspaceView;
+          case APPLICATIONS -> applicationView;
+          case WORLDVIEW -> ontologyView;
+          default -> throw new IllegalStateException("Unexpected value: " + view);
+        };
+  }
+
   @Override
   public void alert(Notification notification) {
     var alert =
@@ -489,8 +502,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   }
 
   @Override
-  public void notifyServiceStatus(KlabService service, KlabService.ServiceStatus status) {
-  }
+  public void notifyServiceStatus(KlabService service, KlabService.ServiceStatus status) {}
 
   @Override
   public void engineStatusChanged(Engine.Status status) {
@@ -535,7 +547,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
 
   @Override
   public void notifyNewDigitalTwin(ContextScope scope, RuntimeService service) {
-    var ret = this.digitalTwinView.showDigitalTwin(scope, service);
+    //    var ret = this.digitalTwinView.showDigitalTwin(scope, service);
   }
 
   @Override

@@ -166,15 +166,14 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
     Logging.INSTANCE.info("DIO PETO");
   }
 
-
-  public DigitalTwinEditor showDigitalTwin(ContextScope scope, RuntimeService service) {
+  public DigitalTwinEditor showDigitalTwin(ContextScope scope) {
     DigitalTwinEditor ret = null;
     hideBrowser();
     if (openEditors.containsKey(scope.getId())) {
       ret = openEditors.get(scope.getId());
       ret.requestFocus(); // FIXME must remember the tabs and select(tab) - in both cases
     } else {
-      ret = new DigitalTwinEditor(scope, service, this);
+      ret = new DigitalTwinEditor(scope, scope.getService(RuntimeService.class), this);
       openEditors.put(scope.getId(), ret);
       addEditor(ret, scope.getName(), new FontIcon(Theme.DIGITAL_TWINS_ICON));
       ret.edit(ret.getRootAsset());

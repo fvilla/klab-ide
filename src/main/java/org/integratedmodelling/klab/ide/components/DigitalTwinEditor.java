@@ -23,6 +23,8 @@ import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.integratedmodelling.klab.ide.model.DigitalTwinPeer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
 
 public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements DigitalTwinViewer {
 
@@ -35,7 +37,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   private RuntimeAsset context;
   private KnowledgeGraphView knowledgeGraphView;
   private TreeItem<RuntimeAsset> root;
-  private Map<Long, Activity> activities = new TreeMap<>();
+  //  private Map<Long, Activity> activities = new TreeMap<>();
   private final ContextScope contextScope;
 
   public DigitalTwinEditor(
@@ -49,11 +51,10 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     }
     this.context = RuntimeAsset.CONTEXT_ASSET;
     this.root = defineTree(this.context);
-    showDigitalTwinControlPanel();
   }
 
   @Override
-  public void knowledgeGraphCommitted(GraphModel.KnowledgeGraph graph) {
+  public void knowledgeGraphModified() {
     updateTree(this.context);
   }
 
@@ -63,15 +64,15 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   @Override
   public void cleanup() {}
 
-  @Override
-  public void activityFinished(Activity payload) {
-    activities.computeIfAbsent(payload.getTransientId(), id -> payload);
-  }
-
-  @Override
-  public void activityStarted(Activity payload) {
-    activities.computeIfAbsent(payload.getTransientId(), id -> payload);
-  }
+  //  @Override
+  //  public void activityFinished(Activity payload) {
+  //    activities.computeIfAbsent(payload.getTransientId(), id -> payload);
+  //  }
+  //
+  //  @Override
+  //  public void activityStarted(Activity payload) {
+  //    activities.computeIfAbsent(payload.getTransientId(), id -> payload);
+  //  }
 
   @Override
   protected void onSingleClickItemSelection(RuntimeAsset value) {}
@@ -128,6 +129,9 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
 
     return treeView;
   }
+
+  @Override
+  public void activitiesModified(Graph<Activity, DefaultEdge> activityGraph) {}
 
   private List<RuntimeAsset> children(RuntimeAsset asset) {
     if (controller.scope().getDigitalTwin().getKnowledgeGraph()

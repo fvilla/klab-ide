@@ -8,6 +8,8 @@ import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedule;
 import org.integratedmodelling.klab.api.provenance.Activity;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
 
 public class KnowledgeGraphTree extends TreeView<RuntimeAsset> implements DigitalTwinViewer {
 
@@ -35,17 +37,27 @@ public class KnowledgeGraphTree extends TreeView<RuntimeAsset> implements Digita
   public void setObserver(Observation observation) {}
 
   @Override
-  public void activityFinished(Activity activity) {}
+  public void knowledgeGraphModified() {
 
-  @Override
-  public void activityStarted(Activity activity) {}
+  }
 
-  @Override
-  public void knowledgeGraphCommitted(GraphModel.KnowledgeGraph graph) {}
-
+  //  @Override
+//  public void activityFinished(Activity activity) {}
+//
+//  @Override
+//  public void activityStarted(Activity activity) {}
+//
+//  @Override
+//  public void knowledgeGraphCommitted(GraphModel.KnowledgeGraph graph) {}
+//
   @Override
   public void scheduleModified(Schedule schedule) {}
 
   @Override
   public void cleanup() {}
+
+  @Override
+  public void activitiesModified(Graph<Activity, DefaultEdge> activityGraph) {
+
+  }
 }

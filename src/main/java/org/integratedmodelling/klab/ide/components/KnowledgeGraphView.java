@@ -24,6 +24,7 @@ import org.integratedmodelling.klab.api.provenance.Activity;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
+import org.jgrapht.graph.DefaultEdge;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
@@ -281,14 +282,25 @@ public class KnowledgeGraphView extends BorderPane implements DigitalTwinViewer 
   @Override
   public void setObserver(Observation observation) {}
 
-  @Override
-  public void activityFinished(Activity activity) {}
+//  @Override
+//  public void activityFinished(Activity activity) {}
+//
+//  @Override
+//  public void activityStarted(Activity activity) {}
+//
+//  @Override
+//  public void knowledgeGraphCommitted(GraphModel.KnowledgeGraph graph) {}
+
 
   @Override
-  public void activityStarted(Activity activity) {}
+  public void knowledgeGraphModified() {
+
+  }
 
   @Override
-  public void knowledgeGraphCommitted(GraphModel.KnowledgeGraph graph) {}
+  public void activitiesModified(org.jgrapht.Graph<Activity, DefaultEdge> activityGraph) {
+
+  }
 
   @Override
   public void scheduleModified(Schedule schedule) {

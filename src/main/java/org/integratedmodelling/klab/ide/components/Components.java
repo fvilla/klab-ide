@@ -143,7 +143,7 @@ public class Components {
               "Enrico Girotto, hopefully",
               "Andrea Antonello, maybe",
               "Iñigo Cobian, eventually",
-              "Arnab Moitra, faithfully")) {
+              "Arnab Moitra, tangentially")) {
         Label label = new Label(developer);
         label.setAlignment(Pos.CENTER);
         label.setPadding(new Insets(10));
@@ -551,7 +551,7 @@ public class Components {
   }
 
   public static class DigitalTwin extends Node {
-    public DigitalTwin(ContextScope workspace, BiConsumer<ContextScope, RuntimeService> action) {}
+    public DigitalTwin(ContextScope workspace, Consumer<ContextScope> action) {}
   }
 
   /** A component that demonstrates the AutoScrollPane with a list of sample components. */

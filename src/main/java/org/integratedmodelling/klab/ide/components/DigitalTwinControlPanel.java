@@ -12,9 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
-import javax.swing.*;
 import org.integratedmodelling.common.utils.Utils;
-import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
 import org.integratedmodelling.klab.api.exceptions.KlabInternalErrorException;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedule;
@@ -24,10 +22,14 @@ import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.integratedmodelling.klab.ide.model.DigitalTwinPeer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
+
+import java.util.Comparator;
 
 /**
  * Controlled by the DT peer installed in the main IDE controller.
@@ -83,7 +85,14 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     Button swapButton = new Button();
     swapButton.setGraphic(new FontIcon(Material2MZ.SWAP_HORIZONTAL_CIRCLE));
     swapButton.setOnAction(
-        e -> KlabIDEController.instance().selectView(KlabIDEController.View.DIGITAL_TWINS));
+        e -> {
+          if (getScope() != null) {
+            KlabIDEController.instance()
+                .getView(KlabIDEController.View.DIGITAL_TWINS, DigitalTwinView.class)
+                .showDigitalTwin(getScope());
+            KlabIDEController.instance().selectView(KlabIDEController.View.DIGITAL_TWINS);
+          }
+        });
     swapButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
 
     Button resetButton = new Button();
@@ -118,29 +127,28 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     treeTableView.getStyleClass().addAll(Styles.DENSE, Tweaks.EDGE_TO_EDGE, Tweaks.NO_HEADER);
     treeTableView.setShowRoot(false);
 
-    TreeTableColumn<Activity, IconLabel> typeColumn = new TreeTableColumn<>("Type");
-    typeColumn.setPrefWidth(32);
-    typeColumn.setCellValueFactory(
-        param -> {
-          var icon = new IconLabel(FontAwesomeSolid.CIRCLE, 16, Color.GREEN);
-          return new SimpleObjectProperty<>(icon);
-        });
+//    TreeTableColumn<Activity, IconLabel> typeColumn = new TreeTableColumn<>("Type");
+//    typeColumn.setPrefWidth(52);
+//    typeColumn.setCellValueFactory(
+//        param -> {
+//          var icon = new IconLabel(FontAwesomeSolid.CIRCLE, 16, Color.GREEN);
+//          return new SimpleObjectProperty<>(icon);
+//        });
 
     TreeTableColumn<Activity, String> descriptionColumn = new TreeTableColumn<>("Description");
-    descriptionColumn.prefWidthProperty().bind(treeTableView.widthProperty().subtract(64));
-
+    descriptionColumn.prefWidthProperty().bind(treeTableView.widthProperty().subtract(32));
     descriptionColumn.setCellValueFactory(
         param -> new SimpleObjectProperty<>(activityDescription(param.getValue().getValue())));
 
     TreeTableColumn<Activity, IconLabel> statusColumn = new TreeTableColumn<>("Status");
-    statusColumn.setPrefWidth(32);
+//    statusColumn.setPrefWidth(32);
     statusColumn.setCellValueFactory(
         param -> {
           var icon = new IconLabel(Material2AL.CHECK_CIRCLE, 16, Color.GREEN);
           return new SimpleObjectProperty<>(icon);
         });
 
-    treeTableView.getColumns().setAll(typeColumn, descriptionColumn, statusColumn);
+    treeTableView.getColumns().setAll(/*typeColumn,*/ descriptionColumn, statusColumn);
     treeTableView.setRoot(new TreeItem<>());
     treeTableView.setShowRoot(false);
 
@@ -218,9 +226,9 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     }
     Platform.runLater(
         () -> {
-//          ComboBox<String> scenarioBox =
-//              (ComboBox<String>) ((HBox) getBottom()).getChildren().get(1);
-//          scenarioBox.getItems().clear();
+          //          ComboBox<String> scenarioBox =
+          //              (ComboBox<String>) ((HBox) getBottom()).getChildren().get(1);
+          //          scenarioBox.getItems().clear();
         });
     this.scope = scope;
     this.controller = KlabIDEController.instance().getDigitalTwinPeer(scope);
@@ -247,25 +255,25 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
   @Override
   public void setObserver(Observation observation) {}
 
-  @Override
-  public void activityFinished(Activity activity) {
-    Platform.runLater(
-        () -> {
-          TreeItem<Activity> existing = findTreeItemByTransientId(activity.getTransientId());
-          if (existing != null) {
-            existing.setValue(activity);
-          }
-        });
-  }
-
-  @Override
-  public void activityStarted(Activity activity) {
-    Platform.runLater(
-        () -> {
-          TreeItem<Activity> item = new TreeItem<>(activity);
-          treeTableView.getRoot().getChildren().add(item);
-        });
-  }
+  //  @Override
+  //  public void activityFinished(Activity activity) {
+  //    Platform.runLater(
+  //        () -> {
+  //          TreeItem<Activity> existing = findTreeItemByTransientId(activity.getTransientId());
+  //          if (existing != null) {
+  //            existing.setValue(activity);
+  //          }
+  //        });
+  //  }
+  //
+  //  @Override
+  //  public void activityStarted(Activity activity) {
+  //    Platform.runLater(
+  //        () -> {
+  //          TreeItem<Activity> item = new TreeItem<>(activity);
+  //          treeTableView.getRoot().getChildren().add(item);
+  //        });
+  //  }
 
   private TreeItem<Activity> findTreeItemByTransientId(long transientId) {
     if (treeTableView.getRoot() == null) return null;
@@ -278,7 +286,32 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
   }
 
   @Override
-  public void knowledgeGraphCommitted(GraphModel.KnowledgeGraph graph) {}
+  public void knowledgeGraphModified() {}
+
+  @Override
+  public void activitiesModified(Graph<Activity, DefaultEdge> activityGraph) {
+    Platform.runLater(
+        () -> {
+          treeTableView.getRoot().getChildren().clear();
+          var roots =
+              activityGraph.vertexSet().stream()
+                  .filter(activity -> activityGraph.incomingEdgesOf(activity).isEmpty())
+                  .sorted(Comparator.comparingLong(Activity::getStart))
+                  .toList();
+          for (Activity activity : roots) {
+            treeTableView.getRoot().getChildren().add(makeItem(activity, activityGraph));
+          }
+        });
+  }
+
+  private TreeItem<Activity> makeItem(
+      Activity activity, Graph<Activity, DefaultEdge> activityGraph) {
+    TreeItem<Activity> ret = new TreeItem<>(activity);
+    for (var child : activityGraph.outgoingEdgesOf(activity)) {
+      ret.getChildren().add(makeItem(activityGraph.getEdgeTarget(child), activityGraph));
+    }
+    return ret;
+  }
 
   @Override
   public void scheduleModified(Schedule schedule) {}

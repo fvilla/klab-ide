@@ -1,32 +1,49 @@
 package org.integratedmodelling.klab.ide.model;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
+import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.common.services.client.digitaltwin.ClientDigitalTwin;
 import org.integratedmodelling.klab.api.digitaltwin.GraphModel;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedule;
 import org.integratedmodelling.klab.api.provenance.Activity;
+import org.integratedmodelling.klab.api.provenance.impl.ActivityImpl;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.runtime.Message;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
 
 /**
  * We register context scopes with the IDE and use this class to manage all {@link
  * org.integratedmodelling.klab.ide.api.DigitalTwinViewer} objects linked to it.
+ *
+ * <p>TODO this must store state and propagate to all newly registered widgets on registration. TODO
+ * the event processing must be atomically synchronized with the registration
  */
 public class DigitalTwinPeer {
 
   private final ContextScope scope;
   private final Set<DigitalTwinViewer> viewers = Collections.synchronizedSet(new HashSet<>());
+  private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+  private Graph<Activity, DefaultEdge> activityGraph =
+      new DefaultDirectedGraph<>(DefaultEdge.class);
+  private HashMap<Long, Activity> activities = new HashMap<>();
+  private Schedule schedule;
 
   public DigitalTwinPeer(ContextScope scope) {
     this.scope = scope;
     if (scope.getDigitalTwin() instanceof ClientDigitalTwin clientDigitalTwin) {
-      clientDigitalTwin.addEventConsumer(this::processEvent);
+      clientDigitalTwin.addEventConsumer(message -> executor.execute(() -> processEvent(message)));
     }
   }
 
@@ -36,10 +53,12 @@ public class DigitalTwinPeer {
 
   private void processEvent(Message message) {
 
+    // TODO process state internally and send more specific messages to the viewers
+
     switch (message.getMessageType()) {
       case KnowledgeGraphCommitted -> {
-        var graph = message.getPayload(GraphModel.KnowledgeGraph.class);
-        viewers.forEach(v -> v.knowledgeGraphCommitted(graph));
+        //        var graph = message.getPayload(GraphModel.KnowledgeGraph.class);
+        executor.execute(() -> viewers.forEach(v -> v.knowledgeGraphModified()));
       }
       case ContextualizationAborted, ContextualizationSuccessful, ContextualizationStarted -> {
         // TODO insert object, define aspect
@@ -52,19 +71,32 @@ public class DigitalTwinPeer {
       case ObservationSubmissionStarted -> {}
       case ObservationSubmissionFinished -> {
         var observation = message.getPayload(Observation.class);
-        viewers.forEach(v -> v.submissionFinished(observation));
+        executor.execute(() -> viewers.forEach(v -> v.submissionFinished(observation)));
       }
       case ActivityFinished -> {
         var activity = message.getPayload(Activity.class);
-        viewers.forEach(v -> v.activityFinished(activity));
+        // TODO update the existing activity in the graph
+        var existingActivity = activities.get(activity.getTransientId());
+        executor.execute(() -> viewers.forEach(v -> v.activitiesModified(activityGraph)));
       }
       case ActivityStarted -> {
         var activity = message.getPayload(Activity.class);
-        viewers.forEach(v -> v.activityStarted(activity));
+        activities.put(activity.getTransientId(), activity);
+        activityGraph.addVertex(activity);
+        var parentActivity =
+            activity.getMetadata().get(ActivityImpl.PARENT_ACTIVITY_TRANSIENT_ID_KEY, -1L);
+        if (parentActivity > 0) {
+          var activityParent = activities.get(parentActivity);
+          if (activityParent != null) {
+            activityGraph.addEdge(activityParent, activity);
+          }
+        }
+        // TODO insert the activity in the graph
+        executor.execute(() -> viewers.forEach(v -> v.activitiesModified(activityGraph)));
       }
       case ScheduleModified -> {
-        var schedule = message.getPayload(Schedule.class);
-        viewers.forEach(v -> v.scheduleModified(schedule));
+        this.schedule = message.getPayload(Schedule.class);
+        executor.execute(() -> viewers.forEach(v -> v.scheduleModified(schedule)));
       }
     }
 
@@ -92,5 +124,20 @@ public class DigitalTwinPeer {
                 }
               });
     }
+
+    // TODO load any existing state into the new viewer
+    digitalTwinEditor.knowledgeGraphModified();
+    digitalTwinEditor.activitiesModified(activityGraph);
+    if (schedule != null) {
+      digitalTwinEditor.scheduleModified(schedule);
+    }
+  }
+
+  public void executeTask(Runnable task) {
+    executor.execute(task);
+  }
+
+  public void cleanup() {
+    executor.shutdown();
   }
 }
