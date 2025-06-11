@@ -127,13 +127,13 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     treeTableView.getStyleClass().addAll(Styles.DENSE, Tweaks.EDGE_TO_EDGE, Tweaks.NO_HEADER);
     treeTableView.setShowRoot(false);
 
-//    TreeTableColumn<Activity, IconLabel> typeColumn = new TreeTableColumn<>("Type");
-//    typeColumn.setPrefWidth(52);
-//    typeColumn.setCellValueFactory(
-//        param -> {
-//          var icon = new IconLabel(FontAwesomeSolid.CIRCLE, 16, Color.GREEN);
-//          return new SimpleObjectProperty<>(icon);
-//        });
+    //    TreeTableColumn<Activity, IconLabel> typeColumn = new TreeTableColumn<>("Type");
+    //    typeColumn.setPrefWidth(52);
+    //    typeColumn.setCellValueFactory(
+    //        param -> {
+    //          var icon = new IconLabel(FontAwesomeSolid.CIRCLE, 16, Color.GREEN);
+    //          return new SimpleObjectProperty<>(icon);
+    //        });
 
     TreeTableColumn<Activity, String> descriptionColumn = new TreeTableColumn<>("Description");
     descriptionColumn.prefWidthProperty().bind(treeTableView.widthProperty().subtract(32));
@@ -141,10 +141,18 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
         param -> new SimpleObjectProperty<>(activityDescription(param.getValue().getValue())));
 
     TreeTableColumn<Activity, IconLabel> statusColumn = new TreeTableColumn<>("Status");
-//    statusColumn.setPrefWidth(32);
+    //    statusColumn.setPrefWidth(32);
     statusColumn.setCellValueFactory(
         param -> {
-          var icon = new IconLabel(Material2AL.CHECK_CIRCLE, 16, Color.GREEN);
+          var activity = param.getValue() == null ? null : param.getValue().getValue();
+          var ikon = Material2AL.ACCESS_ALARM;
+          if (activity != null && activity.getOutcome() != null) {
+            ikon =
+                activity.getOutcome() == Activity.Outcome.SUCCESS
+                    ? Material2AL.CHECK_CIRCLE
+                    : Material2AL.ERROR;
+          }
+          var icon = new IconLabel(ikon, 16, Color.GREEN);
           return new SimpleObjectProperty<>(icon);
         });
 
