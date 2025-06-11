@@ -77,6 +77,10 @@ public class DigitalTwinPeer {
         var activity = message.getPayload(Activity.class);
         // TODO update the existing activity in the graph
         var existingActivity = activities.get(activity.getTransientId());
+        if (existingActivity instanceof ActivityImpl impl) {
+          impl.setEnd(activity.getEnd());
+          impl.setOutcome(activity.getOutcome());
+        }
         executor.execute(() -> viewers.forEach(v -> v.activitiesModified(activityGraph)));
       }
       case ActivityStarted -> {
@@ -91,7 +95,6 @@ public class DigitalTwinPeer {
             activityGraph.addEdge(activityParent, activity);
           }
         }
-        // TODO insert the activity in the graph
         executor.execute(() -> viewers.forEach(v -> v.activitiesModified(activityGraph)));
       }
       case ScheduleModified -> {
