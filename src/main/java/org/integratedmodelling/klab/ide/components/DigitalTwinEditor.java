@@ -191,6 +191,11 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   private void updateTree(RuntimeAsset changed) {
     Platform.runLater(
         () -> {
+
+          if (treeView == null || treeView.getSelectionModel() == null) {
+            return;
+          }
+
           // Store selection to restore it later
           TreeItem<RuntimeAsset> selectedItem = treeView.getSelectionModel().getSelectedItem();
 
