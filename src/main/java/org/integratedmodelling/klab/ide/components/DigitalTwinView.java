@@ -180,4 +180,8 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
     }
     return ret;
   }
+
+  public void removeDigitalTwin(ContextScope scope) {
+      // TODO
+  }
 }

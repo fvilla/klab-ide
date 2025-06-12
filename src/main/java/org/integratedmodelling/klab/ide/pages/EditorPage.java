@@ -10,6 +10,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
+import org.integratedmodelling.common.logging.Logging;
+import org.integratedmodelling.klab.api.scope.ContextScope;
+import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import javafx.util.Duration;
@@ -202,5 +205,26 @@ public abstract class EditorPage<T> extends BorderPane {
 
   protected abstract TreeView<T> createContentTree();
 
-  //  protected abstract Node createMenuArea();
+  public void deleteScope(ContextScope scope) {
+
+    var alert = new Alert(Alert.AlertType.WARNING);
+    alert.setTitle("Remove digital twin");
+    alert.setHeaderText("You are about to remove the digital twin. Please confirm");
+    alert.setContentText(
+        "Removing this digital twin will also remove all assets, storage and schedule. "
+            + "All data will be deleted permanently. "
+            + "There are currently 0 users connected to this besides yourself.");
+
+    ButtonType yesBtn = new ButtonType("Confirm", ButtonBar.ButtonData.YES);
+    ButtonType cancelBtn = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+    alert.getButtonTypes().setAll(yesBtn, cancelBtn);
+    alert.initOwner(getScene().getWindow());
+    var result = alert.showAndWait();
+    if (!result.isEmpty() && result.get().getButtonData() == ButtonBar.ButtonData.YES) {
+      // TODO IT - start at the peer, which deletes the scope. All DT CPs
+      //  emptied and minified or moved to previous in stack, then all editors closed
+        KlabIDEController.instance().getDigitalTwinPeer(scope).closeScope();
+    }
+  }
 }

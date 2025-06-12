@@ -99,7 +99,7 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
 
     Button resetButton = new Button();
     resetButton.setGraphic(new FontIcon(Material2AL.DELETE_FOREVER));
-    resetButton.setOnAction(e -> setScope(null));
+    resetButton.setOnAction(e -> editorPage.deleteScope(scope));
     resetButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
 
     // Status label

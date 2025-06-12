@@ -31,6 +31,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   //  private final ContextScope contextScope;
   private final DigitalTwinPeer controller;
   private final RuntimeService runtimeService;
+  private final DigitalTwinView view;
   private ClientKnowledgeGraph knowledgeGraph;
   private HBox menuArea;
   private KnowledgeGraphTree treeView;
@@ -51,6 +52,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
     }
     this.context = RuntimeAsset.CONTEXT_ASSET;
     this.root = defineTree(this.context);
+    this.view = digitalTwinView;
   }
 
   @Override
@@ -62,7 +64,9 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   public void scheduleModified(Schedule schedule) {}
 
   @Override
-  public void cleanup() {}
+  public void cleanup() {
+    Platform.runLater(() -> this.view.removeDigitalTwin(contextScope));
+  }
 
   //  @Override
   //  public void activityFinished(Activity payload) {
@@ -191,7 +195,6 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   private void updateTree(RuntimeAsset changed) {
     Platform.runLater(
         () -> {
-
           if (treeView == null || treeView.getSelectionModel() == null) {
             return;
           }

@@ -1,6 +1,12 @@
 package org.integratedmodelling.klab.ide.components;
 
 import atlantafx.base.controls.Card;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -8,33 +14,27 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
-import javafx.scene.input.TransferMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.util.StringConverter;
 import org.integratedmodelling.klab.api.data.Version;
 import org.integratedmodelling.klab.api.engine.distribution.Distribution;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.scope.UserScope;
-import org.integratedmodelling.klab.api.services.RuntimeService;
+import org.integratedmodelling.klab.api.services.*;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.ide.KlabIDEApplication;
+import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * Components are widgets that can fit into the {@link NotebookView}. They have a builder that
@@ -533,20 +533,76 @@ public class Components {
       super(Type.ServiceInfo, "Services", true);
     }
 
+    private static final String REASONER = "REASONER";
+    private static final String RESOLVER = "RESOLVER";
+    private static final String RESOURCES = "RESOURCES";
+    private static final String RUNTIME = "RUNTIME";
+
     protected void createContent() {
       var card = new Card();
-      Tab reasonerTab = new Tab();
-      reasonerTab.setText("Reasoner");
-      Tab resourcesTab = new Tab();
-      resourcesTab.setText("Resources");
-      Tab resolverTab = new Tab();
-      resolverTab.setText("Resolver");
-      Tab runtimeTab = new Tab();
-      runtimeTab.setText("Runtime");
+
+      Tab reasonerTab = createServiceTab("Reasoner", "REASONER", Reasoner.class);
+      Tab resourcesTab = createServiceTab("Resources", "RESOURCES", ResourcesService.class);
+      Tab resolverTab = createServiceTab("Resolver", "RESOLVER", Resolver.class);
+      Tab runtimeTab = createServiceTab("Runtime", "RUNTIME", RuntimeService.class);
+
       TabPane tabs = new TabPane(reasonerTab, resourcesTab, resolverTab, runtimeTab);
       tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
       card.setBody(tabs);
       this.getChildren().add(card);
+    }
+
+    private Tab createServiceTab(
+        String title,
+        String serviceType,
+        Class<? extends org.integratedmodelling.klab.api.services.KlabService> serviceClass) {
+      Tab tab = new Tab();
+      tab.setText(title);
+
+      VBox content = new VBox(10);
+      content.setPadding(new Insets(10));
+
+      ComboBox<KlabService> serviceSelector = new ComboBox<>();
+      serviceSelector.setPromptText("Select " + title + " Service");
+
+      // Populate services of specified type
+      var services = KlabIDEController.modeler().user().getServices(serviceClass);
+
+      serviceSelector.getItems().addAll(services);
+      final Map<String, KlabService> serviceMap = new HashMap<>();
+      services.forEach(service -> serviceMap.put(service.getServiceName(), service));
+
+      // Convert service to display string
+      serviceSelector.setConverter(
+          new StringConverter<org.integratedmodelling.klab.api.services.KlabService>() {
+            @Override
+            public String toString(KlabService service) {
+              return service.getServiceName();
+            }
+
+            @Override
+            public KlabService fromString(String string) {
+              return serviceMap.get(string);
+            }
+          });
+
+      // Create KlabService component when service selected
+      serviceSelector
+          .valueProperty()
+          .addListener(
+              (obs, oldVal, newVal) -> {
+                content.getChildren().clear();
+                content.getChildren().add(serviceSelector);
+
+                if (newVal != null) {
+                  KlabServicePanel serviceComponent = new KlabServicePanel(newVal);
+                  content.getChildren().add(serviceComponent);
+                }
+              });
+
+      content.getChildren().add(serviceSelector);
+      tab.setContent(content);
+      return tab;
     }
   }
 
@@ -682,9 +738,8 @@ public class Components {
       return colors[(int) (Math.random() * colors.length)];
     }
   }
-  /**
-   * A component that demonstrates the Timeline with configurable time intervals.
-   */
+
+  /** A component that demonstrates the Timeline with configurable time intervals. */
   public static class TimelineComponent extends BaseComponent {
 
     public TimelineComponent() {
@@ -694,6 +749,178 @@ public class Components {
     @Override
     protected void createContent() {
       this.getChildren().add(TimelineDemo.createDemo());
+    }
+  }
+
+  public static class KlabServicePanel extends VBox {
+    private final KlabService service;
+    private TabPane tabPane;
+    private VBox exportPane;
+    private ComboBox<String> schemaSelector;
+    private VBox parameterForm;
+    private VBox dropTarget;
+
+    public KlabServicePanel(KlabService service) {
+      this.service = service;
+      createContent();
+    }
+
+    protected void createContent() {
+      var card = new Card();
+      VBox content = new VBox(10);
+      content.setPadding(new Insets(10));
+
+      Label nameLabel =
+          new Label(
+              "Service: "
+                  + service.capabilities(KlabIDEController.modeler().user()).getServiceName());
+      nameLabel.setStyle("-fx-font-weight: bold");
+
+      Hyperlink hostLink = new Hyperlink(service.getUrl().toString());
+      hostLink.setOnAction(
+          e ->
+              KlabIDEApplication.instance()
+                  .getHostServices()
+                  .showDocument(service.getUrl() + "/public/capabilities"));
+
+      Hyperlink apiLink = new Hyperlink("API Documentation");
+      apiLink.setOnAction(
+          e ->
+              KlabIDEApplication.instance()
+                  .getHostServices()
+                  .showDocument(service.getUrl() + "/api.html"));
+
+      tabPane = new TabPane();
+      Tab infoTab = new Tab("Info");
+      infoTab.setClosable(false);
+      VBox infoContent = new VBox(10, nameLabel, hostLink, apiLink);
+      infoContent.setPadding(new Insets(10));
+      infoTab.setContent(infoContent);
+
+      Tab exportTab = new Tab("Export");
+      exportTab.setClosable(false);
+      exportPane = new VBox(10);
+      exportPane.setPadding(new Insets(10));
+
+      schemaSelector = new ComboBox<>();
+      schemaSelector.setPromptText("Select Export Schema");
+      schemaSelector
+          .getItems()
+          .addAll(
+              service
+                  .capabilities(KlabIDEController.modeler().user())
+                  .getExportSchemata()
+                  .keySet());
+      schemaSelector.setOnAction(e -> updateExportForm());
+
+      parameterForm = new VBox(10);
+      dropTarget = new VBox(10);
+      dropTarget.setAlignment(Pos.CENTER);
+      dropTarget.setPrefHeight(200);
+      dropTarget.setStyle(
+          "-fx-border-color: #cccccc; -fx-border-style: dashed; -fx-border-radius: 5;");
+
+      Label dropLabel = new Label("Drop files here");
+      dropTarget.getChildren().add(dropLabel);
+
+      dropTarget.setOnDragOver(
+          event -> {
+            event.acceptTransferModes(TransferMode.COPY);
+            event.consume();
+          });
+
+      dropTarget.setOnDragDropped(
+          event -> {
+            // Handle file drop
+            event.setDropCompleted(true);
+            event.consume();
+          });
+
+      exportPane.getChildren().addAll(schemaSelector, parameterForm, dropTarget);
+      exportTab.setContent(exportPane);
+
+      Tab importTab = new Tab("Import");
+      importTab.setClosable(false);
+      VBox importPane = new VBox(10);
+      importPane.setPadding(new Insets(10));
+
+      ComboBox<String> importSchemaSelector = new ComboBox<>();
+      importSchemaSelector.setPromptText("Select Import Schema");
+      importSchemaSelector
+          .getItems()
+          .addAll(
+              service
+                  .capabilities(KlabIDEController.modeler().user())
+                  .getImportSchemata()
+                  .keySet());
+      importSchemaSelector.setOnAction(e -> updateImportForm());
+
+      VBox importParameterForm = new VBox(10);
+      VBox importDropTarget = new VBox(10);
+      importDropTarget.setAlignment(Pos.CENTER);
+      importDropTarget.setPrefHeight(200);
+      importDropTarget.setStyle(
+          "-fx-border-color: #cccccc; -fx-border-style: dashed; -fx-border-radius: 5;");
+
+      Label importDropLabel = new Label("Drop files here");
+      importDropTarget.getChildren().add(importDropLabel);
+
+      importDropTarget.setOnDragOver(
+          event -> {
+            event.acceptTransferModes(TransferMode.COPY);
+            event.consume();
+          });
+
+      importDropTarget.setOnDragDropped(
+          event -> {
+            event.setDropCompleted(true);
+            event.consume();
+          });
+
+      importPane.getChildren().addAll(importSchemaSelector, importParameterForm, importDropTarget);
+      importTab.setContent(importPane);
+
+      tabPane.getTabs().addAll(infoTab, exportTab, importTab);
+      content.getChildren().add(tabPane);
+
+      card.setBody(content);
+      this.getChildren().add(card);
+    }
+
+    private void updateExportForm() {
+      parameterForm.getChildren().clear();
+      String schema = schemaSelector.getValue();
+      if (schema != null) {
+        var parameters =
+            service
+                .capabilities(KlabIDEController.modeler().user())
+                .getExportSchemata()
+                .get(schema);
+//        for (var parameter : parameters.entrySet()) {
+//          Label label = new Label(parameter.getKey());
+//          TextField input = new TextField();
+//          input.setPromptText(parameter.getValue());
+//          parameterForm.getChildren().addAll(label, input);
+//        }
+      }
+    }
+
+    private void updateImportForm() {
+      parameterForm.getChildren().clear();
+      String schema = schemaSelector.getValue();
+      if (schema != null) {
+        var parameters =
+            service
+                .capabilities(KlabIDEController.modeler().user())
+                .getImportSchemata()
+                .get(schema);
+//        for (var parameter : parameters.entrySet()) {
+//          Label label = new Label(parameter.getKey());
+//          TextField input = new TextField();
+//          input.setPromptText(parameter.getValue());
+//          parameterForm.getChildren().addAll(label, input);
+//        }
+      }
     }
   }
 }

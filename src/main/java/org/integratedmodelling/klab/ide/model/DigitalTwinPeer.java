@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.integratedmodelling.common.logging.Logging;
@@ -153,5 +155,22 @@ public class DigitalTwinPeer {
         && !observation.getObservable().getSemantics().isCollective()) {
       executor.execute(() -> viewers.forEach(v -> v.setContext(observation)));
     }
+  }
+
+  public void closeScope() {
+
+    executor.submit(
+        () -> {
+          viewers.forEach(v -> {
+            v.cleanup();
+          });
+          scope.close();
+        });
+    try {
+      executor.awaitTermination(5, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      // wtf
+    }
+    cleanup();
   }
 }
