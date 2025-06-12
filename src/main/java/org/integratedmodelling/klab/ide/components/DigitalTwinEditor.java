@@ -240,7 +240,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   @Override
   public void setObserver(Observation observation) {}
 
-  public void focusOnAsset(RuntimeAsset asset) {
+  public void selectAsset(RuntimeAsset asset) {
     // TODO we can link the action to the selection and stop here.
     var item = findTreeItemById(root, asset.getId());
     Platform.runLater(

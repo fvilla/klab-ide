@@ -19,6 +19,7 @@ import org.integratedmodelling.klab.api.knowledge.observation.scale.time.Schedul
 import org.integratedmodelling.klab.api.provenance.Activity;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.ide.KlabIDEController;
+import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.api.DigitalTwinViewer;
 import org.integratedmodelling.klab.ide.model.DigitalTwinPeer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
@@ -48,6 +49,7 @@ import java.util.Comparator;
 public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinViewer {
 
   private final ProgressIndicator progressIndicator;
+  private final Label statusLabel;
   private ContextScope scope;
 
   public enum Status {
@@ -101,7 +103,7 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
     resetButton.getStyleClass().addAll(Styles.FLAT, Styles.BUTTON_CIRCLE);
 
     // Status label
-    Label statusLabel = new Label("No target selected");
+    this.statusLabel = new Label("No target selected");
     HBox.setHgrow(statusLabel, Priority.ALWAYS);
     statusLabel.setMaxWidth(Double.MAX_VALUE);
 
@@ -146,13 +148,15 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
         param -> {
           var activity = param.getValue() == null ? null : param.getValue().getValue();
           var ikon = Material2AL.ACCESS_ALARM;
+          var color = Color.GOLDENROD;
           if (activity != null && activity.getOutcome() != null) {
             ikon =
                 activity.getOutcome() == Activity.Outcome.SUCCESS
                     ? Material2AL.CHECK_CIRCLE
                     : Material2AL.ERROR;
+            color = activity.getOutcome() == Activity.Outcome.SUCCESS ? Color.GREEN : Color.RED;
           }
-          var icon = new IconLabel(ikon, 16, Color.GREEN);
+          var icon = new IconLabel(ikon, 16, color);
           return new SimpleObjectProperty<>(icon);
         });
 
@@ -258,7 +262,9 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
   public void submissionFinished(Observation observation) {}
 
   @Override
-  public void setContext(Observation observation) {}
+  public void setContext(Observation observation) {
+    Theme.setLabel(this.statusLabel, observation);
+  }
 
   @Override
   public void setObserver(Observation observation) {}

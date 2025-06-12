@@ -1,7 +1,10 @@
 package org.integratedmodelling.klab.ide;
 
 import atlantafx.base.theme.*;
+import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.paint.Color;
 import org.integratedmodelling.klab.api.data.RepositoryState;
 import org.integratedmodelling.klab.api.data.RuntimeAsset;
@@ -32,6 +35,24 @@ public enum Theme {
 
   Theme(boolean dark) {
     this.dark = dark;
+  }
+
+  public static void setLabel(Label label, RuntimeAsset asset) {
+
+    Platform.runLater(
+        () -> {
+          switch (asset) {
+            case Observation observation -> {
+              label.setText(
+                  observation.getName() == null
+                      ? observation.getObservable().getName()
+                      : observation.getName());
+              label.setGraphic(getGraphics(asset));
+              label.setTooltip(new Tooltip(observation.getObservable().getUrn()));
+            }
+            default -> label.setText("?????");
+          }
+        });
   }
 
   public boolean isDark() {

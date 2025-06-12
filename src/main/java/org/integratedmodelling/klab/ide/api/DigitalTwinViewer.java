@@ -19,10 +19,6 @@ public interface DigitalTwinViewer {
 
   void setObserver(Observation observation);
 
-  //  void activityFinished(Activity activity);
-  //
-  //  void activityStarted(Activity activity);
-
   void knowledgeGraphModified();
 
   void scheduleModified(Schedule schedule);
