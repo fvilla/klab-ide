@@ -29,6 +29,7 @@ import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.scope.UserScope;
 import org.integratedmodelling.klab.api.services.*;
 import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
+import org.integratedmodelling.klab.api.services.runtime.objects.ContextInfo;
 import org.integratedmodelling.klab.ide.KlabIDEApplication;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
@@ -606,8 +607,52 @@ public class Components {
     }
   }
 
-  public static class DigitalTwin extends Node {
-    public DigitalTwin(ContextScope workspace, Consumer<ContextScope> action) {}
+  public static class DigitalTwin extends BaseComponent {
+
+    ContextInfo digitalTwin;
+    Consumer<ContextScope> action;
+
+    public DigitalTwin(ContextInfo digitalTwin, Consumer<ContextScope> action) {
+      super(Type.Object, digitalTwin.getName(), true);
+      this.digitalTwin = digitalTwin;
+      this.action = action;
+    }
+
+    @Override
+    protected void createContent() {
+      var card = new Card();
+      VBox content = new VBox(10);
+      content.setPadding(new Insets(10));
+      content.setPrefWidth(280);
+
+      Label title = new Label(digitalTwin.getName());
+      title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+      //      Label type = new Label("Type: " + digitalTwin.getContextType());
+      //      type.setStyle("-fx-font-size: 12px;");
+
+      Label size =
+          new Label(String.format("Size: %d observations", digitalTwin.getObservationCount()));
+      size.setStyle("-fx-font-size: 12px;");
+
+      TextArea description = new TextArea(digitalTwin.getDescription());
+      description.setWrapText(true);
+      description.setEditable(false);
+      description.setPrefRowCount(3);
+
+      Button openButton = new Button("Open");
+      openButton.setOnAction(
+          e -> {
+            if (action != null) {
+              action.accept(null); // TODO: Get actual context scope
+            }
+          });
+
+      content.getChildren().addAll(title, size, description, openButton);
+
+      card.setBody(content);
+      this.getChildren().add(card);
+    }
   }
 
   /** A component that demonstrates the AutoScrollPane with a list of sample components. */
@@ -896,12 +941,12 @@ public class Components {
                 .capabilities(KlabIDEController.modeler().user())
                 .getExportSchemata()
                 .get(schema);
-//        for (var parameter : parameters.entrySet()) {
-//          Label label = new Label(parameter.getKey());
-//          TextField input = new TextField();
-//          input.setPromptText(parameter.getValue());
-//          parameterForm.getChildren().addAll(label, input);
-//        }
+        //        for (var parameter : parameters.entrySet()) {
+        //          Label label = new Label(parameter.getKey());
+        //          TextField input = new TextField();
+        //          input.setPromptText(parameter.getValue());
+        //          parameterForm.getChildren().addAll(label, input);
+        //        }
       }
     }
 
@@ -914,12 +959,12 @@ public class Components {
                 .capabilities(KlabIDEController.modeler().user())
                 .getImportSchemata()
                 .get(schema);
-//        for (var parameter : parameters.entrySet()) {
-//          Label label = new Label(parameter.getKey());
-//          TextField input = new TextField();
-//          input.setPromptText(parameter.getValue());
-//          parameterForm.getChildren().addAll(label, input);
-//        }
+        //        for (var parameter : parameters.entrySet()) {
+        //          Label label = new Label(parameter.getKey());
+        //          TextField input = new TextField();
+        //          input.setPromptText(parameter.getValue());
+        //          parameterForm.getChildren().addAll(label, input);
+        //        }
       }
     }
   }

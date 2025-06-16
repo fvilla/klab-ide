@@ -1,9 +1,6 @@
 package org.integratedmodelling.klab.ide.components;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import atlantafx.base.theme.Styles;
 import javafx.application.Platform;
@@ -18,6 +15,8 @@ import org.integratedmodelling.klab.api.authentication.CRUDOperation;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.RuntimeService;
+import org.integratedmodelling.klab.api.services.runtime.objects.ContextInfo;
+import org.integratedmodelling.klab.api.utils.Utils;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.integratedmodelling.klab.ide.Theme;
 import org.integratedmodelling.klab.ide.pages.BrowsablePage;
@@ -25,7 +24,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
 
-  private final Map<String, ContextScope> digitalTwins = new HashMap<>();
+  //  private final Map<String, ContextScope> digitalTwins = new HashMap<>();
   private final Map<String, DigitalTwinEditor> openEditors = new HashMap<>();
   private String localServiceId;
 
@@ -48,6 +47,28 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
   @Override
   protected void defineBrowser(VBox browserComponents) {
 
+    final var digitalTwins = new ArrayList<ContextInfo>();
+    KlabIDEController.modeler()
+        .user()
+        .getServices(RuntimeService.class)
+        .forEach(
+            service -> {
+              var sessionInfo = service.getSessionInfo(KlabIDEController.modeler().user());
+              for (var session : sessionInfo) {
+                for (var contextInfo : session.getContexts()) {
+                  digitalTwins.add(contextInfo);
+                }
+              }
+            });
+
+
+
+    digitalTwins.sort(
+        (c1, c2) ->
+            Utils.URLs.isLocalHost(c1.getConfiguration().getUrl())
+                ? -1
+                : c1.getName().compareTo(c2.getName()));
+
     Platform.runLater(
         () -> {
           browserComponents.getChildren().removeAll(components);
@@ -56,19 +77,8 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
           if (workspaceDialog != null) {
             components.add(workspaceDialog);
           }
-          for (var workspace :
-              digitalTwins.values().stream()
-                  //                          .sorted(
-                  //                                  (w1, w2) ->
-                  //                                          localServiceId == null
-                  //                                                  ? 0
-                  //                                                  :
-                  // (localServiceId.equals(w1.getServiceId()))
-                  //                                                  ? -1
-                  //                                                  :
-                  // (localServiceId.equals(w2.getServiceId()) ? 1 : 0))
-                  .toList()) {
-            components.add(new Components.DigitalTwin(workspace, this::showDigitalTwin));
+          for (var dt : digitalTwins) {
+            components.add(new Components.DigitalTwin(dt, this::showDigitalTwin));
           }
           browserComponents.getChildren().addAll(components);
 
@@ -182,6 +192,6 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
   }
 
   public void removeDigitalTwin(ContextScope scope) {
-      // TODO
+    // TODO
   }
 }
