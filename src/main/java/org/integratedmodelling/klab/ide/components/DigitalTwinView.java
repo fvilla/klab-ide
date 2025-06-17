@@ -61,8 +61,6 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
               }
             });
 
-
-
     digitalTwins.sort(
         (c1, c2) ->
             Utils.URLs.isLocalHost(c1.getConfiguration().getUrl())
@@ -78,16 +76,18 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
             components.add(workspaceDialog);
           }
           for (var dt : digitalTwins) {
-            components.add(new Components.DigitalTwin(dt, this::showDigitalTwin));
+            var dtComponent = new Components.DigitalTwin(dt, this::showDigitalTwin);
+            components.add(dtComponent);
+            dtComponent.createContent();
           }
           browserComponents.getChildren().addAll(components);
 
-          var buttonBox = new VBox(5);
-          var newButton = new Button("New Digital Twin");
-          newButton.setOnAction(e -> addDigitalTwin());
-          newButton.setMaxWidth(Double.MAX_VALUE);
-          buttonBox.getChildren().add(newButton);
-          browserComponents.getChildren().add(buttonBox);
+//          var buttonBox = new VBox(5);
+//          var newButton = new Button("New Digital Twin");
+//          newButton.setOnAction(e -> addDigitalTwin());
+//          newButton.setMaxWidth(Double.MAX_VALUE);
+//          buttonBox.getChildren().add(newButton);
+//          browserComponents.getChildren().add(buttonBox);
         });
   }
 

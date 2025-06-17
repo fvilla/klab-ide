@@ -613,7 +613,7 @@ public class Components {
     Consumer<ContextScope> action;
 
     public DigitalTwin(ContextInfo digitalTwin, Consumer<ContextScope> action) {
-      super(Type.Object, digitalTwin.getName(), true);
+      super(Type.Object, digitalTwin.getName(), false);
       this.digitalTwin = digitalTwin;
       this.action = action;
     }
@@ -628,8 +628,24 @@ public class Components {
       Label title = new Label(digitalTwin.getName());
       title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
 
-      //      Label type = new Label("Type: " + digitalTwin.getContextType());
-      //      type.setStyle("-fx-font-size: 12px;");
+      HBox titleBox = new HBox(5);
+      titleBox.setAlignment(Pos.CENTER_LEFT);
+      titleBox.getChildren().add(title);
+
+      if (digitalTwin.getUser() != null && digitalTwin.getUser().contains("@")) {
+        FontIcon federatedIcon = new FontIcon(Material2AL.CLOUD);
+        federatedIcon.setStyle("-fx-font-size: 14px;");
+        Tooltip.install(federatedIcon, new Tooltip("Federated user: " + digitalTwin.getUser()));
+        titleBox.getChildren().add(federatedIcon);
+      }
+
+      Hyperlink url = new Hyperlink(digitalTwin.getConfiguration().getUrl().toString());
+      url.setStyle("-fx-font-size: 10px;");
+      url.setOnAction(
+          e ->
+              KlabIDEApplication.instance()
+                  .getHostServices()
+                  .showDocument(digitalTwin.getConfiguration().getUrl().toString()));
 
       Label size =
           new Label(String.format("Size: %d observations", digitalTwin.getObservationCount()));
@@ -640,15 +656,36 @@ public class Components {
       description.setEditable(false);
       description.setPrefRowCount(3);
 
+      Label persistence =
+          new Label("Persistence: " + digitalTwin.getConfiguration().getPersistence());
+      persistence.setStyle("-fx-font-size: 12px;");
+
       Button openButton = new Button("Open");
       openButton.setOnAction(
           e -> {
             if (action != null) {
-              action.accept(null); // TODO: Get actual context scope
+              action.accept(
+                  KlabIDEController.modeler().connect(digitalTwin.getConfiguration()));
             }
           });
 
-      content.getChildren().addAll(title, size, description, openButton);
+      Button deleteButton = new Button();
+      deleteButton.setGraphic(new FontIcon(Material2MZ.REMOVE_CIRCLE));
+      deleteButton.setOnAction(
+          e -> {
+            // TODO: Implement delete action
+          });
+
+      HBox buttonContainer = new HBox();
+      buttonContainer.setAlignment(Pos.CENTER_LEFT);
+      HBox.setHgrow(buttonContainer, Priority.ALWAYS);
+      buttonContainer.getChildren().add(openButton);
+
+      Region spacer = new Region();
+      HBox.setHgrow(spacer, Priority.ALWAYS);
+      buttonContainer.getChildren().addAll(spacer, deleteButton);
+
+      content.getChildren().addAll(title, url, size, description, persistence, buttonContainer);
 
       card.setBody(content);
       this.getChildren().add(card);
