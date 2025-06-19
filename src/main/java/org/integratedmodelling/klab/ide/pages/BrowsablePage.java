@@ -64,8 +64,6 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
     this.tabPane.getTabs().add(menuTab);
     getChildren().addAll(tabPane, modalPane);
   }
-  
-  
 
   protected Node makeHeader(String title, Runnable addAction) {
 
@@ -96,6 +94,20 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
         });
   }
 
+  public void removeEditor(EditorPage<?> node) {
+    Platform.runLater(
+        () -> {
+          Tab tab =
+              this.tabPane.getTabs().stream()
+                  .filter(t -> t.getContent() == node)
+                  .findFirst()
+                  .orElse(null);
+          if (tab != null) {
+            tab.closableProperty().set(true);
+          }
+        });
+  }
+
   protected abstract void defineBrowser(VBox vBox);
 
   public void hideBrowser() {
@@ -114,8 +126,6 @@ public abstract class BrowsablePage<T extends Node> extends StackPane implements
         });
   }
 
-  
-  
   public void showBrowser() {
 
     if (modalPane.contentProperty().isBound()) {

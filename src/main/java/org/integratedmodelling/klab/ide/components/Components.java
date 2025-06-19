@@ -620,13 +620,18 @@ public class Components {
 
   public static class DigitalTwin extends BaseComponent {
 
+    private final Consumer<ContextScope> deleteAction;
     ContextInfo digitalTwin;
-    Consumer<ContextScope> action;
+    Consumer<ContextScope> selectAction;
 
-    public DigitalTwin(ContextInfo digitalTwin, Consumer<ContextScope> action) {
+    public DigitalTwin(
+        ContextInfo digitalTwin,
+        Consumer<ContextScope> selectAction,
+        Consumer<ContextScope> deleteAction) {
       super(Type.Object, digitalTwin.getName(), false);
       this.digitalTwin = digitalTwin;
-      this.action = action;
+      this.selectAction = selectAction;
+      this.deleteAction = deleteAction;
     }
 
     @Override
@@ -645,8 +650,9 @@ public class Components {
       openButton.setGraphic(new FontIcon(Material2MZ.OPEN_IN_NEW));
       openButton.setOnAction(
           e -> {
-            if (action != null) {
-              action.accept(KlabIDEController.modeler().connect(digitalTwin.getConfiguration()));
+            if (selectAction != null) {
+              selectAction.accept(
+                  KlabIDEController.modeler().connect(digitalTwin.getConfiguration()));
             }
           });
 
@@ -658,10 +664,14 @@ public class Components {
             var peer = KlabIDEController.instance().getDigitalTwinPeer(digitalTwin.getId());
             if (peer != null) {
               peer.closeScope();
+              deleteAction.accept(peer.scope());
             } else {
               var scope = KlabIDEController.modeler().connect(digitalTwin.getConfiguration());
               if (scope != null) {
                 scope.close();
+              }
+              if (deleteAction != null) {
+                deleteAction.accept(scope);
               }
             }
           });

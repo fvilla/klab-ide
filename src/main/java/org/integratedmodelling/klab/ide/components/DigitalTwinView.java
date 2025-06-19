@@ -76,18 +76,19 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
             components.add(workspaceDialog);
           }
           for (var dt : digitalTwins) {
-            var dtComponent = new Components.DigitalTwin(dt, this::showDigitalTwin);
+            var dtComponent =
+                new Components.DigitalTwin(dt, this::showDigitalTwin, this::removeDigitalTwin);
             components.add(dtComponent);
             dtComponent.createContent();
           }
           browserComponents.getChildren().addAll(components);
 
-//          var buttonBox = new VBox(5);
-//          var newButton = new Button("New Digital Twin");
-//          newButton.setOnAction(e -> addDigitalTwin());
-//          newButton.setMaxWidth(Double.MAX_VALUE);
-//          buttonBox.getChildren().add(newButton);
-//          browserComponents.getChildren().add(buttonBox);
+          //          var buttonBox = new VBox(5);
+          //          var newButton = new Button("New Digital Twin");
+          //          newButton.setOnAction(e -> addDigitalTwin());
+          //          newButton.setMaxWidth(Double.MAX_VALUE);
+          //          buttonBox.getChildren().add(newButton);
+          //          browserComponents.getChildren().add(buttonBox);
         });
   }
 
@@ -192,6 +193,10 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
   }
 
   public void removeDigitalTwin(ContextScope scope) {
-    // TODO
+    DigitalTwinEditor ret = null;
+    hideBrowser();
+    if (openEditors.containsKey(scope.getId())) {
+      removeEditor(openEditors.get(scope.getId()));
+    }
   }
 }
