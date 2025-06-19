@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import atlantafx.base.theme.Styles;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -564,12 +566,13 @@ public class Components {
       content.setPadding(new Insets(10));
 
       ComboBox<KlabService> serviceSelector = new ComboBox<>();
-      serviceSelector.setPromptText("Select " + title + " Service");
-
+      serviceSelector.getStyleClass().add("combo-box-no-border");
       // Populate services of specified type
       var services = KlabIDEController.modeler().user().getServices(serviceClass);
 
       serviceSelector.getItems().addAll(services);
+      serviceSelector.setMaxWidth(Double.MAX_VALUE);
+
       final Map<String, KlabService> serviceMap = new HashMap<>();
       services.forEach(service -> serviceMap.put(service.getServiceName(), service));
 
@@ -602,6 +605,14 @@ public class Components {
               });
 
       content.getChildren().add(serviceSelector);
+
+      if (!services.isEmpty()) {
+        serviceSelector.getSelectionModel().selectFirst();
+      } else {
+        serviceSelector.setPlaceholder(
+            new Label("No " + title.toLowerCase() + " services available"));
+      }
+
       tab.setContent(content);
       return tab;
     }
@@ -627,10 +638,44 @@ public class Components {
 
       Label title = new Label(digitalTwin.getName());
       title.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+      title.setMaxWidth(Double.MAX_VALUE);
+
+      Button openButton = new Button();
+      openButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+      openButton.setGraphic(new FontIcon(Material2MZ.OPEN_IN_NEW));
+      openButton.setOnAction(
+          e -> {
+            if (action != null) {
+              action.accept(KlabIDEController.modeler().connect(digitalTwin.getConfiguration()));
+            }
+          });
+
+      Button deleteButton = new Button();
+      deleteButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+      deleteButton.setGraphic(new FontIcon(Material2AL.DELETE_FOREVER));
+      deleteButton.setOnAction(
+          e -> {
+            var peer = KlabIDEController.instance().getDigitalTwinPeer(digitalTwin.getId());
+            if (peer != null) {
+              peer.closeScope();
+            } else {
+              var scope = KlabIDEController.modeler().connect(digitalTwin.getConfiguration());
+              if (scope != null) {
+                scope.close();
+              }
+            }
+          });
+
+      HBox buttonContainer = new HBox();
+      buttonContainer.setAlignment(Pos.CENTER_LEFT);
+      buttonContainer.getChildren().addAll(openButton, deleteButton);
 
       HBox titleBox = new HBox(5);
       titleBox.setAlignment(Pos.CENTER_LEFT);
-      titleBox.getChildren().add(title);
+      HBox.setHgrow(title, Priority.ALWAYS);
+      titleBox.getChildren().addAll(title, buttonContainer);
+
+      HBox.setHgrow(titleBox, Priority.ALWAYS);
 
       if (digitalTwin.getUser() != null && digitalTwin.getUser().contains("@")) {
         FontIcon federatedIcon = new FontIcon(Material2AL.CLOUD);
@@ -660,32 +705,7 @@ public class Components {
           new Label("Persistence: " + digitalTwin.getConfiguration().getPersistence());
       persistence.setStyle("-fx-font-size: 12px;");
 
-      Button openButton = new Button("Open");
-      openButton.setOnAction(
-          e -> {
-            if (action != null) {
-              action.accept(
-                  KlabIDEController.modeler().connect(digitalTwin.getConfiguration()));
-            }
-          });
-
-      Button deleteButton = new Button();
-      deleteButton.setGraphic(new FontIcon(Material2MZ.REMOVE_CIRCLE));
-      deleteButton.setOnAction(
-          e -> {
-            // TODO: Implement delete action
-          });
-
-      HBox buttonContainer = new HBox();
-      buttonContainer.setAlignment(Pos.CENTER_LEFT);
-      HBox.setHgrow(buttonContainer, Priority.ALWAYS);
-      buttonContainer.getChildren().add(openButton);
-
-      Region spacer = new Region();
-      HBox.setHgrow(spacer, Priority.ALWAYS);
-      buttonContainer.getChildren().addAll(spacer, deleteButton);
-
-      content.getChildren().addAll(title, url, size, description, persistence, buttonContainer);
+      content.getChildren().addAll(titleBox, url, size, description, persistence);
 
       card.setBody(content);
       this.getChildren().add(card);

@@ -43,7 +43,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
 
   public DigitalTwinEditor(
       ContextScope contextScope, RuntimeService runtimeService, DigitalTwinView digitalTwinView) {
-    this.controller = KlabIDEController.instance().getDigitalTwinPeer(contextScope);
+    this.controller = KlabIDEController.instance().requireDigitalTwinPeer(contextScope);
     this.controller.register(this);
     this.contextScope = contextScope;
     this.runtimeService = runtimeService;
@@ -167,7 +167,7 @@ public class DigitalTwinEditor extends EditorPage<RuntimeAsset> implements Digit
   @Override
   protected void configureDigitalTwinWidget(DigitalTwinControlPanel digitalTwinMinified) {
     super.configureDigitalTwinWidget(digitalTwinMinified);
-    KlabIDEController.instance().getDigitalTwinPeer(contextScope).register(digitalTwinMinified);
+    KlabIDEController.instance().requireDigitalTwinPeer(contextScope).register(digitalTwinMinified);
   }
 
   @Override

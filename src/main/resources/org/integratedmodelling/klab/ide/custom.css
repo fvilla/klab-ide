@@ -1,0 +1,12 @@
+.combo-box-no-border .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box-no-border .text-field {
+    -fx-background-color: transparent;
+}
+
+.combo-box-no-border .list-cell {
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}

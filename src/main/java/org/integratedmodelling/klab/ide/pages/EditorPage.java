@@ -10,7 +10,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.geometry.Pos;
 import javafx.scene.layout.*;
-import org.integratedmodelling.common.logging.Logging;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.ide.KlabIDEController;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -224,7 +223,7 @@ public abstract class EditorPage<T> extends BorderPane {
     if (!result.isEmpty() && result.get().getButtonData() == ButtonBar.ButtonData.YES) {
       // TODO IT - start at the peer, which deletes the scope. All DT CPs
       //  emptied and minified or moved to previous in stack, then all editors closed
-        KlabIDEController.instance().getDigitalTwinPeer(scope).closeScope();
+        KlabIDEController.instance().requireDigitalTwinPeer(scope).closeScope();
     }
   }
 }

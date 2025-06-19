@@ -7,9 +7,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.controlsfx.control.Notifications;
 import org.integratedmodelling.common.logging.Logging;
 import org.eclipse.xtext.ide.server.ServerLauncher;
 import org.integratedmodelling.klab.api.services.runtime.Notification;
@@ -32,12 +30,12 @@ public class KlabIDEApplication extends Application {
     instance = this;
 
     // Add icons to the stage
-//    stage
-//        .getIcons()
-//        .addAll(
-//            new Image(getClass().getResourceAsStream("/icons/app_16.png")),
-//            new Image(getClass().getResourceAsStream("/icons/app_32.png")),
-//            new Image(getClass().getResourceAsStream("/icons/app_64.png")));
+    //    stage
+    //        .getIcons()
+    //        .addAll(
+    //            new Image(getClass().getResourceAsStream("/icons/app_16.png")),
+    //            new Image(getClass().getResourceAsStream("/icons/app_32.png")),
+    //            new Image(getClass().getResourceAsStream("/icons/app_64.png")));
 
     /*
      * TODO choose theme from settings and expose it to components
@@ -65,6 +63,7 @@ public class KlabIDEApplication extends Application {
 
     FXMLLoader fxmlLoader = new FXMLLoader(KlabIDEApplication.class.getResource("ide.fxml"));
     scene = new Scene(fxmlLoader.load(), 1480, 1060);
+    scene.getStylesheets().add(getClass().getResource("custom.css").toExternalForm());
     stage.setTitle("k.LAB Modeler :: v1.0 pre-alpha :: © 2025 Integrated Modelling Partnership");
     stage.setOnCloseRequest(
         event -> {
@@ -96,13 +95,15 @@ public class KlabIDEApplication extends Application {
       Platform.runLater(
           () -> {
             switch (notification.getLevel()) {
-              case Debug, Info -> NotificationManager.getInstance().showInformation(
-                  notification.getLevel().name(), notification.getMessage());
-              case Warning -> NotificationManager.getInstance().showWarning(
-                  notification.getLevel().name(), notification.getMessage());
+              case Debug, Info ->
+                  NotificationManager.getInstance()
+                      .showInformation(notification.getLevel().name(), notification.getMessage());
+              case Warning ->
+                  NotificationManager.getInstance()
+                      .showWarning(notification.getLevel().name(), notification.getMessage());
               case Error, SystemError -> {
-                NotificationManager.getInstance().showError(
-                    notification.getLevel().name(), notification.getMessage());
+                NotificationManager.getInstance()
+                    .showError(notification.getLevel().name(), notification.getMessage());
               }
             }
           });

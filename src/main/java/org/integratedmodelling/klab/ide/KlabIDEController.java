@@ -110,8 +110,12 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
     createModeler();
   }
 
-  public DigitalTwinPeer getDigitalTwinPeer(ContextScope scope) {
+  public DigitalTwinPeer requireDigitalTwinPeer(ContextScope scope) {
     return digitalTwinPeerMap.computeIfAbsent(scope.getId(), id -> new DigitalTwinPeer(scope));
+  }
+
+  public DigitalTwinPeer getDigitalTwinPeer(String id) {
+    return digitalTwinPeerMap.get(id);
   }
 
   public void setDigitalTwinPeer(String id, DigitalTwinPeer peer) {

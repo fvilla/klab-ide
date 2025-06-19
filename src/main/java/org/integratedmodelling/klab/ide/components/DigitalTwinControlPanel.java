@@ -25,7 +25,6 @@ import org.integratedmodelling.klab.ide.model.DigitalTwinPeer;
 import org.integratedmodelling.klab.ide.pages.EditorPage;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
@@ -243,7 +242,7 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
           //          scenarioBox.getItems().clear();
         });
     this.scope = scope;
-    this.controller = KlabIDEController.instance().getDigitalTwinPeer(scope);
+    this.controller = KlabIDEController.instance().requireDigitalTwinPeer(scope);
     this.controller.register(this);
     // TODO define the full interface and bind the controller
   }

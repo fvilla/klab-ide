@@ -143,7 +143,7 @@ public class KnowledgeGraphView extends BorderPane implements DigitalTwinViewer 
                   }
                 });
 
-    KlabIDEController.instance().getDigitalTwinPeer(scope).register(this);
+    KlabIDEController.instance().requireDigitalTwinPeer(scope).register(this);
   }
 
   private void initializeGraphView() {
@@ -163,7 +163,7 @@ public class KnowledgeGraphView extends BorderPane implements DigitalTwinViewer 
                   asset = wrapper.getDelegate();
                 }
                 this.editor.selectAsset(asset);
-                KlabIDEController.instance().getDigitalTwinPeer(this.scope).focus(asset);
+                KlabIDEController.instance().requireDigitalTwinPeer(this.scope).focus(asset);
               });
 
       graphView.setEdgeDoubleClickAction(
