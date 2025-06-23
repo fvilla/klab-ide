@@ -652,7 +652,7 @@ public class Components {
           e -> {
             if (selectAction != null) {
               selectAction.accept(
-                  KlabIDEController.modeler().connect(digitalTwin.getConfiguration()));
+                  KlabIDEController.modeler().user().connect(digitalTwin.getConfiguration()));
             }
           });
 
@@ -666,7 +666,8 @@ public class Components {
               peer.closeScope();
               deleteAction.accept(peer.scope());
             } else {
-              var scope = KlabIDEController.modeler().connect(digitalTwin.getConfiguration());
+              var scope =
+                  KlabIDEController.modeler().user().connect(digitalTwin.getConfiguration());
               if (scope != null) {
                 scope.close();
               }
