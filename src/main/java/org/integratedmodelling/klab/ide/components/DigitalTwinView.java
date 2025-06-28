@@ -55,9 +55,7 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
             service -> {
               var sessionInfo = service.getSessionInfo(KlabIDEController.modeler().user());
               for (var session : sessionInfo) {
-                for (var contextInfo : session.getContexts()) {
-                  digitalTwins.add(contextInfo);
-                }
+                  digitalTwins.addAll(session.getContexts());
               }
             });
 

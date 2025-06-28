@@ -30,6 +30,10 @@ import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 
 import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Controlled by the DT peer installed in the main IDE controller.
@@ -303,25 +307,39 @@ public class DigitalTwinControlPanel extends BorderPane implements DigitalTwinVi
 
   @Override
   public void activitiesModified(Graph<Activity, DefaultEdge> activityGraph) {
+    // Create defensive copies of the data to avoid ConcurrentModificationException
+    var vertices = new ArrayList<>(activityGraph.vertexSet());
+    var rootActivities = vertices.stream()
+        .filter(activity -> activityGraph.incomingEdgesOf(activity).isEmpty())
+        .sorted(Comparator.comparingLong(Activity::getStart))
+        .toList();
+    
+    // Create a snapshot of the graph structure for each activity
+    var activityChildren = new HashMap<Activity, List<Activity>>();
+    for (Activity activity : vertices) {
+      var children = activityGraph.outgoingEdgesOf(activity).stream()
+          .map(activityGraph::getEdgeTarget)
+          .toList();
+      activityChildren.put(activity, children);
+    }
+    
     Platform.runLater(
         () -> {
           treeTableView.getRoot().getChildren().clear();
-          var roots =
-              activityGraph.vertexSet().stream()
-                  .filter(activity -> activityGraph.incomingEdgesOf(activity).isEmpty())
-                  .sorted(Comparator.comparingLong(Activity::getStart))
-                  .toList();
-          for (Activity activity : roots) {
-            treeTableView.getRoot().getChildren().add(makeItem(activity, activityGraph));
+          for (Activity activity : rootActivities) {
+            treeTableView.getRoot().getChildren().add(makeItem(activity, activityChildren));
           }
         });
   }
 
   private TreeItem<Activity> makeItem(
-      Activity activity, Graph<Activity, DefaultEdge> activityGraph) {
+      Activity activity, Map<Activity, List<Activity>> activityChildren) {
     TreeItem<Activity> ret = new TreeItem<>(activity);
-    for (var child : activityGraph.outgoingEdgesOf(activity)) {
-      ret.getChildren().add(makeItem(activityGraph.getEdgeTarget(child), activityGraph));
+    List<Activity> children = activityChildren.get(activity);
+    if (children != null) {
+      for (Activity child : children) {
+        ret.getChildren().add(makeItem(child, activityChildren));
+      }
     }
     return ret;
   }
