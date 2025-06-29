@@ -656,6 +656,19 @@ public class Components {
             }
           });
 
+      Button linkButton = new Button();
+      linkButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
+      linkButton.setGraphic(new FontIcon(Material2AL.CONTENT_COPY));
+      linkButton.setOnAction(
+          e -> {
+            if (selectAction != null) {
+              final var clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+              final var ct = new javafx.scene.input.ClipboardContent();
+              ct.putString(digitalTwin.getConfiguration().getUrl().toString());
+              clipboard.setContent(ct);
+            }
+          });
+
       Button deleteButton = new Button();
       deleteButton.getStyleClass().addAll(Styles.BUTTON_CIRCLE, Styles.FLAT);
       deleteButton.setGraphic(new FontIcon(Material2AL.DELETE_FOREVER));
@@ -678,8 +691,9 @@ public class Components {
           });
 
       HBox buttonContainer = new HBox();
+      buttonContainer.setSpacing(0);
       buttonContainer.setAlignment(Pos.CENTER_LEFT);
-      buttonContainer.getChildren().addAll(openButton, deleteButton);
+      buttonContainer.getChildren().addAll(openButton, linkButton, deleteButton);
 
       HBox titleBox = new HBox(5);
       titleBox.setAlignment(Pos.CENTER_LEFT);
