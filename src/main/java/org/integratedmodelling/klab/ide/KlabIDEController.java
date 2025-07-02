@@ -23,9 +23,7 @@ import org.integratedmodelling.klab.api.identities.UserIdentity;
 import org.integratedmodelling.klab.api.knowledge.observation.Observation;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.scope.UserScope;
-import org.integratedmodelling.klab.api.services.KlabService;
-import org.integratedmodelling.klab.api.services.ResourcesService;
-import org.integratedmodelling.klab.api.services.RuntimeService;
+import org.integratedmodelling.klab.api.services.*;
 import org.integratedmodelling.klab.api.services.resources.ResourceSet;
 import org.integratedmodelling.klab.api.services.runtime.Message;
 import org.integratedmodelling.klab.api.services.runtime.Notification;
@@ -408,6 +406,8 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
    */
   private void checkServices(UserScope user, Engine.Status status) {
 
+    int nLocalServices = 0;
+
     for (var serviceType :
         List.of(
             KlabService.Type.RESOURCES,
@@ -429,6 +429,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
                   : Theme.REMOTE_SERVICE_ICON_ONE;
         } else {
           tooltip = "Local " + serviceName;
+          nLocalServices++;
         }
 
       var button =
@@ -512,8 +513,62 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   public void engineStatusChanged(Engine.Status status) {
     // This only gets called when the status has changed.
     Logging.INSTANCE.info("" + status);
+
     if (status.isAvailable()) {
-      setButton(startButton, Material2MZ.STOP, 16, Color.DARKRED, "Click to stop the services");
+
+      if (distribution != null) {
+        var localServicesCount =
+            modeler().user().getServices(Reasoner.class).stream()
+                    .filter(s -> Utils.URLs.isLocalHost(s.getUrl()))
+                    .count()
+                + modeler().user().getServices(RuntimeService.class).stream()
+                    .filter(s -> Utils.URLs.isLocalHost(s.getUrl()))
+                    .count()
+                + modeler().user().getServices(Resolver.class).stream()
+                    .filter(s -> Utils.URLs.isLocalHost(s.getUrl()))
+                    .count()
+                + modeler().user().getServices(ResourcesService.class).stream()
+                    .filter(s -> Utils.URLs.isLocalHost(s.getUrl()))
+                    .count();
+
+        var localOperationalCount =
+            modeler().user().getServices(Reasoner.class).stream()
+                    .filter(s -> s.status().isOperational() && Utils.URLs.isLocalHost(s.getUrl()))
+                    .count()
+                + modeler().user().getServices(RuntimeService.class).stream()
+                    .filter(s -> s.status().isOperational() && Utils.URLs.isLocalHost(s.getUrl()))
+                    .count()
+                + modeler().user().getServices(Resolver.class).stream()
+                    .filter(s -> s.status().isOperational() && Utils.URLs.isLocalHost(s.getUrl()))
+                    .count()
+                + modeler().user().getServices(ResourcesService.class).stream()
+                    .filter(s -> s.status().isOperational() && Utils.URLs.isLocalHost(s.getUrl()))
+                    .count();
+
+        if (localServicesCount == 0) {
+          setButton(
+              startButton,
+              Material2MZ.POWER_SETTINGS_NEW,
+              16,
+              Color.GREEN,
+              "Local services are not running. Click to start them.");
+        } else if (localServicesCount >= 4 && localOperationalCount >= 4) {
+          setButton(
+              startButton,
+              Material2MZ.STOP,
+              16,
+              Color.DARKRED,
+              "Local services are running. Click to stop them.");
+        } else {
+          setButton(
+              startButton,
+              Material2AL.ACCESS_TIME,
+              16,
+              Color.DARKGOLDENROD,
+              "Local services are starting or stopping. Wait until status changes.");
+        }
+      }
+
       this.engineStarted.set(true);
     }
 

@@ -23,6 +23,7 @@ public class KlabIDEApplication extends Application {
 
   private Thread lspThread;
   private boolean inspectorShown;
+  private NotificationManager notificationManager;
 
   @Override
   public void start(Stage stage) throws IOException {
@@ -71,10 +72,10 @@ public class KlabIDEApplication extends Application {
           System.exit(0);
         });
     stage.setScene(scene);
-    stage.show();
-
     // Initialize the notification manager
-    NotificationManager.getInstance().initialize(scene);
+    this.notificationManager = new NotificationManager(scene);
+
+    stage.show();
   }
 
   /**
@@ -96,14 +97,14 @@ public class KlabIDEApplication extends Application {
           () -> {
             switch (notification.getLevel()) {
               case Debug, Info ->
-                  NotificationManager.getInstance()
-                      .showInformation(notification.getLevel().name(), notification.getMessage());
+                  notificationManager.showInformation(
+                      notification.getLevel().name(), notification.getMessage());
               case Warning ->
-                  NotificationManager.getInstance()
-                      .showWarning(notification.getLevel().name(), notification.getMessage());
+                  notificationManager.showWarning(
+                      notification.getLevel().name(), notification.getMessage());
               case Error, SystemError -> {
-                NotificationManager.getInstance()
-                    .showError(notification.getLevel().name(), notification.getMessage());
+                notificationManager.showError(
+                    notification.getLevel().name(), notification.getMessage());
               }
             }
           });

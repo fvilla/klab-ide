@@ -1084,11 +1084,19 @@ public class Components {
                     () -> {
                       var asset =
                           file.get() == null ? schema.asset(userInput) : schema.asset(file.get());
+                      if (asset.isEmpty()) {
+                        KlabIDEApplication.instance()
+                            .handleNotifications(
+                                List.of(
+                                    Notification.error(
+                                        "Import failed: specifications are incomplete")));
+                        return;
+                      }
                       var urn =
                           service.importAsset(
                               schema, asset, null, KlabIDEController.modeler().user());
                       var notification =
-                          urn == null
+                          (urn == null || urn.isEmpty())
                               ? Notification.error("Import failed")
                               : Notification.info("Import successful: URN is " + urn);
                       KlabIDEApplication.instance().handleNotifications(List.of(notification));
