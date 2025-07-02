@@ -286,13 +286,13 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
                   () -> {
                     engineTransitioning.set(true);
                     if (engineStarted.get()) {
-                      engineStarted.set(false);
+//                      engineStarted.set(false);
                       setButton(
                           startButton,
                           Material2AL.ACCESS_TIME,
                           16,
                           Color.DARKGOLDENROD,
-                          "Wait while the services are stopping");
+                          "Wait while local services are stopping");
                       KlabIDEController.modeler().engine().stopLocalServices();
                       setButton(
                           startButton,
@@ -306,8 +306,8 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
                           Material2AL.ACCESS_TIME,
                           16,
                           Color.DARKGOLDENROD,
-                          "Wait while the services are starting");
-                      engineStarted.set(true);
+                          "Wait while local services are starting");
+//                      engineStarted.set(true);
                       KlabIDEController.modeler().engine().startLocalServices();
                     }
                     engineTransitioning.set(false);
@@ -400,7 +400,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
   /**
    * If single service in the cloud, use BootstrapIcons.CLOUDY_FILL If multiple services in the
    * cloud, use BootstrapIcons.CLOUDS_FILL If local service, use Material2AL.DONUT_SMALL All with
-   * the color from Theme
+   * the color from Theme. If Local + Remote available, decide what to do.
    *
    * @param user
    */
@@ -444,13 +444,21 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
       var color =
           switch (serviceType) {
             case REASONER ->
-                engineStarted.get() ? Theme.REASONER_COLOR_ACTIVE : Theme.REASONER_COLOR_MUTED;
+                service.status().isOperational()
+                    ? Theme.REASONER_COLOR_ACTIVE
+                    : Theme.REASONER_COLOR_MUTED;
             case RESOURCES ->
-                engineStarted.get() ? Theme.RESOURCES_COLOR_ACTIVE : Theme.RESOURCES_COLOR_MUTED;
+                service.status().isOperational()
+                    ? Theme.RESOURCES_COLOR_ACTIVE
+                    : Theme.RESOURCES_COLOR_MUTED;
             case RESOLVER ->
-                engineStarted.get() ? Theme.RESOLVER_COLOR_ACTIVE : Theme.RESOLVER_COLOR_MUTED;
+                service.status().isOperational()
+                    ? Theme.RESOLVER_COLOR_ACTIVE
+                    : Theme.RESOLVER_COLOR_MUTED;
             case RUNTIME ->
-                engineStarted.get() ? Theme.RUNTIME_COLOR_ACTIVE : Theme.RUNTIME_COLOR_MUTED;
+                service.status().isOperational()
+                    ? Theme.RUNTIME_COLOR_ACTIVE
+                    : Theme.RUNTIME_COLOR_MUTED;
             default -> throw new KlabInternalErrorException("?"); // can't happen
           };
 
@@ -567,9 +575,9 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
               Color.DARKGOLDENROD,
               "Local services are starting or stopping. Wait until status changes.");
         }
-      }
 
-      this.engineStarted.set(true);
+        this.engineStarted.set(localOperationalCount > 0);
+      }
     }
 
     /**

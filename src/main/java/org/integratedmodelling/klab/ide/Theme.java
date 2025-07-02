@@ -109,6 +109,8 @@ public enum Theme {
   public static final Ikon LOCAL_SERVICE_ICON = Material2AL.DONUT_SMALL;
   public static final Ikon REMOTE_SERVICE_ICON_ONE = BootstrapIcons.CLOUDS_FILL;
   public static final Ikon REMOTE_SERVICE_ICON_MANY = BootstrapIcons.CLOUDS;
+  public static final Ikon LOCAL_AND_REMOTE_SERVICE_ICON_ONE = BootstrapIcons.CLOUDS;
+  public static final Ikon LOCAL_AND_REMOTE_SERVICE_ICON_MANY = BootstrapIcons.CLOUDS;
 
   public static Ikon getIcon(KlabAsset.KnowledgeClass knowledgeClass) {
     return switch (knowledgeClass) {

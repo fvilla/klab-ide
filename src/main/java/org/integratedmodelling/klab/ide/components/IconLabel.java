@@ -32,4 +32,5 @@ public class IconLabel extends Label {
       setText(symbol);
     }
   }
+
 }
