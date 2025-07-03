@@ -929,10 +929,11 @@ public class Components {
                   .showDocument(service.getUrl() + "/api.html"));
 
       tabPane = new TabPane();
+      tabPane.setBorder(Border.EMPTY);
       Tab infoTab = new Tab("Info");
       infoTab.setClosable(false);
       VBox infoContent = new VBox(10, nameLabel, hostLink, apiLink);
-      infoContent.setPadding(new Insets(10));
+//      infoContent.setPadding(new Insets(10));
       infoTab.setContent(infoContent);
 
       //      Tab exportTab = new Tab("Export");
@@ -951,8 +952,8 @@ public class Components {
       //                  .keySet());
       //      schemaSelector.setOnAction(e -> updateExportForm());
 
-      parameterForm = new VBox(10);
-      parameterForm.setSpacing(10);
+      parameterForm = new VBox(2);
+//      parameterForm.setSpacing(10);
 
       ScrollPane scrollPane = new ScrollPane();
       scrollPane.setContent(parameterForm);
