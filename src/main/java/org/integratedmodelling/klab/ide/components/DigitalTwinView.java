@@ -15,6 +15,7 @@ import org.integratedmodelling.klab.api.authentication.CRUDOperation;
 import org.integratedmodelling.klab.api.scope.ContextScope;
 import org.integratedmodelling.klab.api.services.ResourcesService;
 import org.integratedmodelling.klab.api.services.RuntimeService;
+import org.integratedmodelling.klab.api.services.resources.ResourceInfo;
 import org.integratedmodelling.klab.api.services.runtime.objects.ContextInfo;
 import org.integratedmodelling.klab.api.utils.Utils;
 import org.integratedmodelling.klab.ide.KlabIDEController;
@@ -44,26 +45,35 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
   @Override
   public void reset() {}
 
+  public List<RuntimeService> getServices() {
+    return KlabIDEController.modeler().user().getServices(RuntimeService.class).stream()
+        /* .filter(
+        s ->
+            s.capabilities(KlabIDEController.modeler().user())
+                .getPermissions()
+                .contains(CRUDOperation.CREATE))*/
+        .sorted(
+            (s1, s2) ->
+                Utils.URLs.isLocalHost(s1.getUrl()) && !Utils.URLs.isLocalHost(s2.getUrl())
+                    ? -1
+                    : (Utils.URLs.isLocalHost(s2.getUrl()) ? 0 : 1))
+        .toList();
+  }
+
+  public List<ContextInfo> getContextList() {
+    List<ContextInfo> ret = new ArrayList<>();
+    for (var rService : getServices()) {
+      for (var workspace : rService.getSessionInfo(KlabIDEController.modeler().user())) {
+        for (var context : workspace.getContexts()) {
+          ret.addAll(workspace.getContexts());
+        }
+      }
+    }
+    return ret;
+  }
+
   @Override
   protected void defineBrowser(VBox browserComponents) {
-
-    final var digitalTwins = new ArrayList<ContextInfo>();
-    KlabIDEController.modeler()
-        .user()
-        .getServices(RuntimeService.class)
-        .forEach(
-            service -> {
-              var sessionInfo = service.getSessionInfo(KlabIDEController.modeler().user());
-              for (var session : sessionInfo) {
-                  digitalTwins.addAll(session.getContexts());
-              }
-            });
-
-    digitalTwins.sort(
-        (c1, c2) ->
-            Utils.URLs.isLocalHost(c1.getConfiguration().getUrl())
-                ? -1
-                : c1.getName().compareTo(c2.getName()));
 
     Platform.runLater(
         () -> {
@@ -73,20 +83,14 @@ public class DigitalTwinView extends BrowsablePage<DigitalTwinEditor> {
           if (workspaceDialog != null) {
             components.add(workspaceDialog);
           }
-          for (var dt : digitalTwins) {
+          for (var dt : getContextList()) {
+            // TODO skip the opened ones
             var dtComponent =
                 new Components.DigitalTwin(dt, this::showDigitalTwin, this::removeDigitalTwin);
             components.add(dtComponent);
             dtComponent.createContent();
           }
           browserComponents.getChildren().addAll(components);
-
-          //          var buttonBox = new VBox(5);
-          //          var newButton = new Button("New Digital Twin");
-          //          newButton.setOnAction(e -> addDigitalTwin());
-          //          newButton.setMaxWidth(Double.MAX_VALUE);
-          //          buttonBox.getChildren().add(newButton);
-          //          browserComponents.getChildren().add(buttonBox);
         });
   }
 

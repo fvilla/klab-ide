@@ -587,7 +587,7 @@ public class KlabIDEController implements UIView, ServicesView, RuntimeView {
      */
     checkServices(modeler().user(), status);
 
-    this.workspaceView.updateServices(status);
+//    this.workspaceView.updateServices(status);
   }
 
   @Override

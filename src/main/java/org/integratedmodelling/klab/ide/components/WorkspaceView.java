@@ -44,7 +44,7 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
 
   private final Map<String, ResourceInfo> workspaces = new HashMap<>();
   private final Map<String, WorkspaceEditor> openEditors = new HashMap<>();
-  private final Map<ResourceInfo, ResourcesService> services = new HashMap<>();
+  //  private final Map<ResourceInfo, ResourcesService> services = new HashMap<>();
   private String localServiceId;
   private List<Node> components = new ArrayList<>();
   private Node workspaceDialog;
@@ -67,6 +67,32 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
   @Override
   public void reset() {}
 
+  public List<ResourcesService> getServices() {
+    return KlabIDEController.modeler().user().getServices(ResourcesService.class).stream()
+        /* .filter(
+        s ->
+            s.capabilities(KlabIDEController.modeler().user())
+                .getPermissions()
+                .contains(CRUDOperation.CREATE))*/
+        .sorted(
+            (s1, s2) ->
+                Utils.URLs.isLocalHost(s1.getUrl()) && !Utils.URLs.isLocalHost(s2.getUrl())
+                    ? -1
+                    : (Utils.URLs.isLocalHost(s2.getUrl()) ? 0 : 1))
+        .toList();
+  }
+
+  public List<ResourceInfo> getWorkspaceList() {
+    List<ResourceInfo> ret = new ArrayList<>();
+    for (var rService : getServices()) {
+      for (var workspace :
+          rService.capabilities(KlabIDEController.modeler().user()).getWorkspaceNames()) {
+        ret.add(rService.resourceInfo(workspace, KlabIDEController.modeler().user()));
+      }
+    }
+    return ret;
+  }
+
   @Override
   protected void defineBrowser(VBox browserComponents) {
 
@@ -78,16 +104,7 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
           if (workspaceDialog != null) {
             components.add(workspaceDialog);
           }
-          for (var workspace :
-              workspaces.values().stream()
-                  .sorted(
-                      (w1, w2) ->
-                          localServiceId == null
-                              ? 0
-                              : (localServiceId.equals(w1.getServiceId()))
-                                  ? -1
-                                  : (localServiceId.equals(w2.getServiceId()) ? 1 : 0))
-                  .toList()) {
+          for (var workspace : getWorkspaceList()) {
             components.add(new Components.Resource(workspace, this::raiseWorkspace));
           }
           browserComponents.getChildren().addAll(components);
@@ -191,27 +208,19 @@ public class WorkspaceView extends BrowsablePage<WorkspaceEditor> {
           .get(resourceInfo.getUrn())
           .requestFocus(); // FIXME must remember the tabs and select(tab) - in both cases
     } else {
-      var newEditor = new WorkspaceEditor(services.get(resourceInfo), resourceInfo, this);
+      var service =
+          KlabIDEController.modeler()
+              .user()
+              .getService(
+                  ResourcesService.class, s -> resourceInfo.getServiceId().equals(s.serviceId()));
+
+      // TODO handle the unlikely case that the service is unavailable. That will throw an exception
+      //  from getService
+
+      var newEditor = new WorkspaceEditor(service, resourceInfo, this);
       openEditors.put(resourceInfo.getUrn(), newEditor);
       addEditor(newEditor, resourceInfo.getUrn(), new FontIcon(Theme.WORKSPACE_ICON));
     }
   }
 
-  public synchronized void updateServices(Engine.Status status) {
-    if (status.isAvailable()) {
-      workspaces.clear();
-      for (var rService : KlabIDEController.modeler().user().getServices(ResourcesService.class)) {
-        var capabilities = rService.capabilities(KlabIDEController.modeler().user());
-        if (Utils.URLs.isLocalHost(capabilities.getUrl())) {
-          this.localServiceId = capabilities.getServiceId();
-        }
-        for (var workspace : capabilities.getWorkspaceNames()) {
-          var resourceInfo = rService.resourceInfo(workspace, KlabIDEController.modeler().user());
-          workspaces.put(workspace, resourceInfo);
-          services.put(resourceInfo, rService);
-        }
-      }
-    }
-    Logging.INSTANCE.info(workspaces);
-  }
 }
